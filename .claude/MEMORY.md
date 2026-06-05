@@ -46,6 +46,9 @@ host. This repo is configuration + scripts, not application code.
   Prometheus/blackbox probe up/down; an "Ollama down" alert DMs Telegram
   (`monitoring/.env` + generated `contactpoints.yaml`, both gitignored). No
   docker.sock mount (security).
+- **Redis** (`redis/`): shared, password-protected, loopback-only (`127.0.0.1:6379`)
+  on the external `hermes-shared` Docker network for current/future containers.
+  Separate from SearXNG's Valkey. Password in `redis/.env` (gitignored).
 - **Host services** are optional user-installed launchd agents
   (`scripts/install-host-services.sh`): Ollama as a managed service, stacks
   autostart, daily backup. Run by the user (persistence needs explicit consent).

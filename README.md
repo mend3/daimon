@@ -44,8 +44,10 @@ searxng/
   docker-compose.yml  # local web-search engine for the web toolset
   settings.yml.example
 monitoring/
-  docker-compose.yml  # Grafana + Loki + Promtail observability stack
-  loki/, promtail/, grafana/   # configs + provisioned live dashboard
+  docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox
+  loki/, promtail/, grafana/   # configs + provisioned dashboard + Ollama-down alert
+redis/
+  docker-compose.yml  # shared, password-protected Redis (hermes-shared network)
 scripts/
   setup-ollama-host.sh     # HOST: install Ollama + pull chat & vision models
   setup-searxng-host.sh    # HOST: start local SearXNG

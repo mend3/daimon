@@ -14,3 +14,4 @@ docker info >/dev/null 2>&1 || { echo "docker not ready; giving up"; exit 0; }
 
 docker compose -f "${REPO}/searxng/docker-compose.yml" up -d || true
 docker compose -f "${REPO}/monitoring/docker-compose.yml" up -d || true
+[ -f "${REPO}/redis/.env" ] && docker compose -f "${REPO}/redis/docker-compose.yml" up -d || true

@@ -15,6 +15,9 @@ searxng/settings.yml
 monitoring/.env
 monitoring/grafana/provisioning/alerting/contactpoints.yaml
 
+# Redis password
+redis/.env
+
 # Ephemeral session context and Claude Code runtime artifacts
 .claude/SESSION.md
 .claude/*.lock
