@@ -174,7 +174,7 @@
           "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 12, "w": 12, "x": 0, "y": 41 },
           "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending" },
-          "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes\"} |~ `inbound message|response ready|Sending response` |~ `(?i)$search`", "queryType": "range" } ]
+          "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes\", filename=\"/hermes/logs/agent.log\"} |~ `inbound message|response ready|Sending response` |~ `(?i)$search`", "queryType": "range" } ]
         },
         {
           "id": 42, "type": "logs", "title": "🧠 Ollama (requisições / carga de modelo)",

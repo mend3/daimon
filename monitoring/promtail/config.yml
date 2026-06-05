@@ -9,13 +9,15 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # Hermes agent + gateway logs, read from the hermes-data volume.
+  # Hermes logs. agent.log is the superset (gateway.log duplicates it; gw.log/
+  # gui.log are empty; *-diag.log are one-time), so scrape only agent.log to
+  # avoid duplicate lines and noise.
   - job_name: hermes
     static_configs:
       - targets: [localhost]
         labels:
           source: hermes
-          __path__: /hermes/logs/*.log
+          __path__: /hermes/logs/agent.log
     pipeline_stages:
       - match:
           selector: '{source="hermes"}'
