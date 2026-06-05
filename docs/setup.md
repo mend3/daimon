@@ -164,6 +164,30 @@ The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). Manage access with
 `hermes pairing approve|revoke|list` or by editing `TELEGRAM_ALLOWED_USERS`. The
 token lives in `~/.hermes/.env`, never in the repo.
 
+### Branding & avatar
+
+`scripts/setup-telegram-branding.sh` (run in the container) sets Ella's bot name,
+descriptions, and menu button via the Bot API. The command menu itself is managed
+by Hermes.
+
+The profile photo can only be set through **@BotFather → `/setuserpic`** (the Bot
+API has no method for it). Generate an avatar — face-focused so it reads at small
+size, warm and intelligent, not sexualized — and upload it there. A starting prompt
+(≈80% *Her*'s Samantha warmth, 20% JARVIS competence):
+
+> Head-and-shoulders portrait of a warm, intelligent young woman in her mid-twenties:
+> long copper-red hair loosely braided in a few subtle strands, very expressive
+> emerald-green eyes, fair skin, a soft discreet smile. She looks directly at the
+> viewer with calm, quiet confidence — approachable and clearly intelligent. Warm
+> amber light with a faint cool-blue rim; minimal holographic particles drifting
+> softly around her, suggesting a living AI without overpowering the face. Sleek
+> minimalist dark top. Cinematic realism, premium AI-assistant brand identity, clean
+> background, centered composition, soft depth of field, highly detailed natural face
+> and eyes. No weapons, armor, fantasy, robotic features, or sexualization. Reads well
+> as a small circular avatar.
+
+Negative prompt: `robot, android, helmet, armor, weapon, fantasy, anime, over-stylized, cleavage, sexualized, busy background, text, watermark, logo`.
+
 ## Monitoring
 
 `./scripts/setup-monitoring-host.sh` brings up the stack; open
