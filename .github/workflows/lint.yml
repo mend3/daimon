@@ -1,0 +1,23 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: shellcheck --severity=warning $(git ls-files '*.sh')
+
+      - name: yamllint
+        run: |
+          pipx install yamllint
+          yamllint .
+
+      - name: Validate dashboard JSON
+        run: python3 -c "import json; json.load(open('monitoring/grafana/dashboards/hermes.json'))"

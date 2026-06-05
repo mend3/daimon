@@ -18,7 +18,7 @@ echo "==> Starting Redis"
 docker compose up -d
 
 echo "==> Waiting for Redis"
-for i in $(seq 1 15); do
+for _ in $(seq 1 15); do
   if [ "$(docker inspect -f '{{.State.Health.Status}}' hermes-redis 2>/dev/null)" = "healthy" ]; then
     echo "    OK - Redis healthy on 127.0.0.1:6379 (network: hermes-shared)"
     exit 0

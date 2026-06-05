@@ -1,0 +1,15 @@
+# Lint for real YAML problems, not style. Compose/provisioning files have long
+# lines and inline scripts that strict defaults would reject.
+extends: default
+
+rules:
+  line-length: disable
+  document-start: disable
+  comments-indentation: disable
+  truthy:
+    check-keys: false   # allow GitHub Actions `on:`
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: consistent
+    indent-sequences: whatever

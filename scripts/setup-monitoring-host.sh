@@ -27,9 +27,9 @@ echo "==> Starting monitoring stack"
 docker compose up -d
 
 echo "==> Waiting for Grafana"
-for i in $(seq 1 30); do
+for _ in $(seq 1 30); do
   if curl -fsS --max-time 3 http://localhost:3000/api/health >/dev/null 2>&1; then
-    echo "    OK - Grafana up at http://localhost:3000 (dashboard: Hermes — Atividade ao vivo)"
+    echo "    OK - Grafana up at http://localhost:3000 (dashboard: Hermes — Live Activity)"
     exit 0
   fi
   sleep 2

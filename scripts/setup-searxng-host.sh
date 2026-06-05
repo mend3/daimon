@@ -24,7 +24,7 @@ echo "==> Starting SearXNG"
 docker compose up -d
 
 echo "==> Waiting for the JSON API"
-for i in $(seq 1 20); do
+for _ in $(seq 1 20); do
   if curl -fsS --max-time 3 "http://localhost:8888/search?q=test&format=json" >/dev/null 2>&1; then
     echo "    OK - SearXNG JSON API is up on http://localhost:8888"
     exit 0
