@@ -175,8 +175,8 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
 
 - **Secrets:** real secrets go in `~/.hermes/.env` inside the container (seeded
   from `config/.env.example`). `config/.env` is git-ignored.
-- **Web search** is off by default (no API keys). To enable, set a backend in
-  `config.yaml` and the matching key in `.env` — e.g. a local SearXNG via
-  `SEARXNG_URL=http://host.docker.internal:8080`.
+- **Web search** runs against the local SearXNG (`web.backend: searxng`,
+  `SEARXNG_URL=http://host.docker.internal:8888`). Swap in a hosted backend by
+  setting its key in `.env` and `web.backend` in `config.yaml`.
 - **No host filesystem access:** the agent's terminal backend is `local`, scoped
   to the container only.

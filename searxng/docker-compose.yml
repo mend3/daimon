@@ -4,7 +4,7 @@
 # SQLite cache errors.
 services:
   valkey:
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey:8-alpine@sha256:77643d152547b446fc15cbafaff22004545663fcd40c6b28038ad283837baa75
     container_name: hermes-valkey
     restart: unless-stopped
     command: valkey-server --save 30 1 --loglevel warning
@@ -12,7 +12,7 @@ services:
       - valkey-data:/data
 
   searxng:
-    image: searxng/searxng:latest
+    image: searxng/searxng:latest@sha256:1081d08bdcd6126533de497ee597f64de94064339e7bc03bc046352adfe320e6
     container_name: hermes-searxng
     restart: unless-stopped
     depends_on: [valkey]

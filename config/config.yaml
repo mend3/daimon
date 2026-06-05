@@ -35,7 +35,7 @@ terminal:
 agent:
   max_turns: 60                # iteration budget per conversation
   api_max_retries: 3
-  reasoning_effort: "medium"   # Qwen3 supports thinking; medium balances speed/quality
+  reasoning_effort: "medium"   # gpt-oss reasoning effort; medium balances speed/quality
   tool_use_enforcement: "auto"
 
 # --- Auxiliary models --------------------------------------------------------
@@ -56,8 +56,8 @@ auxiliary:
     model: ""
 
 # --- Context management ------------------------------------------------------
-# 8B models have a smaller usable context window than frontier APIs; compress
-# earlier and keep a tighter recent tail.
+# Local models have a smaller usable context window than frontier APIs; compress
+# earlier (at ~32K of the 64K window) and keep a tighter recent tail.
 compression:
   enabled: true
   threshold: 0.50

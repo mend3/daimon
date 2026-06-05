@@ -105,12 +105,12 @@
       "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "sum(count_over_time({source=\"hermes\", level=\"ERROR\"} [$__range]))", "queryType": "instant" } ]
     },
     {
-      "id": 15, "type": "stat", "title": "🔍 Buscas web",
+      "id": 15, "type": "stat", "title": "💬 Turnos do agente",
       "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 3 },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "unit": "short" }, "overrides": [] },
       "options": { "graphMode": "area", "colorMode": "value", "reduceOptions": { "calcs": ["sum"] } },
-      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "sum(count_over_time({source=\"searxng\"} |= `/search` [$__range]))", "queryType": "instant" } ]
+      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "sum(count_over_time({source=\"hermes\"} |~ `conversation turn` [$__range]))", "queryType": "instant" } ]
     },
 
     {
@@ -163,13 +163,6 @@
           "gridPos": { "h": 12, "w": 12, "x": 12, "y": 30 },
           "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending" },
           "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"ollama\"} |~ `(?i)$search`", "queryType": "range" } ]
-        },
-        {
-          "id": 43, "type": "logs", "title": "🔍 SearXNG",
-          "datasource": { "type": "loki", "uid": "loki" },
-          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 42 },
-          "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending" },
-          "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"searxng\"} |~ `(?i)$search`", "queryType": "range" } ]
         }
       ]
     }

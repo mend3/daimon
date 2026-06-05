@@ -39,7 +39,7 @@ if curl -fsS --max-time 3 http://host.docker.internal:11434/api/tags >/dev/null 
   echo "    OK - Ollama is reachable."
 else
   echo "    WARN - Ollama not reachable yet. On the macOS host run:"
-  echo "           OLLAMA_HOST=0.0.0.0:11434 ollama serve   (+ ollama pull qwen3:8b)"
+  echo "           OLLAMA_HOST=0.0.0.0:11434 ollama serve   (+ ollama pull gpt-oss:20b)"
   echo "           See scripts/setup-ollama-host.sh"
 fi
 

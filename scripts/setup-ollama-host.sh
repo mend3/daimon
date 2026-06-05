@@ -12,6 +12,11 @@ export OLLAMA_HOST="0.0.0.0:11434"
 export OLLAMA_CONTEXT_LENGTH="65536"
 export OLLAMA_FLASH_ATTENTION="1"
 export OLLAMA_KV_CACHE_TYPE="q8_0"
+# Single agent: pin concurrency to 1 so a 64K window isn't multiplied into an
+# OOM, keep one model resident, and never unload it on idle (warm responses).
+export OLLAMA_NUM_PARALLEL="1"
+export OLLAMA_MAX_LOADED_MODELS="1"
+export OLLAMA_KEEP_ALIVE="-1"
 
 echo "==> Ensuring Ollama is installed"
 if ! command -v ollama >/dev/null 2>&1; then
@@ -27,7 +32,8 @@ fi
 
 # Persist the settings so the Ollama menubar app inherits them too.
 echo "==> Applying Ollama settings (login session)"
-for var in OLLAMA_HOST OLLAMA_CONTEXT_LENGTH OLLAMA_FLASH_ATTENTION OLLAMA_KV_CACHE_TYPE; do
+for var in OLLAMA_HOST OLLAMA_CONTEXT_LENGTH OLLAMA_FLASH_ATTENTION OLLAMA_KV_CACHE_TYPE \
+           OLLAMA_NUM_PARALLEL OLLAMA_MAX_LOADED_MODELS OLLAMA_KEEP_ALIVE; do
   launchctl setenv "${var}" "${!var}" || true
 done
 

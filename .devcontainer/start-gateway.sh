@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# postStartCommand hook: bring the Hermes messaging gateway up with the container.
-# No-op when it is already running or no Telegram token is configured. Always
-# exits 0 so a gateway problem never blocks container start.
+# Bring the Hermes messaging gateway up. Called by container-boot.sh (PID 1) on
+# every container start. No-op when already running or no Telegram token is set.
+# Always exits 0 so a gateway problem never blocks container start.
 set -u
 
+ENV_FILE=~/.hermes/.env
 mkdir -p ~/.hermes/logs
 
 # Already running — nothing to do.
@@ -12,7 +13,18 @@ if pgrep -f "gateway run" >/dev/null 2>&1; then
 fi
 
 # Nothing to serve without a token.
-if ! grep -qE "^TELEGRAM_BOT_TOKEN=.+" ~/.hermes/.env 2>/dev/null; then
+if ! grep -qE "^TELEGRAM_BOT_TOKEN=.+" "${ENV_FILE}" 2>/dev/null; then
+  exit 0
+fi
+
+# Refuse to expose an agent with shell/file tools to an open bot: require an
+# allowlist (or an explicit opt-in to open access) before starting.
+if ! grep -qE "^TELEGRAM_ALLOWED_USERS=.+" "${ENV_FILE}" 2>/dev/null \
+   && ! grep -qiE "^(GATEWAY_ALLOW_ALL_USERS|TELEGRAM_ALLOW_ALL_USERS)=true" "${ENV_FILE}" 2>/dev/null; then
+  echo "[start-gateway] REFUSING to start: TELEGRAM_BOT_TOKEN is set but no" \
+       "TELEGRAM_ALLOWED_USERS allowlist. Pair your account (hermes gateway setup)" \
+       "or set TELEGRAM_ALLOW_ALL_USERS=true to opt into open access." \
+       >> ~/.hermes/logs/gateway.out
   exit 0
 fi
 

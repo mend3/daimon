@@ -22,7 +22,6 @@ services:
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - hermes-data:/hermes:ro
       - ${HOME}/.hermes-monitoring:/host-logs:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - promtail-positions:/positions
     depends_on: [loki]
 
