@@ -37,6 +37,11 @@ agent:
   api_max_retries: 3
   reasoning_effort: "medium"   # gpt-oss reasoning effort; medium balances speed/quality
   tool_use_enforcement: "auto"
+  # Clarify off: gpt-oss misspells the tool name ("clearify" → harmony parser
+  # warning) and its numbered-button UI reads poorly. The agent asks follow-up
+  # questions in prose instead, describing the options.
+  disabled_toolsets:
+    - clarify
 
 # --- Auxiliary models --------------------------------------------------------
 # Text helpers reuse the primary model ("main"). Vision needs a multimodal model,

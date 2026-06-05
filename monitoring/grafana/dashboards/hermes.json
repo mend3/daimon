@@ -48,6 +48,18 @@
         "current": { "text": "All", "value": "$__all" }
       },
       {
+        "name": "user",
+        "label": "Telegram user",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": "label_values({source=\"hermes_chat\"}, name)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".+",
+        "current": { "text": "All", "value": "$__all" }
+      },
+      {
         "name": "search",
         "label": "Search (regex)",
         "type": "textbox",
@@ -155,7 +167,7 @@
       "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 13, "w": 24, "x": 0, "y": 14 },
       "options": { "showTime": true, "showLabels": false, "showCommonLabels": false, "wrapLogMessage": true, "prettifyLogMessage": false, "enableLogDetails": false, "dedupStrategy": "none", "sortOrder": "Descending" },
-      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes_chat\"} | line_format `{{ if eq .role \"user\" }}👤 ❯  {{ __line__ }}{{ else }}🤖 ✓  {{ __line__ }}{{ end }}`", "queryType": "range" } ]
+      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes_chat\", name=~\"${user:regex}\"} | line_format `{{ if eq .role \"user\" }}👤 {{ .name }} ({{ .uid }}) ❯  {{ __line__ }}{{ else }}🤖 → {{ .name }} ({{ .uid }})  {{ __line__ }}{{ end }}`", "queryType": "range" } ]
     },
     {
       "id": 30, "type": "logs", "title": "🛰️ Unified stream  ·  Source=$source  Level=$level  Search=\"$search\"",
