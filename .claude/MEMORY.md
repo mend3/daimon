@@ -40,6 +40,10 @@ host. This repo is configuration + scripts, not application code.
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
 - **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`.
+- **Monitoring** (`monitoring/`): Grafana+Loki+Promtail on the host, Grafana at
+  `localhost:3000`. Promtail ships Hermes logs (hermes-data volume), the Ollama log
+  (`~/.hermes-monitoring/ollama.log`), and SearXNG. The host Ollama logs there now,
+  not `/tmp`.
 
 # Known Constraints
 

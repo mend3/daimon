@@ -31,10 +31,14 @@ for var in OLLAMA_HOST OLLAMA_CONTEXT_LENGTH OLLAMA_FLASH_ATTENTION OLLAMA_KV_CA
   launchctl setenv "${var}" "${!var}" || true
 done
 
+# Stable log location the monitoring stack (Promtail) reads.
+LOG_DIR="${HOME}/.hermes-monitoring"
+mkdir -p "${LOG_DIR}"
+
 echo "==> Pulling model: ${MODEL}"
 if ! curl -fsS --max-time 2 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
   echo "    Starting 'ollama serve' in the background..."
-  nohup ollama serve >/tmp/ollama.log 2>&1 &
+  nohup ollama serve >"${LOG_DIR}/ollama.log" 2>&1 &
   sleep 3
 fi
 ollama pull "${MODEL}"

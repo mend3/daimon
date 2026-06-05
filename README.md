@@ -43,9 +43,13 @@ config/
 searxng/
   docker-compose.yml  # local web-search engine for the web toolset
   settings.yml.example
+monitoring/
+  docker-compose.yml  # Grafana + Loki + Promtail observability stack
+  loki/, promtail/, grafana/   # configs + provisioned live dashboard
 scripts/
-  setup-ollama-host.sh   # HOST: install Ollama + pull chat & vision models
-  setup-searxng-host.sh  # HOST: start local SearXNG
+  setup-ollama-host.sh     # HOST: install Ollama + pull chat & vision models
+  setup-searxng-host.sh    # HOST: start local SearXNG
+  setup-monitoring-host.sh # HOST: start Grafana/Loki/Promtail
 ```
 
 ## Setup
@@ -132,6 +136,20 @@ bash .devcontainer/start-gateway.sh    # detached; or: hermes gateway run (foreg
 
 The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
 `~/.hermes/.env`, never in the repo.
+
+## Monitoring
+
+Real-time observability via Grafana + Loki + Promtail:
+
+```bash
+./scripts/setup-monitoring-host.sh    # on the HOST
+```
+
+Open **http://localhost:3000** → dashboard *"Hermes — Atividade ao vivo"*. It
+streams three sources live: the agent/Telegram activity (Hermes `agent.log` /
+`gateway.log`, read from the `hermes-data` volume), Ollama requests and model
+loads (`~/.hermes-monitoring/ollama.log`), and SearXNG. Grafana is local-only with
+anonymous access (no login). Stop with `docker compose -f monitoring/docker-compose.yml down`.
 
 ## Changing the model
 

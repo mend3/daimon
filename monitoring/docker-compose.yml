@@ -1,0 +1,51 @@
+# Real-time observability for the local Hermes setup: Loki stores logs, Promtail
+# ships them from the Hermes volume, the host Ollama log, and the SearXNG
+# container, and Grafana shows them at http://localhost:3000.
+name: hermes-monitoring
+
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: hermes-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: hermes-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+      - hermes-data:/hermes:ro
+      - ${HOME}/.hermes-monitoring:/host-logs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-positions:/positions
+    depends_on: [loki]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: hermes-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_USERS_DEFAULT_THEME=dark
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on: [loki]
+
+volumes:
+  loki-data:
+  grafana-data:
+  promtail-positions:
+  hermes-data:
+    external: true
