@@ -33,6 +33,26 @@ services:
       loki:
         condition: service_healthy
 
+  blackbox:
+    image: prom/blackbox-exporter:v0.25.0
+    container_name: hermes-blackbox
+    restart: unless-stopped
+    command: --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    container_name: hermes-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on: [blackbox]
+
   grafana:
     image: grafana/grafana:11.1.0
     container_name: hermes-grafana
@@ -65,5 +85,6 @@ volumes:
   loki-data:
   grafana-data:
   promtail-positions:
+  prometheus-data:
   hermes-data:
     external: true

@@ -11,6 +11,10 @@ config/.env
 # SearXNG local config (generated from the example, holds a secret_key)
 searxng/settings.yml
 
+# Monitoring alert credentials (Telegram bot token) and the generated contact point
+monitoring/.env
+monitoring/grafana/provisioning/alerting/contactpoints.yaml
+
 # Ephemeral session context and Claude Code runtime artifacts
 .claude/SESSION.md
 .claude/*.lock

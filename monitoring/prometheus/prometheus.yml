@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Probe Ollama and the support services for up/down via blackbox-exporter.
+  - job_name: blackbox-http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://host.docker.internal:11434/api/tags
+          - http://host.docker.internal:8888/healthz
+          - http://grafana:3000/api/health
+          - http://loki:3100/ready
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+      # Friendly service name derived from the target URL.
+      - source_labels: [__param_target]
+        regex: '.*11434.*'
+        target_label: service
+        replacement: ollama
+      - source_labels: [__param_target]
+        regex: '.*8888.*'
+        target_label: service
+        replacement: searxng
+      - source_labels: [__param_target]
+        regex: '.*grafana.*'
+        target_label: service
+        replacement: grafana
+      - source_labels: [__param_target]
+        regex: '.*loki.*'
+        target_label: service
+        replacement: loki

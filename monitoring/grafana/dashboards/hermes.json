@@ -59,9 +59,21 @@
   "panels": [
     {
       "id": 100, "type": "text", "title": "",
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "gridPos": { "h": 3, "w": 14, "x": 0, "y": 0 },
       "transparent": true,
-      "options": { "mode": "markdown", "content": "### 🛰️ Hermes — atividade ao vivo\nFiltre por **Fonte / Nível / Componente** ou digite uma **regex** em *Busca* (aplica a todos os painéis de log). Fontes: `hermes` (agente+Telegram), `ollama`, `searxng`. Atualiza a cada 10s." }
+      "options": { "mode": "markdown", "content": "### 🛰️ Hermes — atividade ao vivo\nFiltre por **Fonte / Nível / Componente** ou regex em *Busca* (aplica aos logs). Fontes: `hermes` (agente+Telegram), `ollama`. Atualiza a cada 10s; alerta de **Ollama down** vai pro Telegram." }
+    },
+    {
+      "id": 16, "type": "stat", "title": "Status dos serviços",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 3, "w": 10, "x": 14, "y": 0 },
+      "fieldConfig": { "defaults": {
+        "color": { "mode": "thresholds" },
+        "mappings": [ { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } } ],
+        "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }
+      }, "overrides": [] },
+      "options": { "graphMode": "none", "colorMode": "background", "textMode": "value_and_name", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "" } },
+      "targets": [ { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "probe_success{service=~\"ollama|searxng|loki|grafana\"}", "legendFormat": "{{service}}", "instant": true } ]
     },
 
     {

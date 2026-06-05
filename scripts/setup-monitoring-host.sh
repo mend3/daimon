@@ -8,6 +8,21 @@ cd "$(dirname "${BASH_SOURCE[0]}")/../monitoring"
 # Promtail reads the Ollama log from here; make sure it exists before it mounts.
 mkdir -p "${HOME}/.hermes-monitoring"
 
+# Generate the Telegram alert contact point from .env (token stays out of git).
+CP_DIR="grafana/provisioning/alerting"
+if [ -f .env ]; then
+  # shellcheck disable=SC1091
+  set -a; . ./.env; set +a
+  if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+    sed -e "s|__TELEGRAM_BOT_TOKEN__|${TELEGRAM_BOT_TOKEN}|" \
+        -e "s|__TELEGRAM_CHAT_ID__|${TELEGRAM_CHAT_ID}|" \
+        "${CP_DIR}/contactpoints.yaml.example" > "${CP_DIR}/contactpoints.yaml"
+    echo "==> Telegram alert contact point generated"
+  fi
+else
+  echo "==> No monitoring/.env — alerts will have no Telegram contact point"
+fi
+
 echo "==> Starting monitoring stack"
 docker compose up -d
 
