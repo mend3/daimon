@@ -2,6 +2,24 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0007 — Observability stack and security hardening
+
+**Status:** Accepted
+
+**Context:** A benchmark/audit found the agent/Ollama were log-only with no
+alerting, and several hardening gaps (LAN-exposed services, Grafana anon-admin,
+docker.sock mount, Tirith fail-open).
+
+**Decision:** Add Prometheus + blackbox probing with an "Ollama down" Telegram
+alert; bind Grafana to loopback; drop the Promtail docker.sock mount; set Tirith
+fail-closed; pin images; tune Ollama (`NUM_PARALLEL=1`, `MAX_LOADED_MODELS=1`,
+`KEEP_ALIVE=-1`). Persistence (launchd services) and the LAN firewall are scripts
+the user runs explicitly.
+
+**Consequences:** Real up/down alerting and a hardened default. Ollama/SearXNG
+still bind `0.0.0.0` (required for container access); LAN risk is mitigated by an
+opt-in firewall, not by loopback. GPU/VRAM metrics remain unavailable on macOS.
+
 ## ADR-0006 — Persist ~/.local and run the gateway under PID 1
 
 **Status:** Accepted

@@ -78,7 +78,8 @@ approvals:
 security:
   redact_secrets: true
   tirith_enabled: true
-  tirith_fail_open: true
+  tirith_fail_open: false   # fail closed: if the command scanner errors, block the
+                            # action rather than run it unscanned (agent has shell)
 
 # --- Web search --------------------------------------------------------------
 # Local SearXNG (private, keyless). Started on the host by

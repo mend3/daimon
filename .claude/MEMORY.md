@@ -40,10 +40,19 @@ host. This repo is configuration + scripts, not application code.
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
 - **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`.
-- **Monitoring** (`monitoring/`): Grafana+Loki+Promtail on the host, Grafana at
-  `localhost:3000`. Promtail ships Hermes logs (hermes-data volume), the Ollama log
-  (`~/.hermes-monitoring/ollama.log`), and SearXNG. The host Ollama logs there now,
-  not `/tmp`.
+- **Monitoring** (`monitoring/`): Grafana+Loki+Promtail+Prometheus+blackbox on the
+  host. Grafana is **loopback-only** at `localhost:3000`. Promtail ships Hermes
+  logs (hermes-data volume) and the Ollama log (`~/.hermes-monitoring/ollama.log`).
+  Prometheus/blackbox probe up/down; an "Ollama down" alert DMs Telegram
+  (`monitoring/.env` + generated `contactpoints.yaml`, both gitignored). No
+  docker.sock mount (security).
+- **Host services** are optional user-installed launchd agents
+  (`scripts/install-host-services.sh`): Ollama as a managed service, stacks
+  autostart, daily backup. Run by the user (persistence needs explicit consent).
+- **Security posture:** approvals manual, `redact_secrets`, Tirith **fail-closed**.
+  Ollama/SearXNG must bind `0.0.0.0` (container reaches them via
+  host.docker.internal); LAN exposure is mitigated by `scripts/firewall-host.sh`
+  (user-run, sudo).
 
 # Known Constraints
 
