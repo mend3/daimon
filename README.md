@@ -54,6 +54,15 @@ scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, monitori
 
 ## Setup
 
+Quick start (macOS host with Docker Desktop + Homebrew):
+
+```bash
+make up           # Ollama (Metal) + Redis + SearXNG + monitoring
+# then open the folder in VS Code → "Reopen in Container" and run `hermes`
+```
+
+`make help` lists every target. The steps below explain each one.
+
 ### 1. On the macOS host — start Ollama and pull the model
 
 ```bash
@@ -150,8 +159,8 @@ The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
 ## Monitoring
 
 `./scripts/setup-monitoring-host.sh` brings up the stack; open
-**http://localhost:3000** (loopback-only, no login) → dashboard *"Hermes —
-Atividade ao vivo"*. It streams, live:
+**http://localhost:3000** (loopback-only, no login) → dashboard *"Hermes — Live
+Activity"*. It streams, live:
 
 - **Agent / Telegram** activity from Hermes `agent.log` (via the `hermes-data` volume).
 - **Ollama** requests and model loads from `~/.hermes-monitoring/ollama.log`.

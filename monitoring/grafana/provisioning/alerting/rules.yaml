@@ -6,7 +6,7 @@ groups:
     interval: 1m
     rules:
       - uid: ollama-down
-        title: Ollama indisponível
+        title: Ollama unreachable
         condition: C
         for: 1m
         noDataState: Alerting
@@ -14,7 +14,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Ollama não respondeu ao probe HTTP por 1 min — inferência local indisponível."
+          summary: "Ollama did not answer the HTTP probe for 1 min — local inference is down."
         data:
           - refId: A
             relativeTimeRange:

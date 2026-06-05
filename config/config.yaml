@@ -94,5 +94,5 @@ display:
   tool_progress: all
   language: en
 
-# Adjust to your locale if you want timestamps/cron to match local time.
-timezone: "America/Sao_Paulo"
+# Set your IANA timezone so timestamps/cron match local time (e.g. Europe/Berlin).
+timezone: "UTC"
