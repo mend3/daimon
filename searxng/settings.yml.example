@@ -1,13 +1,33 @@
 # Overrides on top of SearXNG's built-in defaults. Copied to settings.yml by
 # scripts/setup-searxng-host.sh, which injects a generated secret_key.
-use_default_settings: true
+# Keep only general engines that work reliably headless — cuts the engine error
+# noise (google parser breaks, wikidata times out, many engines CAPTCHA).
+use_default_settings:
+  engines:
+    keep_only:
+      - google
+      - bing
+      - mojeek
+      - qwant
+      - startpage
+      - wikipedia
 
 server:
   secret_key: "GENERATE_ME"
   limiter: false          # programmatic access from Hermes, no rate limiter
   image_proxy: true
 
+# Cache and (optional) rate limiter backend — removes the SQLite cache errors.
+valkey:
+  url: redis://valkey:6379/0
+
 search:
   formats:
     - html
     - json                # required for Hermes to consume results
+
+outgoing:
+  request_timeout: 6.0    # default 3s is too tight for some engines
+  max_request_timeout: 12.0
+  pool_connections: 100
+  pool_maxsize: 20
