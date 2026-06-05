@@ -1,0 +1,13 @@
+# Overrides on top of SearXNG's built-in defaults. Copied to settings.yml by
+# scripts/setup-searxng-host.sh, which injects a generated secret_key.
+use_default_settings: true
+
+server:
+  secret_key: "GENERATE_ME"
+  limiter: false          # programmatic access from Hermes, no rate limiter
+  image_proxy: true
+
+search:
+  formats:
+    - html
+    - json                # required for Hermes to consume results

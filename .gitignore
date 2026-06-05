@@ -8,6 +8,9 @@ config/.env
 # Hermes runtime data (lives in the named Docker volume, not the repo)
 .hermes/
 
+# SearXNG local config (generated from the example, holds a secret_key)
+searxng/settings.yml
+
 # Ephemeral session context and Claude Code runtime artifacts
 .claude/SESSION.md
 .claude/*.lock

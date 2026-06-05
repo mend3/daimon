@@ -2,6 +2,20 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0005 — Local-only integrations (vision, web search)
+
+**Status:** Accepted
+
+**Context:** The primary model `gpt-oss:20b` is text-only, and web search defaulted
+to no backend. Both gaps should close without external API keys.
+
+**Decision:** Add a dedicated vision model (`qwen2.5vl:7b`) on the same Ollama host
+for the `vision` toolset, and run a local **SearXNG** for the `web` toolset.
+
+**Consequences:** No third-party keys or data egress for vision or search. Ollama
+may swap between the chat and vision models when VRAM is tight. SearXNG runs as a
+host container reachable at `host.docker.internal:8888`.
+
 ## ADR-0004 — Default model: gpt-oss:20b
 
 **Status:** Accepted

@@ -36,9 +36,14 @@ startup.
   postCreate.sh       # installs Hermes, syncs config, checks Ollama reachability
 config/
   config.yaml         # Hermes config → mounted to ~/.hermes/config.yaml
-  .env.example        # secrets/env template → seeds ~/.hermes/.env
+  SOUL.md             # agent identity/voice → mounted to ~/.hermes/SOUL.md
+  .env.example        # secrets/env template
+searxng/
+  docker-compose.yml  # local web-search engine for the web toolset
+  settings.yml.example
 scripts/
-  setup-ollama-host.sh # run on the HOST: install Ollama + pull the model
+  setup-ollama-host.sh   # HOST: install Ollama + pull chat & vision models
+  setup-searxng-host.sh  # HOST: start local SearXNG
 ```
 
 ## Setup
@@ -55,6 +60,12 @@ This installs Ollama (via the official **`ollama-app` Homebrew cask** if needed)
 binds it to `0.0.0.0:11434` so the container can reach it, and pulls the model.
 Keep it running.
 
+For image analysis, also pull the vision model used by the `vision` toolset:
+
+```bash
+ollama pull qwen2.5vl:7b
+```
+
 > The `ollama-app` cask provides Metal GPU acceleration on Apple Silicon. Confirm
 > it is active with `grep -i metal /tmp/ollama.log` — expect `library=Metal`.
 
@@ -62,7 +73,16 @@ Keep it running.
 > interfaces once: `launchctl setenv OLLAMA_HOST 0.0.0.0:11434`, then quit and
 > reopen the app.
 
-### 2. Open the devcontainer
+### 2. (Optional) Start local web search
+
+```bash
+./scripts/setup-searxng-host.sh
+```
+
+Runs a private SearXNG on `localhost:8888` for the `web` toolset. The container
+reaches it at `host.docker.internal:8888` (set as `SEARXNG_URL`).
+
+### 3. Open the devcontainer
 
 In VS Code (with the **Dev Containers** extension) or the `devcontainer` CLI:
 
@@ -70,9 +90,9 @@ In VS Code (with the **Dev Containers** extension) or the `devcontainer` CLI:
 - **CLI:** `devcontainer up --workspace-folder .`
 
 On first create, `postCreate.sh` installs Hermes, copies `config/config.yaml`
-into `~/.hermes/`, and verifies Ollama is reachable.
+and `config/SOUL.md` into `~/.hermes/`, and verifies Ollama is reachable.
 
-### 3. Run
+### 4. Run
 
 Inside the container:
 
@@ -81,6 +101,29 @@ hermes            # start chatting against the local model
 hermes config     # view the active configuration
 hermes doctor     # diagnostics
 ```
+
+## Integrations
+
+| Capability | Backend | Setup |
+|------------|---------|-------|
+| Chat / tools | `gpt-oss:20b` on host Ollama | default |
+| Vision | `qwen2.5vl:7b` on host Ollama | `ollama pull qwen2.5vl:7b` |
+| Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
+| Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
+| Identity / voice | `config/SOUL.md` | edit + rebuild |
+
+### Telegram
+
+Create a bot with [@BotFather](https://t.me/BotFather), then inside the container:
+
+```bash
+hermes gateway setup          # paste the token, pair your account
+hermes gateway run            # foreground; keep this terminal open
+```
+
+The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
+`~/.hermes/.env`, never in the repo. The gateway runs only while `gateway run` is
+active and the container is up.
 
 ## Changing the model
 

@@ -28,6 +28,7 @@ fi
 #    .env is seeded from the example only if absent, so local secrets survive.
 echo "==> Syncing configuration"
 cp "${REPO_CONFIG_DIR}/config.yaml" "${HERMES_HOME}/config.yaml"
+cp "${REPO_CONFIG_DIR}/SOUL.md" "${HERMES_HOME}/SOUL.md"
 if [ ! -f "${HERMES_HOME}/.env" ]; then
   cp "${REPO_CONFIG_DIR}/.env.example" "${HERMES_HOME}/.env"
 fi

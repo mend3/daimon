@@ -28,9 +28,14 @@ host. This repo is configuration + scripts, not application code.
 
 # Integrations
 
-- **Ollama** via its OpenAI-compatible `/v1` endpoint.
-- **Web search** is disabled by default (no API keys). Backends available:
-  searxng, firecrawl, tavily, exa.
+- **Ollama** (`/v1`) serves chat (`gpt-oss:20b`) and vision (`qwen2.5vl:7b`); the
+  `vision` toolset points at the latter.
+- **Web search** uses a local **SearXNG** on the host (`host.docker.internal:8888`,
+  `SEARXNG_URL`), started by `scripts/setup-searxng-host.sh`.
+- **Telegram** via the messaging gateway (`hermes gateway run`); `TELEGRAM_BOT_TOKEN`
+  in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
+  process and container are up.
+- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`.
 
 # Known Constraints
 
