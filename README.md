@@ -1,6 +1,6 @@
 # Hermes Agent — Local Setup (Ollama + gpt-oss, devcontainer)
 
-[![lint](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml/badge.svg)](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml)
+[![lint](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform: macOS](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon-black?logo=apple&logoColor=white)
 ![local LLM: Ollama](https://img.shields.io/badge/local%20LLM-Ollama%20gpt--oss-5A67D8)
