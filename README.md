@@ -205,3 +205,12 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
   Grafana and Redis are loopback-only.
 - **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
   daily, archiving the `hermes-data` volume to `~/hermes-backups`.
+
+## Contributing & license
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md),
+and [SECURITY.md](SECURITY.md).
+
+Licensed under the [MIT License](LICENSE). The license covers this repository's
+configuration, scripts, and docs only — Hermes Agent, Ollama, SearXNG, Grafana,
+and the other software it installs or runs keep their own licenses.
