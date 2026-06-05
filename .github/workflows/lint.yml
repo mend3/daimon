@@ -1,9 +1,22 @@
 name: lint
 
+# Only run when files this workflow actually checks change.
 on:
   push:
     branches: [main]
+    paths:
+      - '**.sh'
+      - '**.yml'
+      - '**.yaml'
+      - '.yamllint'
+      - 'monitoring/grafana/dashboards/*.json'
   pull_request:
+    paths:
+      - '**.sh'
+      - '**.yml'
+      - '**.yaml'
+      - '.yamllint'
+      - 'monitoring/grafana/dashboards/*.json'
 
 jobs:
   lint:
