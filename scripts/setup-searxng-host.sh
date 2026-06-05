@@ -5,12 +5,20 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../searxng"
 
+# SearXNG's cache/limiter uses the shared Redis — it must exist first.
+REDIS_PW="$( [ -f ../redis/.env ] && grep '^REDIS_PASSWORD=' ../redis/.env | cut -d= -f2 )"
+if [ -z "${REDIS_PW}" ]; then
+  echo "ERROR: redis/.env not found. Run scripts/setup-redis-host.sh first."
+  exit 1
+fi
+
 if [ ! -f settings.yml ]; then
   echo "==> Generating settings.yml with a fresh secret"
   cp settings.yml.example settings.yml
-  secret="$(openssl rand -hex 32)"
-  sed -i '' "s/GENERATE_ME/${secret}/" settings.yml
+  sed -i '' "s/GENERATE_ME/$(openssl rand -hex 32)/" settings.yml
 fi
+# Inject the Redis password (idempotent; no-op once already substituted).
+sed -i '' "s/__REDIS_PASSWORD__/${REDIS_PW}/g" settings.yml
 
 echo "==> Starting SearXNG"
 docker compose up -d

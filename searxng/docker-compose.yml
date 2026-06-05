@@ -1,34 +1,20 @@
 # Local SearXNG metasearch for Hermes' web toolset. Runs on the host; the
-# devcontainer reaches it at host.docker.internal:8888. Valkey backs SearXNG's
-# cache and rate limiter (the official topology) — without it SearXNG logs
-# SQLite cache errors.
+# devcontainer reaches it at host.docker.internal:8888. Cache/limiter use the
+# shared Redis (redis/) over the hermes-shared network — run scripts/setup-redis-host.sh
+# first.
 services:
-  valkey:
-    image: valkey/valkey:8-alpine@sha256:77643d152547b446fc15cbafaff22004545663fcd40c6b28038ad283837baa75
-    container_name: hermes-valkey
-    restart: unless-stopped
-    command: valkey-server --save 30 1 --loglevel warning
-    volumes:
-      - valkey-data:/data
-    healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-
   searxng:
     image: searxng/searxng:latest@sha256:1081d08bdcd6126533de497ee597f64de94064339e7bc03bc046352adfe320e6
     container_name: hermes-searxng
     restart: unless-stopped
-    depends_on:
-      valkey:
-        condition: service_healthy
     ports:
       - "8888:8080"
     volumes:
       - ./settings.yml:/etc/searxng/settings.yml:rw
     environment:
       - SEARXNG_BASE_URL=http://localhost:8888/
+    networks:
+      - hermes-shared
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://localhost:8080/healthz').status==200 else sys.exit(1)"]
       interval: 15s
@@ -36,5 +22,7 @@ services:
       retries: 5
       start_period: 20s
 
-volumes:
-  valkey-data:
+networks:
+  hermes-shared:
+    name: hermes-shared
+    external: true
