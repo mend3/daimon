@@ -26,6 +26,10 @@
 
   "postCreateCommand": "bash .devcontainer/postCreate.sh",
 
+  // Bring the messaging gateway up whenever the container starts (no-op without a
+  // Telegram token). Keeps the Telegram bot alive without a manual terminal.
+  "postStartCommand": "bash .devcontainer/start-gateway.sh",
+
   "customizations": {
     "vscode": {
       "extensions": [

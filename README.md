@@ -118,12 +118,18 @@ Create a bot with [@BotFather](https://t.me/BotFather), then inside the containe
 
 ```bash
 hermes gateway setup          # paste the token, pair your account
-hermes gateway run            # foreground; keep this terminal open
+```
+
+Once the token is in `~/.hermes/.env`, the gateway **auto-starts with the container**
+via `.devcontainer/start-gateway.sh` (wired as `postStartCommand`). Start it manually
+in the current container with:
+
+```bash
+bash .devcontainer/start-gateway.sh    # detached; or: hermes gateway run (foreground)
 ```
 
 The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
-`~/.hermes/.env`, never in the repo. The gateway runs only while `gateway run` is
-active and the container is up.
+`~/.hermes/.env`, never in the repo.
 
 ## Changing the model
 
