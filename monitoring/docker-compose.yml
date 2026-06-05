@@ -30,8 +30,11 @@ services:
     image: grafana/grafana:11.1.0
     container_name: hermes-grafana
     restart: unless-stopped
+    # Loopback-only: Grafana is opened from the host browser, never by a
+    # container, so binding to 127.0.0.1 removes LAN exposure of the anonymous
+    # admin UI without breaking access.
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
