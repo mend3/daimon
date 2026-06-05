@@ -1,223 +1,164 @@
-# Hermes Agent — Local Setup (Ollama + gpt-oss, devcontainer)
+# Ella
 
 [![lint](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform: macOS](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon-black?logo=apple&logoColor=white)
 ![local LLM: Ollama](https://img.shields.io/badge/local%20LLM-Ollama%20gpt--oss-5A67D8)
 ![Devcontainer](https://img.shields.io/badge/devcontainer-Docker-2496ED?logo=docker&logoColor=white)
+![Built on: Hermes Agent](https://img.shields.io/badge/built%20on-Hermes%20Agent-6E56CF)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-Run [Hermes Agent](https://hermes-agent.nousresearch.com/docs/) fully isolated in a
-**devcontainer**, driven by **gpt-oss:20b** served locally by **Ollama** running
-natively on the macOS host (so inference uses the Apple Silicon GPU via Metal).
+> An intelligent companion that helps you think, decide, create, and execute —
+> private, local-first, and entirely yours.
 
+**Ella** is a personal AI companion built on [Hermes
+Agent](https://hermes-agent.nousresearch.com/docs/) and local models served by
+[Ollama](https://ollama.com) with Apple Silicon GPU acceleration. She runs on your
+own machine, keeps your data private, and combines human-like conversation with
+operational intelligence — sandboxed in a devcontainer, reachable over CLI and
+Telegram, and fully observable.
+
+This repository is the **persona, local-first deployment, multi-channel access, and
+observability layer** built around Hermes. It is not a fork of Hermes Agent — it
+stands on it (see [Built on](#built-on)).
+
+## Meet Ella
+
+Ella is not a chatbot. Think **Samantha (Her)** crossed with **JARVIS**: warm and
+genuinely human in conversation, precise and operationally sharp in execution.
+
+She is a thinking partner, researcher, operator, and advisor at once. Her defining
+trait is **anticipation** — she surfaces the risks, decisions, and opportunities you
+haven't asked about yet. The feeling after talking to her should be:
+
+> "She thought about things I hadn't considered yet."
+
+Warm without being needy, efficient without being cold. Her full personality lives
+in [`config/SOUL.md`](config/SOUL.md).
+
+## Why Ella?
+
+Most AI assistants are stateless chat windows. Ella is a persistent **companion**:
+
+- 🧠 Keeps **long-term memory** across sessions and projects
+- 🔭 **Anticipates** — risks, missing context, next decisions
+- 🔍 **Searches the web** through a private, self-hosted engine
+- 👁️ **Sees images** and 🎙️ **hears voice messages**
+- 🛠️ **Executes tools** — shell, files, code, browser, web
+- 💬 Reaches you over **CLI and Telegram**, sharing one memory
+- 📊 Is **fully observable** — every message, tool call, and model run on a dashboard
+- 🔒 Runs **100% locally** with your data under your control
+
+## Core capabilities
+
+### 🧠 Persistent memory
+Ella builds context across conversations and projects — preferences, decisions,
+documentation, history — instead of starting from zero each session.
+
+### 🎨 Multimodal
+Send text, **images** (analyzed by a local vision model), **voice messages**
+(transcribed locally), **links** (fetched and summarized), and **files** (read and
+used). She works with all of them and tells you what she received.
+
+### 🛠️ Tool use
+A modular toolset lets her act: web search, vision, file operations, code execution,
+terminal, and browser automation — extensible with more.
+
+### 🌐 Local-first
+Inference runs on local open models (gpt-oss, Qwen-VL) via Ollama with Metal GPU
+acceleration. Search, cache, and monitoring are self-hosted. No mandatory cloud.
+
+### 📨 Multi-channel
+Talk to Ella from the **CLI** or **Telegram** (multi-user, allowlisted). The same
+memory and context follow you across every interface.
+
+### 📊 Observability
+A built-in Grafana + Loki + Prometheus stack gives live visibility into conversations
+(per user), tool usage, model activity, and service health — with an "agent down"
+alert straight to Telegram.
+
+## Architecture
+
+```text
+                      ┌───────────────┐
+            CLI ──────►      Ella       ◄────── Telegram
+                      │  (persona on   │
+                      │  Hermes Agent) │
+                      └───────┬───────┘
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+   ┌─────────────┐    ┌──────────────┐    ┌──────────────────┐
+   │   Memory    │    │    Tools     │    │   Intelligence   │
+   │ sessions /  │    │ web · vision │    │ local LLMs       │
+   │ state.db /  │    │ files · code │    │ (Ollama, Metal): │
+   │ knowledge   │    │ browser      │    │ reasoning · plan │
+   └─────────────┘    └──────────────┘    └──────────────────┘
+          └───────────────────┬───────────────────┘
+                              ▼
+        Self-hosted services:  Ollama · SearXNG · Redis
+                  Observability: Grafana · Loki · Prometheus
 ```
-┌─────────────── macOS host ───────────────┐
-│  Ollama (native, Metal GPU)               │
-│    gpt-oss:20b → http://0.0.0.0:11434     │
-│                       ▲                   │
-│         host.docker.internal:11434        │
-│                       │                   │
-│  ┌──────────── devcontainer ───────────┐  │
-│  │  Hermes Agent (CLI, isolated)        │ │
-│  │    config: ~/.hermes/config.yaml     │ │
-│  └──────────────────────────────────────┘ │
-└───────────────────────────────────────────┘
-```
 
-Why this split: on a Mac, Ollama **inside** Docker is CPU-only (no Metal), which
-makes inference painfully slow. Running Ollama natively keeps it fast while Hermes
-stays sandboxed in the container.
+Components are modular — they evolve independently. Full topology in
+[docs/setup.md](docs/setup.md).
 
-Hermes requires a model with at least a **64K context window**. gpt-oss:20b serves
-128K natively; the host script pins the runtime window to 64K to fit unified
-memory. A model that maxes below 64K (e.g. `qwen3:8b` at 40K) is rejected at
-startup.
+## Built for privacy
 
-## Repo layout
+> Your intelligence stack should belong to you.
 
-```
-.devcontainer/
-  devcontainer.json   # container def: volumes, host networking, env, lifecycle
-  Dockerfile          # Debian base + git/curl/ripgrep/ffmpeg; runs container-boot.sh
-  postCreate.sh       # installs Hermes (skipped once volumes are warm), syncs config
-  container-boot.sh   # PID 1: starts the gateway, then keeps the container alive
-  start-gateway.sh    # idempotent gateway launcher (no-op without a token)
-config/
-  config.yaml         # Hermes config → mounted to ~/.hermes/config.yaml
-  SOUL.md             # agent identity/voice → mounted to ~/.hermes/SOUL.md
-  .env.example        # secrets/env template
-redis/
-  docker-compose.yml  # shared, password-protected Redis on the hermes-shared network
-searxng/
-  docker-compose.yml  # web-search engine; cache/limiter on the shared Redis
-  settings.yml.example
-monitoring/
-  docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox + chat-shipper
-  grafana/ loki/ promtail/ prometheus/ blackbox/ chat-shipper/  # configs, dashboard, alert
-scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, monitoring,
-                      # launchd services, daily backup, LAN firewall
-```
+Ella runs entirely on your own infrastructure with open models and self-hosted
+services. The agent is sandboxed in a container, services are firewalled to the host,
+and secrets never leave it — enabling data ownership, offline capability, no
+per-token cloud costs, and independence from any single vendor.
 
-## Setup
+## Use cases
 
-Quick start (macOS host with Docker Desktop + Homebrew):
+- **Personal AI operating system** — a companion that knows your projects, files, and workflows.
+- **Engineering companion** — research, debugging, architecture reviews, and documentation with context.
+- **Knowledge management** — a searchable, living memory layer around your work.
+- **Operations assistant** — monitor systems, receive alerts, investigate incidents, automate chores.
+- **Research partner** — gather, synthesize, and retain findings over time.
+
+## Getting started
+
+macOS host with Docker Desktop + Homebrew:
 
 ```bash
-make up           # Ollama (Metal) + Redis + SearXNG + monitoring
-# then open the folder in VS Code → "Reopen in Container" and run `hermes`
+git clone https://github.com/mend3/hermes-agent.git
+cd hermes-agent
+make up                 # Ollama (Metal) + Redis + SearXNG + monitoring
 ```
 
-`make help` lists every target. The steps below explain each one.
+Then open the folder in a Dev Container ("Reopen in Container") and start talking to
+Ella. `make help` lists every target. Full installation and operations:
+**[docs/setup.md](docs/setup.md)**.
 
-### 1. On the macOS host — start Ollama and pull the model
+## Built on
 
-```bash
-./scripts/setup-ollama-host.sh          # defaults to gpt-oss:20b
-# or pass another tag with a >=64K context window:
-# ./scripts/setup-ollama-host.sh llama3.1:8b
-```
+Ella stands on the shoulders of excellent open projects — she does not replace or
+reproduce them:
 
-This installs Ollama (via the official **`ollama-app` Homebrew cask** if needed),
-binds it to `0.0.0.0:11434` so the container can reach it, and pulls the model.
-Keep it running.
+- **[Hermes Agent](https://hermes-agent.nousresearch.com/docs/)** (Nous Research) — the agent framework and toolset.
+- **[Ollama](https://ollama.com)** — local model serving with Metal GPU acceleration.
+- **SearXNG** (search), **Redis** (cache), **Grafana / Loki / Prometheus** (observability).
 
-For image analysis, also pull the vision model used by the `vision` toolset:
+This repo adds the persona, the local-first deployment, multi-channel access, and
+the monitoring layer on top.
 
-```bash
-ollama pull qwen2.5vl:7b
-```
+## Roadmap
 
-> The `ollama-app` cask provides Metal GPU acceleration on Apple Silicon. Confirm
-> it is active with `grep -i metal /tmp/ollama.log` — expect `library=Metal`.
+- Knowledge-graph–backed memory
+- Multi-agent collaboration and workflow orchestration
+- Expanded tool ecosystem and custom integrations
+- Additional messaging channels
+- Cross-platform host support (beyond macOS)
 
-> Using the Ollama **menubar app** instead of the script? Make it listen on all
-> interfaces once: `launchctl setenv OLLAMA_HOST 0.0.0.0:11434`, then quit and
-> reopen the app.
+## Contributing
 
-### 2. Start the host services
+Contributions, ideas, and feedback are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md),
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md).
 
-```bash
-./scripts/setup-redis-host.sh        # shared Redis (SearXNG's cache/limiter)
-./scripts/setup-searxng-host.sh      # web search on localhost:8888
-./scripts/setup-monitoring-host.sh   # Grafana/Loki/Prometheus on localhost:3000
-```
+## License
 
-Run Redis before SearXNG (SearXNG uses it). The container reaches SearXNG at
-`host.docker.internal:8888` (`SEARXNG_URL`).
-
-To make all of this (plus Ollama) start at login and survive reboots, install the
-launchd agents instead:
-
-```bash
-./scripts/install-host-services.sh                 # managed Ollama + stacks + daily backup
-sudo ./scripts/install-firewall-daemon.sh          # block Ollama/SearXNG on the LAN
-```
-
-### 3. Open the devcontainer
-
-In VS Code (with the **Dev Containers** extension) or the `devcontainer` CLI:
-
-- **VS Code:** open this folder → "Reopen in Container".
-- **CLI:** `devcontainer up --workspace-folder .`
-
-On first create, `postCreate.sh` installs Hermes, copies `config/config.yaml`
-and `config/SOUL.md` into `~/.hermes/`, and verifies Ollama is reachable.
-
-### 4. Run
-
-Inside the container:
-
-```bash
-hermes            # start chatting against the local model
-hermes config     # view the active configuration
-hermes doctor     # diagnostics
-```
-
-## Integrations
-
-| Capability | Backend | Setup |
-|------------|---------|-------|
-| Chat / tools | `gpt-oss:20b` on host Ollama | default |
-| Vision | `qwen2.5vl:7b` on host Ollama | `ollama pull qwen2.5vl:7b` |
-| Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
-| Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
-| Identity / voice | `config/SOUL.md` | edit + rebuild |
-
-### Telegram
-
-Create a bot with [@BotFather](https://t.me/BotFather), then inside the container:
-
-```bash
-hermes gateway setup          # paste the token, pair your account
-```
-
-Once the token is in `~/.hermes/.env`, the gateway **auto-starts with the
-container**: the container's command (`.devcontainer/container-boot.sh`) launches
-it under PID 1 on every start, so it needs no open terminal. Start it manually with:
-
-```bash
-bash .devcontainer/start-gateway.sh    # detached; or: hermes gateway run (foreground)
-```
-
-The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
-`~/.hermes/.env`, never in the repo.
-
-## Monitoring
-
-`./scripts/setup-monitoring-host.sh` brings up the stack; open
-**http://localhost:3000** (loopback-only, no login) → dashboard *"Hermes — Live
-Activity"*. It streams, live:
-
-- **Agent / Telegram** activity from Hermes `agent.log` (via the `hermes-data` volume).
-- **Ollama** requests and model loads from `~/.hermes-monitoring/ollama.log`.
-- A **chat panel** with the real conversation text — `chat-shipper` reads it from
-  Hermes' `state.db` and ships it to Loki.
-- **Service up/down** (Prometheus + blackbox). An **Ollama-down alert** DMs Telegram;
-  put the bot token + your chat id in `monitoring/.env` (gitignored).
-
-Stop with `docker compose -f monitoring/docker-compose.yml down`.
-
-## Changing the model
-
-1. Pull a tag with a ≥64K context window on the host: `ollama pull llama3.1:8b`
-2. Edit `config/config.yaml` → `model.default` (and the `providers.custom.models`
-   timeout key) to match.
-3. Rebuild the container (or `cp config/config.yaml ~/.hermes/config.yaml` inside it).
-
-## What persists
-
-Two named Docker volumes survive rebuilds, so a rebuild is fast and skips the
-Hermes install:
-
-- **`hermes-data`** → `~/.hermes/` (config, `memories/`, `sessions/`, `skills/`,
-  `logs/`, agent code).
-- **`hermes-local`** → `~/.local/` (uv-managed Python runtime and the `hermes`
-  launcher the venv links to).
-
-Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
-(the next start reinstalls Hermes).
-
-## Notes
-
-- **Secrets:** real secrets go in `~/.hermes/.env` inside the container (seeded
-  from `config/.env.example`). `config/.env` is git-ignored.
-- **Web search** runs against the local SearXNG (`web.backend: searxng`,
-  `SEARXNG_URL=http://host.docker.internal:8888`). Swap in a hosted backend by
-  setting its key in `.env` and `web.backend` in `config.yaml`.
-- **No host filesystem access:** the agent's terminal backend is `local`, scoped
-  to the container only.
-- **Network:** Ollama and SearXNG bind `0.0.0.0` (the container reaches them via
-  `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN.
-  Grafana and Redis are loopback-only.
-- **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
-  daily, archiving the `hermes-data` volume to `~/hermes-backups`.
-
-## Contributing & license
-
-See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md),
-and [SECURITY.md](SECURITY.md).
-
-Licensed under the [MIT License](LICENSE). The license covers this repository's
-configuration, scripts, and docs only — Hermes Agent, Ollama, SearXNG, Grafana,
-and the other software it installs or runs keep their own licenses.
+[MIT](LICENSE). Covers this repository's persona, configuration, scripts, and docs —
+Hermes Agent, Ollama, and the other software it builds on keep their own licenses.
