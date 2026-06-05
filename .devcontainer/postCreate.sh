@@ -23,6 +23,10 @@ else
   echo "==> Hermes already installed: $(command -v hermes)"
 fi
 
+# Voice transcription (Telegram voice messages) — Hermes' local STT backend.
+echo "==> Ensuring faster-whisper (voice)"
+"${HOME}/.hermes/hermes-agent/venv/bin/pip" install -q faster-whisper 2>/dev/null || true
+
 # 2. Sync the version-controlled config into ~/.hermes.
 #    config.yaml is always overwritten from the repo (it is the source of truth);
 #    .env is seeded from the example only if absent, so local secrets survive.

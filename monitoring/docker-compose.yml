@@ -47,6 +47,17 @@ services:
       loki:
         condition: service_healthy
 
+  # Exposes Hermes' own status (gateway/bot connected) from agent.log as a metric,
+  # since the agent runs inside the devcontainer where blackbox can't probe it.
+  status-exporter:
+    image: python@sha256:236173eb74001afe2f60862de935b74fcbd00adfca247b2c27051a70a6a39a2d
+    container_name: hermes-status-exporter
+    restart: unless-stopped
+    command: ["python3", "/app/exporter.py"]
+    volumes:
+      - ./status-exporter/exporter.py:/app/exporter.py:ro
+      - hermes-data:/hermes:ro
+
   blackbox:
     image: prom/blackbox-exporter:v0.25.0
     container_name: hermes-blackbox

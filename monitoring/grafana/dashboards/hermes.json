@@ -85,7 +85,7 @@
         "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }
       }, "overrides": [] },
       "options": { "graphMode": "none", "colorMode": "background", "textMode": "value_and_name", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "" } },
-      "targets": [ { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "probe_success{service=~\"ollama|searxng|redis|loki|grafana\"}", "legendFormat": "{{service}}", "instant": true } ]
+      "targets": [ { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "probe_success{service=~\"ollama|searxng|redis|loki|grafana\"}", "legendFormat": "{{service}}", "instant": true }, { "refId": "B", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "hermes_gateway_up", "legendFormat": "{{service}}", "instant": true } ]
     },
 
     {

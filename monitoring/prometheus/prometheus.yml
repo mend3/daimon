@@ -39,6 +39,11 @@ scrape_configs:
         target_label: service
         replacement: loki
 
+  # Hermes' own status (gateway/bot connected), exposed from agent.log.
+  - job_name: hermes-status
+    static_configs:
+      - targets: [status-exporter:9101]
+
   # Redis isn't HTTP — probe its TCP port over the hermes-shared network.
   - job_name: blackbox-tcp
     metrics_path: /probe
