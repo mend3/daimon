@@ -2,6 +2,23 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0006 — Persist ~/.local and run the gateway under PID 1
+
+**Status:** Accepted
+
+**Context:** Every container rebuild reinstalled Hermes (~2 min) because the
+uv-managed Python and launcher lived in container-only `~/.local`. Separately, the
+messaging gateway could not be kept alive from a lifecycle hook — the tooling kills
+processes spawned by `postStartCommand`, even with `setsid`.
+
+**Decision:** Add a **`hermes-local`** volume for `~/.local`, so the toolchain
+persists and rebuilds skip the install. Set `overrideCommand: false` and make the
+container command `container-boot.sh` (PID 1) start the gateway and then idle.
+
+**Consequences:** Rebuilds are ~2s instead of ~2min. The gateway auto-starts on
+every container start and survives because it is a child of PID 1. `postStartCommand`
+is not used. First-ever install on an empty volume still runs the full installer.
+
 ## ADR-0005 — Local-only integrations (vision, web search)
 
 **Status:** Accepted

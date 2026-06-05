@@ -11,10 +11,14 @@ host. This repo is configuration + scripts, not application code.
   `host.docker.internal:11434/v1` (OpenAI-compatible API).
 - Rationale: Ollama inside Docker on macOS is CPU-only; native host keeps
   inference Metal-accelerated while Hermes stays sandboxed.
-- `~/.hermes/` (config, memories, sessions, skills, logs, installed agent code)
-  persists in the named Docker volume **`hermes-data`** across rebuilds.
-- `config/config.yaml` is the source of truth; `postCreate.sh` syncs it into
-  `~/.hermes/config.yaml` and installs Hermes on container create.
+- Two named volumes persist across rebuilds: **`hermes-data`** (`~/.hermes`: config,
+  memories, sessions, agent code) and **`hermes-local`** (`~/.local`: uv Python
+  runtime + launcher). With both warm, `postCreate.sh` skips the Hermes install.
+- `config/config.yaml` / `config/SOUL.md` are the source of truth; `postCreate.sh`
+  syncs them into `~/.hermes/`.
+- The container uses `overrideCommand: false`; its command `container-boot.sh` is
+  PID 1 — it starts the messaging gateway (surviving, unlike a lifecycle hook) and
+  then idles. Lifecycle hooks (postStartCommand) cannot keep a daemon alive here.
 
 # Technical Standards
 

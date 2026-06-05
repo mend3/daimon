@@ -10,11 +10,18 @@
   // Docker too, and is a harmless no-op on Docker Desktop for Mac.
   "runArgs": ["--add-host=host.docker.internal:host-gateway"],
 
-  // Persist ~/.hermes (config, memories, sessions, logs, the installed agent code)
-  // across rebuilds via a named volume.
+  // Persist Hermes data and the installed toolchain across rebuilds via named
+  // volumes. ~/.hermes holds config/memories/sessions/agent code; ~/.local holds
+  // the uv-managed Python runtime and launcher the venv links to — without it,
+  // every rebuild reinstalls Hermes from scratch.
   "mounts": [
-    "source=hermes-data,target=/home/vscode/.hermes,type=volume"
+    "source=hermes-data,target=/home/vscode/.hermes,type=volume",
+    "source=hermes-local,target=/home/vscode/.local,type=volume"
   ],
+
+  // The container's own CMD (container-boot.sh) keeps it alive and starts the
+  // gateway under PID 1, so we let the image command run instead of the default.
+  "overrideCommand": false,
 
   // Point Hermes' OpenAI-compatible client at the host Ollama endpoint. These are
   // also set explicitly in config.yaml; kept here so any env-driven code path agrees.
@@ -25,10 +32,6 @@
   },
 
   "postCreateCommand": "bash .devcontainer/postCreate.sh",
-
-  // Bring the messaging gateway up whenever the container starts (no-op without a
-  // Telegram token). Keeps the Telegram bot alive without a manual terminal.
-  "postStartCommand": "bash .devcontainer/start-gateway.sh",
 
   "customizations": {
     "vscode": {

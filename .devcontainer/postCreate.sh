@@ -6,16 +6,16 @@ set -euo pipefail
 HERMES_HOME="${HOME}/.hermes"
 REPO_CONFIG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config"
 
-echo "==> Preparing ${HERMES_HOME}"
-# The named volume mounts empty and root-owned; hand it to the runtime user.
-if [ ! -w "${HERMES_HOME}" ]; then
-  sudo chown -R vscode:vscode "${HERMES_HOME}"
-fi
-mkdir -p "${HERMES_HOME}"
+echo "==> Preparing persisted volumes"
+# Named volumes mount empty and root-owned; hand them to the runtime user.
+for d in "${HERMES_HOME}" "${HOME}/.local"; do
+  mkdir -p "${d}" 2>/dev/null || true
+  [ -w "${d}" ] || sudo chown -R vscode:vscode "${d}"
+done
 
-# 1. Install Hermes Agent (CLI-only) if the launcher is not present.
-#    The launcher lives in ~/.local/bin which is not on the persisted volume,
-#    so this re-runs after a full rebuild and restores it.
+# 1. Install Hermes Agent (CLI-only) if not already present. The launcher and the
+#    uv-managed Python both live in ~/.local (a persisted volume), so after the
+#    first install rebuilds skip this entirely.
 if ! command -v hermes >/dev/null 2>&1; then
   echo "==> Installing Hermes Agent (CLI)..."
   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
