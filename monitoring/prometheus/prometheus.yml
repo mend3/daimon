@@ -38,3 +38,20 @@ scrape_configs:
         regex: '.*loki.*'
         target_label: service
         replacement: loki
+
+  # Redis isn't HTTP — probe its TCP port over the hermes-shared network.
+  - job_name: blackbox-tcp
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: [redis:6379]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+      - target_label: service
+        replacement: redis

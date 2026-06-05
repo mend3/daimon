@@ -73,7 +73,7 @@
         "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }
       }, "overrides": [] },
       "options": { "graphMode": "none", "colorMode": "background", "textMode": "value_and_name", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "" } },
-      "targets": [ { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "probe_success{service=~\"ollama|searxng|loki|grafana\"}", "legendFormat": "{{service}}", "instant": true } ]
+      "targets": [ { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "probe_success{service=~\"ollama|searxng|redis|loki|grafana\"}", "legendFormat": "{{service}}", "instant": true } ]
     },
 
     {
@@ -182,6 +182,32 @@
           "gridPos": { "h": 12, "w": 12, "x": 12, "y": 41 },
           "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending" },
           "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"ollama\"} |~ `(?i)$search`", "queryType": "range" } ]
+        }
+      ]
+    },
+    {
+      "id": 60, "type": "row", "title": "🧩 Hermes — status & capabilities", "collapsed": true,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "panels": [
+        {
+          "id": 61, "type": "timeseries", "title": "🛠️ Tool usage by component",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 42 },
+          "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 70, "stacking": { "mode": "normal", "group": "A" }, "lineWidth": 0 }, "unit": "short" }, "overrides": [] },
+          "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+          "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "sum by (component) (count_over_time({source=\"hermes\", component=~\"tools..+\"} [$__auto]))", "legendFormat": "{{component}}", "queryType": "range" } ]
+        },
+        {
+          "id": 62, "type": "logs", "title": "🔌 Gateway events",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 42 },
+          "options": { "showTime": true, "wrapLogMessage": true, "enableLogDetails": false, "dedupStrategy": "none", "sortOrder": "Descending" },
+          "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes\", component=\"gateway.run\", filename=\"/hermes/logs/agent.log\"} |~ `Starting Hermes Gateway|Connected to Telegram|telegram connected|telegram disconnected|Unauthorized|Ignoring /start|Gateway running`", "queryType": "range" } ]
+        },
+        {
+          "id": 63, "type": "text", "title": "Capabilities reference",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 51 },
+          "options": { "mode": "markdown", "content": "### 🧩 Stack & capabilities\n\n- **Models** — chat `gpt-oss:20b` · vision `qwen2.5vl:7b` (host Ollama, Metal GPU, 64K context)\n- **Web search** — SearXNG (curated engines) · **Cache/limiter** — shared Redis (db 1)\n- **Gateway** — Telegram, allowlisted users (`TELEGRAM_ALLOWED_USERS`)\n- **Toolsets** — terminal · file · code execution · web · vision · memory · skills · cron · delegation · todo · clarify\n- **Services** — Ollama `:11434` · SearXNG `:8888` · Redis `:6379` · Grafana `:3000` · Loki/Prometheus (internal)\n\nThe panels above show live tool usage and gateway lifecycle; the **Service status** tile (top) shows up/down." }
         }
       ]
     }

@@ -7,3 +7,6 @@ modules:
       method: GET
       preferred_ip_protocol: ip4
       fail_if_not_ssl: false
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
