@@ -33,6 +33,20 @@ services:
       loki:
         condition: service_healthy
 
+  # Ships real conversation text from Hermes' state.db to Loki for the chat panel.
+  chat-shipper:
+    image: python@sha256:236173eb74001afe2f60862de935b74fcbd00adfca247b2c27051a70a6a39a2d
+    container_name: hermes-chat-shipper
+    restart: unless-stopped
+    command: ["python3", "/app/ship.py"]
+    volumes:
+      - ./chat-shipper/ship.py:/app/ship.py:ro
+      - hermes-data:/hermes:ro
+      - chat-shipper-state:/state
+    depends_on:
+      loki:
+        condition: service_healthy
+
   blackbox:
     image: prom/blackbox-exporter:v0.25.0
     container_name: hermes-blackbox
@@ -86,5 +100,6 @@ volumes:
   grafana-data:
   promtail-positions:
   prometheus-data:
+  chat-shipper-state:
   hermes-data:
     external: true

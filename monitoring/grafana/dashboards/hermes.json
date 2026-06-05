@@ -155,7 +155,7 @@
       "datasource": { "type": "loki", "uid": "loki" },
       "gridPos": { "h": 13, "w": 24, "x": 0, "y": 14 },
       "options": { "showTime": true, "showLabels": false, "showCommonLabels": false, "wrapLogMessage": true, "prettifyLogMessage": false, "enableLogDetails": false, "dedupStrategy": "none", "sortOrder": "Descending" },
-      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes\", component=\"gateway.run\", filename=\"/hermes/logs/agent.log\"} |~ `inbound message:|response ready:` | regexp `(?:inbound message:.*?msg='(?P<umsg>.*)'|response ready:.*?time=(?P<rt>[0-9.]+)s api_calls=(?P<calls>[0-9]+) response=(?P<rc>[0-9]+) chars)` | line_format `{{ if .umsg }}👤 ❯  {{ .umsg }}{{ else }}🤖 ✓  resposta {{ .rc }} chars  ·  ⏱ {{ .rt }}s  ·  {{ .calls }} chamada(s) ao modelo{{ end }}`", "queryType": "range" } ]
+      "targets": [ { "refId": "A", "datasource": { "type": "loki", "uid": "loki" }, "expr": "{source=\"hermes_chat\"} | line_format `{{ if eq .role \"user\" }}👤 ❯  {{ __line__ }}{{ else }}🤖 ✓  {{ __line__ }}{{ end }}`", "queryType": "range" } ]
     },
     {
       "id": 30, "type": "logs", "title": "🛰️ Stream unificado  ·  Fonte=$source  Nível=$level  Busca=\"$search\"",
