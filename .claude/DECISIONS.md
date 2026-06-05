@@ -2,6 +2,22 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0008 — One shared Redis on the hermes-shared network
+
+**Status:** Accepted
+
+**Context:** SearXNG ran its own Valkey purely for cache/limiter, and there was no
+reusable cache for other containers.
+
+**Decision:** Run a single password-protected Redis (`redis/`) on the external
+`hermes-shared` Docker network. SearXNG uses db 1 over that network; db 0 is free
+for current/future containers. Valkey was removed.
+
+**Consequences:** One backend to run and secure; containers join `hermes-shared`
+and connect to `redis:6379`. Redis must start before SearXNG. It binds loopback
+only, so the devcontainer would join `hermes-shared` rather than use
+host.docker.internal.
+
 ## ADR-0007 — Observability stack and security hardening
 
 **Status:** Accepted

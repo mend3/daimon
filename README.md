@@ -40,18 +40,16 @@ config/
   config.yaml         # Hermes config → mounted to ~/.hermes/config.yaml
   SOUL.md             # agent identity/voice → mounted to ~/.hermes/SOUL.md
   .env.example        # secrets/env template
+redis/
+  docker-compose.yml  # shared, password-protected Redis on the hermes-shared network
 searxng/
-  docker-compose.yml  # local web-search engine for the web toolset
+  docker-compose.yml  # web-search engine; cache/limiter on the shared Redis
   settings.yml.example
 monitoring/
-  docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox
-  loki/, promtail/, grafana/   # configs + provisioned dashboard + Ollama-down alert
-redis/
-  docker-compose.yml  # shared, password-protected Redis (hermes-shared network)
-scripts/
-  setup-ollama-host.sh     # HOST: install Ollama + pull chat & vision models
-  setup-searxng-host.sh    # HOST: start local SearXNG
-  setup-monitoring-host.sh # HOST: start Grafana/Loki/Promtail
+  docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox + chat-shipper
+  grafana/ loki/ promtail/ prometheus/ blackbox/ chat-shipper/  # configs, dashboard, alert
+scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, monitoring,
+                      # launchd services, daily backup, LAN firewall
 ```
 
 ## Setup
@@ -81,14 +79,24 @@ ollama pull qwen2.5vl:7b
 > interfaces once: `launchctl setenv OLLAMA_HOST 0.0.0.0:11434`, then quit and
 > reopen the app.
 
-### 2. (Optional) Start local web search
+### 2. Start the host services
 
 ```bash
-./scripts/setup-searxng-host.sh
+./scripts/setup-redis-host.sh        # shared Redis (SearXNG's cache/limiter)
+./scripts/setup-searxng-host.sh      # web search on localhost:8888
+./scripts/setup-monitoring-host.sh   # Grafana/Loki/Prometheus on localhost:3000
 ```
 
-Runs a private SearXNG on `localhost:8888` for the `web` toolset. The container
-reaches it at `host.docker.internal:8888` (set as `SEARXNG_URL`).
+Run Redis before SearXNG (SearXNG uses it). The container reaches SearXNG at
+`host.docker.internal:8888` (`SEARXNG_URL`).
+
+To make all of this (plus Ollama) start at login and survive reboots, install the
+launchd agents instead:
+
+```bash
+./scripts/install-host-services.sh                 # managed Ollama + stacks + daily backup
+sudo ./scripts/install-firewall-daemon.sh          # block Ollama/SearXNG on the LAN
+```
 
 ### 3. Open the devcontainer
 
@@ -141,17 +149,18 @@ The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). The token lives in
 
 ## Monitoring
 
-Real-time observability via Grafana + Loki + Promtail:
+`./scripts/setup-monitoring-host.sh` brings up the stack; open
+**http://localhost:3000** (loopback-only, no login) → dashboard *"Hermes —
+Atividade ao vivo"*. It streams, live:
 
-```bash
-./scripts/setup-monitoring-host.sh    # on the HOST
-```
+- **Agent / Telegram** activity from Hermes `agent.log` (via the `hermes-data` volume).
+- **Ollama** requests and model loads from `~/.hermes-monitoring/ollama.log`.
+- A **chat panel** with the real conversation text — `chat-shipper` reads it from
+  Hermes' `state.db` and ships it to Loki.
+- **Service up/down** (Prometheus + blackbox). An **Ollama-down alert** DMs Telegram;
+  put the bot token + your chat id in `monitoring/.env` (gitignored).
 
-Open **http://localhost:3000** → dashboard *"Hermes — Atividade ao vivo"*. It
-streams three sources live: the agent/Telegram activity (Hermes `agent.log` /
-`gateway.log`, read from the `hermes-data` volume), Ollama requests and model
-loads (`~/.hermes-monitoring/ollama.log`), and SearXNG. Grafana is local-only with
-anonymous access (no login). Stop with `docker compose -f monitoring/docker-compose.yml down`.
+Stop with `docker compose -f monitoring/docker-compose.yml down`.
 
 ## Changing the model
 
@@ -182,3 +191,8 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
   setting its key in `.env` and `web.backend` in `config.yaml`.
 - **No host filesystem access:** the agent's terminal backend is `local`, scoped
   to the container only.
+- **Network:** Ollama and SearXNG bind `0.0.0.0` (the container reaches them via
+  `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN.
+  Grafana and Redis are loopback-only.
+- **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
+  daily, archiving the `hermes-data` volume to `~/hermes-backups`.

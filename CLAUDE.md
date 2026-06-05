@@ -23,7 +23,10 @@ tasks from a local model. Start it inside the devcontainer with `hermes`.
 | `.devcontainer/` | Container definition, Dockerfile, `postCreate.sh` |
 | `config/config.yaml` | Hermes config — source of truth, synced to `~/.hermes/` |
 | `config/.env.example` | Secrets template, seeds `~/.hermes/.env` |
-| `scripts/setup-ollama-host.sh` | Host-side: install Ollama, pull the model |
+| `redis/` | Shared password-protected Redis (SearXNG cache + general use) |
+| `searxng/` | Local web-search engine for the `web` toolset |
+| `monitoring/` | Grafana/Loki/Promtail/Prometheus + chat-shipper + Ollama-down alert |
+| `scripts/` | Host setup + lifecycle (Ollama, services, backup, firewall) |
 | `README.md` | Human-facing setup guide |
 
 ## How to run
@@ -60,6 +63,10 @@ tasks from a local model. Start it inside the devcontainer with `hermes`.
 - **Metal** — Apple's GPU backend; why Ollama runs on the host, not in Docker.
 - **devcontainer** — the isolated container where Hermes and its tools execute.
 - **host.docker.internal** — DNS name the container uses to reach the host's Ollama.
-- **`hermes-data`** — named Docker volume persisting `~/.hermes/` across rebuilds.
+- **`hermes-data` / `hermes-local`** — named volumes persisting `~/.hermes/` and
+  `~/.local/` (toolchain) across rebuilds.
 - **`~/.hermes/`** — Hermes' runtime home: `config.yaml`, `.env`, `SOUL.md`
-  (agent identity), `memories/`, `sessions/`, `skills/`, `logs/`.
+  (agent identity), `memories/`, `sessions/`, `logs/`, and `state.db` (conversations).
+- **`hermes-shared`** — Docker network linking host containers to the shared Redis.
+- **chat-shipper** — sidecar that ships `state.db` conversation text to Loki for the
+  Grafana chat panel.

@@ -45,7 +45,8 @@ host. This repo is configuration + scripts, not application code.
   logs (hermes-data volume) and the Ollama log (`~/.hermes-monitoring/ollama.log`).
   Prometheus/blackbox probe up/down; an "Ollama down" alert DMs Telegram
   (`monitoring/.env` + generated `contactpoints.yaml`, both gitignored). No
-  docker.sock mount (security).
+  docker.sock mount (security). A `chat-shipper` sidecar reads Hermes' `state.db`
+  (conversation `messages`) and ships the real text to Loki for the chat panel.
 - **Redis** (`redis/`): single shared, password-protected, loopback-only
   (`127.0.0.1:6379`) instance on the external `hermes-shared` Docker network.
   Backs SearXNG's cache/limiter (db 1) and is open for current/future containers
