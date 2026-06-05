@@ -1,0 +1,36 @@
+{
+  "name": "hermes-agent-local",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+
+  // host.docker.internal lets the container reach Ollama running natively on the
+  // macOS host (Metal-accelerated). host-gateway makes the alias resolve on Linux
+  // Docker too, and is a harmless no-op on Docker Desktop for Mac.
+  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+
+  // Persist ~/.hermes (config, memories, sessions, logs, the installed agent code)
+  // across rebuilds via a named volume.
+  "mounts": [
+    "source=hermes-data,target=/home/vscode/.hermes,type=volume"
+  ],
+
+  // Point Hermes' OpenAI-compatible client at the host Ollama endpoint. These are
+  // also set explicitly in config.yaml; kept here so any env-driven code path agrees.
+  "containerEnv": {
+    "OPENAI_BASE_URL": "http://host.docker.internal:11434/v1",
+    "OPENAI_API_KEY": "ollama",
+    "OLLAMA_BASE_URL": "http://host.docker.internal:11434"
+  },
+
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}

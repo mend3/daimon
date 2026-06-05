@@ -1,0 +1,71 @@
+# --- Project ---------------------------------------------------------------
+# Local secrets — never commit. Use config/.env.example as the template.
+config/.env
+.env
+.env.*
+!.env.example
+
+# Hermes runtime data (lives in the named Docker volume, not the repo)
+.hermes/
+
+# Ephemeral session context and Claude Code runtime artifacts
+.claude/SESSION.md
+.claude/*.lock
+
+# --- Secrets / keys --------------------------------------------------------
+*.pem
+*.key
+*.p12
+
+# --- OS / editor -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# --- Logs ------------------------------------------------------------------
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Node / TypeScript -----------------------------------------------------
+node_modules/
+.npm
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/versions
+.pnp.*
+*.tsbuildinfo
+.eslintcache
+coverage/
+dist/
+build/
+out/
+
+# --- Next.js ---------------------------------------------------------------
+.next/
+.vercel
+next-env.d.ts
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.Python
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/

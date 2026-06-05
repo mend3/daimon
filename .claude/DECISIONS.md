@@ -1,0 +1,54 @@
+# Architecture Decision Records
+
+Major decisions that remain relevant. Newest first.
+
+## ADR-0004 — Default model: gpt-oss:20b
+
+**Status:** Accepted
+
+**Context:** Hermes requires a model with ≥64K context. The initial choice,
+qwen3:8b, caps at 40,960 tokens on Ollama and cannot extend without re-converting
+the GGUF with YaRN.
+
+**Decision:** Use `gpt-oss:20b` — 128K native context, MoE (~3.6B active), fits the
+host's ~17.8 GiB Metal VRAM at 100% GPU, strong tool calling.
+
+**Consequences:** Served at a 64K window. If swapping, pick a model with ≥64K
+native context: `llama3.1:8b`, `mistral-nemo:12b`, or `qwen3-coder:30b` (the last
+exceeds VRAM and offloads partially to CPU).
+
+## ADR-0003 — Ollama installed via the `ollama-app` cask
+
+**Status:** Accepted
+
+**Context:** The Homebrew `ollama` CLI formula lacks the Metal runner and falls
+back to CPU on Apple Silicon.
+
+**Decision:** Install the `ollama-app` cask, which bundles the Metal runner.
+
+**Consequences:** Confirm with `library=Metal` in the Ollama log.
+
+## ADR-0002 — Ollama runs natively on the host, not in Docker
+
+**Status:** Accepted
+
+**Context:** Docker on macOS has no Metal access; a containerized Ollama is
+CPU-only.
+
+**Decision:** Run Ollama natively on the host, bound to `0.0.0.0`; the container
+connects via `host.docker.internal`.
+
+**Consequences:** Hermes stays sandboxed in the container while inference stays
+GPU-accelerated.
+
+## ADR-0001 — Hermes isolated in a devcontainer
+
+**Status:** Accepted
+
+**Context:** Keep the agent and its tool execution off the host filesystem.
+
+**Decision:** Run Hermes in a devcontainer with terminal backend `local` (the
+container is the sandbox). Persist `~/.hermes` in the named volume `hermes-data`.
+
+**Consequences:** Rebuilds preserve config, memories, and sessions; reset with
+`docker volume rm hermes-data`.

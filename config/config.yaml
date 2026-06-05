@@ -1,0 +1,95 @@
+# Hermes Agent — local configuration (Ollama + Qwen)
+# Synced into ~/.hermes/config.yaml by .devcontainer/postCreate.sh.
+# Docs: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+
+# --- Model -------------------------------------------------------------------
+# gpt-oss:20b served by Ollama on the macOS host (Metal GPU). A MoE model
+# (~3.6B active params) with native 128K context and strong tool calling. The
+# container reaches it via the OpenAI-compatible endpoint at host.docker.internal.
+# context_length is pinned to 65536 to match the runtime window Ollama serves
+# (OLLAMA_CONTEXT_LENGTH) and satisfy the agent's 64K minimum.
+model:
+  default: "gpt-oss:20b"
+  provider: custom
+  base_url: "http://host.docker.internal:11434/v1"
+  api_key: "ollama"          # Ollama ignores the value but the client requires one
+  context_length: 65536
+
+# Generous timeouts: local inference streams slower than a hosted API, and the
+# first request pays the model load-into-VRAM cost.
+providers:
+  custom:
+    request_timeout_seconds: 1800
+    stale_timeout_seconds: 600
+    models:
+      "gpt-oss:20b":
+        timeout_seconds: 1200
+
+# --- Execution backend -------------------------------------------------------
+# The devcontainer IS the sandbox, so run tools locally inside it (no nested
+# Docker). The host filesystem is never exposed to the agent.
+terminal:
+  backend: local
+
+# --- Agent behavior ----------------------------------------------------------
+agent:
+  max_turns: 60                # iteration budget per conversation
+  api_max_retries: 3
+  reasoning_effort: "medium"   # Qwen3 supports thinking; medium balances speed/quality
+  tool_use_enforcement: "auto"
+
+# --- Auxiliary models --------------------------------------------------------
+# Reuse the local Qwen for compression/vision/web-extract instead of calling out
+# to a hosted provider. "main" = same model as the primary agent.
+auxiliary:
+  compression:
+    provider: "main"
+    model: ""
+  vision:
+    provider: "main"
+    model: ""
+  web_extract:
+    provider: "main"
+    model: ""
+
+# --- Context management ------------------------------------------------------
+# 8B models have a smaller usable context window than frontier APIs; compress
+# earlier and keep a tighter recent tail.
+compression:
+  enabled: true
+  threshold: 0.50
+  target_ratio: 0.20
+  protect_last_n: 16
+  protect_first_n: 3
+
+# --- Memory ------------------------------------------------------------------
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+
+# --- Safety / approvals ------------------------------------------------------
+# Manual approval for actions; secret redaction and command scanning on.
+approvals:
+  mode: manual
+
+security:
+  redact_secrets: true
+  tirith_enabled: true
+  tirith_fail_open: true
+
+# --- Web search --------------------------------------------------------------
+# No external search keys by default. Point this at a local SearXNG if you run
+# one, or set FIRECRAWL_API_KEY / TAVILY_API_KEY etc. in .env and switch backend.
+web:
+  backend: searxng
+  # search_backend: "searxng"   # uncomment + set SEARXNG_URL in .env to enable
+
+# --- Display -----------------------------------------------------------------
+display:
+  streaming: true
+  show_reasoning: false
+  tool_progress: all
+  language: en
+
+# Adjust to your locale if you want timestamps/cron to match local time.
+timezone: "America/Sao_Paulo"
