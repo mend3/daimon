@@ -1,5 +1,11 @@
 # Hermes Agent — Local Setup (Ollama + gpt-oss, devcontainer)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Platform: macOS](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon-black?logo=apple&logoColor=white)
+![local LLM: Ollama](https://img.shields.io/badge/local%20LLM-Ollama%20gpt--oss-5A67D8)
+![Devcontainer](https://img.shields.io/badge/devcontainer-Docker-2496ED?logo=docker&logoColor=white)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 Run [Hermes Agent](https://hermes-agent.nousresearch.com/docs/) fully isolated in a
 **devcontainer**, driven by **gpt-oss:20b** served locally by **Ollama** running
 natively on the macOS host (so inference uses the Apple Silicon GPU via Metal).
