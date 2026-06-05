@@ -27,6 +27,11 @@ fi
 echo "==> Ensuring faster-whisper (voice)"
 "${HOME}/.hermes/hermes-agent/venv/bin/pip" install -q faster-whisper 2>/dev/null || true
 
+# Make /help command listings tappable in Telegram (idempotent, non-fatal).
+echo "==> Patching Telegram help for clickable commands"
+"${HOME}/.hermes/hermes-agent/venv/bin/python" \
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patches/telegram-help-clickable.py" || true
+
 # 2. Sync the version-controlled config into ~/.hermes.
 #    config.yaml is always overwritten from the repo (it is the source of truth);
 #    .env is seeded from the example only if absent, so local secrets survive.

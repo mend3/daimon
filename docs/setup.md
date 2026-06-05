@@ -42,6 +42,7 @@ startup.
   postCreate.sh       # installs Hermes (skipped once volumes are warm), syncs config
   container-boot.sh   # PID 1: starts the gateway, then keeps the container alive
   start-gateway.sh    # idempotent gateway launcher (no-op without a token)
+  patches/            # idempotent post-install patches applied to Hermes (e.g. clickable /help)
 config/
   config.yaml         # Hermes config → mounted to ~/.hermes/config.yaml
   SOUL.md             # agent identity/voice → mounted to ~/.hermes/SOUL.md
@@ -163,6 +164,13 @@ bash .devcontainer/start-gateway.sh    # detached; or: hermes gateway run (foreg
 The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). Manage access with
 `hermes pairing approve|revoke|list` or by editing `TELEGRAM_ALLOWED_USERS`. The
 token lives in `~/.hermes/.env`, never in the repo.
+
+**Clickable commands.** Commands are tappable two ways: the native command menu
+(the `/` / menu button, populated via `set_my_commands`) and the `/help` listing.
+Hermes wraps `/help` commands in backticks, which makes them monospace and stops
+Telegram from auto-linking them; `patches/telegram-help-clickable.py` (applied by
+`postCreate.sh`, idempotent, survives a Hermes reinstall) strips those backticks so
+the listed commands stay tappable.
 
 ### Branding & avatar
 
