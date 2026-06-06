@@ -8,7 +8,7 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
-_SCHEMA = """
+_SOURCES_DDL = """
 CREATE TABLE IF NOT EXISTS sources (
     source_id     TEXT NOT NULL,
     capability    TEXT NOT NULL,
@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS sources (
     updated_at    INTEGER NOT NULL,
     PRIMARY KEY (source_id, capability)
 );
+"""
+
+_SCHEMA = _SOURCES_DDL + """
 CREATE INDEX IF NOT EXISTS idx_sources_capability ON sources(capability);
 CREATE INDEX IF NOT EXISTS idx_sources_hash ON sources(content_hash);
 
@@ -54,7 +57,21 @@ class SqliteLedger:
         self._lock = threading.RLock()
         with self._lock:
             self.db.executescript(_SCHEMA)
+            self._migrate_pk()
             self.db.commit()
+
+    def _migrate_pk(self) -> None:
+        """Upgrade a pre-existing `sources` table whose primary key was source_id
+        only to the composite (source_id, capability) key."""
+        cols = self.db.execute("PRAGMA table_info(sources)").fetchall()
+        pk = {c["name"] for c in cols if c["pk"]}
+        if pk and pk != {"source_id", "capability"}:
+            self.db.executescript(
+                "ALTER TABLE sources RENAME TO _sources_old;"
+                + _SOURCES_DDL
+                + "INSERT OR IGNORE INTO sources SELECT * FROM _sources_old;"
+                "DROP TABLE _sources_old;"
+            )
 
     def get(self, source_id: str, capability: str) -> SourceRow | None:
         with self._lock:

@@ -205,14 +205,62 @@ async def stt(file: UploadFile = File(...)) -> dict:
 _MODULE_META = {
     "workflows": {"id": "workflows", "label": "Workflows", "icon": "🧩"},
     "knowledge": {"id": "knowledge", "label": "Knowledge", "icon": "🕸"},
+    "feeds": {"id": "feeds", "label": "Feeds", "icon": "📰"},
 }
 
 
 @app.get("/api/modules")
 def modules() -> list[dict]:
-    enabled = [m.strip() for m in os.environ.get("ELLA_MODULES", "workflows,knowledge").split(",")
-               if m.strip()]
+    enabled = [m.strip() for m in
+               os.environ.get("ELLA_MODULES", "workflows,knowledge,feeds").split(",") if m.strip()]
     return [_MODULE_META[m] for m in enabled if m in _MODULE_META]
+
+
+# ----- feeds: collection, browsing, and AI categorization into the RAG -----
+@app.get("/api/feeds")
+def feeds_list() -> list[dict]:
+    from .feeds import MinifluxClient
+    try:
+        return MinifluxClient().feeds()
+    except Exception:
+        return []
+
+
+@app.get("/api/feeds/entries")
+def feeds_entries(limit: int = 20) -> list[dict]:
+    from .feeds import MinifluxClient, _HTML
+    try:
+        return [{"id": e["id"], "title": e.get("title"), "url": e.get("url"),
+                 "feed": (e.get("feed") or {}).get("title"),
+                 "preview": _HTML.sub(" ", e.get("content", "")).strip()[:240]}
+                for e in MinifluxClient().unread(limit)]
+    except Exception:
+        return []
+
+
+class SubscribeReq(BaseModel):
+    url: str
+
+
+@app.post("/api/feeds/subscribe")
+def feeds_subscribe(req: SubscribeReq) -> dict:
+    from .feeds import MinifluxClient
+    try:
+        return MinifluxClient().subscribe(req.url)
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e)}
+
+
+@app.post("/api/feeds/process")
+async def feeds_process(limit: int = 15) -> dict:
+    from .feeds import process
+    return await asyncio.to_thread(process, limit)
+
+
+@app.get("/api/feeds/clusters")
+def feeds_clusters() -> dict:
+    from .feeds import clusters
+    return clusters()
 
 
 # ----- knowledge graph: sources as nodes, semantic neighbours as edges -----

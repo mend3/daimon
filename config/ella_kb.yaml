@@ -39,15 +39,13 @@ ella_kb:
     chat:
       enabled: true
 
-    # Example connector: Miniflux feeds. Enable after scripts/setup-miniflux-host.sh
-    # and adding MINIFLUX_* to ~/.hermes/.env. include/exclude triage by keyword.
+    # Feeds connector (Miniflux). The web Feeds module processes items with AI and
+    # ingests them here; enabling makes them part of recall and the knowledge graph.
+    # Needs scripts/setup-miniflux-host.sh + MINIFLUX_* in ~/.hermes/.env.
     feeds:
-      enabled: false
+      enabled: true
       settings:
         batch_limit: 50
-        include: []   # keep only items mentioning these (empty = keep all)
-        exclude: []
-        tags: ["feed"]
 
     # Example connector: inbound webhook (push). Enable, set KB_WEBHOOK_SECRET in
     # ~/.hermes/.env, and run `ella-kb webhook-serve`.

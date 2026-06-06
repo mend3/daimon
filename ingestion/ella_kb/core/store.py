@@ -68,6 +68,29 @@ class QdrantStore:
         self.client.upsert(collection_name=name, points=points)
         return len(points)
 
+    def list_sources(self, source_type: str, limit: int = 500) -> list[dict]:
+        """One entry per source in a collection (deduped over its chunks) with the
+        payload fields used for browsing/grouping (title, uri, tags, summary). Pages
+        through all chunks — `limit` bounds distinct sources, not Qdrant points."""
+        name = self.collection_for(source_type)
+        if not self.client.collection_exists(name):
+            return []
+        seen: dict[str, dict] = {}
+        offset = None
+        while True:
+            points, offset = self.client.scroll(
+                collection_name=name, with_payload=True, with_vectors=False,
+                limit=256, offset=offset)
+            for p in points:
+                pl = p.payload or {}
+                sid = pl.get("source_id")
+                if sid and sid not in seen:
+                    seen[sid] = {"source_id": sid, "title": pl.get("title"), "uri": pl.get("uri"),
+                                 "tags": pl.get("tags", []), "summary": pl.get("summary")}
+            if offset is None or len(seen) >= limit:
+                break
+        return list(seen.values())
+
     def representative_vector(self, source_type: str, source_id: str) -> list[float] | None:
         """The first chunk's vector — a stand-in for the whole document, used to
         relate sources to each other in the knowledge graph."""

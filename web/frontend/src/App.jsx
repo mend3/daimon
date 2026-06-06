@@ -3,11 +3,12 @@ import { api } from "./api";
 import Chat from "./components/Chat.jsx";
 import Workflows from "./modules/Workflows.jsx";
 import Knowledge from "./modules/Knowledge.jsx";
+import Feeds from "./modules/Feeds.jsx";
 
 // Plug-and-play modules: the backend decides which are enabled (future: per tier /
 // user). The shell renders a rail for the enabled ones and the active module; the
 // Chat panel is always present.
-const REGISTRY = { workflows: Workflows, knowledge: Knowledge };
+const REGISTRY = { workflows: Workflows, knowledge: Knowledge, feeds: Feeds };
 
 export default function App() {
   const [modules, setModules] = useState([]);

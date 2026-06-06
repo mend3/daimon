@@ -4,6 +4,16 @@ const j = (r) => r.json();
 export const api = {
   modules: () => fetch("/api/modules").then(j),
   knowledgeGraph: () => fetch("/api/knowledge/graph").then(j),
+  feeds: () => fetch("/api/feeds").then(j),
+  feedEntries: (limit = 20) => fetch(`/api/feeds/entries?limit=${limit}`).then(j),
+  feedClusters: () => fetch("/api/feeds/clusters").then(j),
+  subscribeFeed: (url) =>
+    fetch("/api/feeds/subscribe", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url }),
+    }).then(j),
+  processFeeds: (limit = 15) =>
+    fetch(`/api/feeds/process?limit=${limit}`, { method: "POST" }).then(j),
   catalog: () => fetch("/api/catalog").then(j),
   listWorkflows: () => fetch("/api/workflows").then(j),
   saveWorkflow: (wf) =>

@@ -94,6 +94,25 @@ class KnowledgeBase:
         adapter.after_ingest(processed)
         return results
 
+    def ingest_text(self, capability: str, text: str, title: str | None = None,
+                    url: str | None = None, tags: tuple[str, ...] = (),
+                    user_id: str = "owner", meta: dict | None = None) -> IngestResult | None:
+        """Ingest arbitrary text into a given collection — used by connectors that do
+        their own extraction/enrichment (e.g. AI-categorized feed items)."""
+        from .core.document import Document
+        from .core.ids import content_hash, source_id_for_text, source_id_for_url
+
+        text = (text or "").strip()
+        if not text:
+            return None
+        sid = source_id_for_url(url) if url else source_id_for_text(text)
+        doc = Document(
+            source_id=sid, capability=capability,
+            title=title or (text[:60] + ("…" if len(text) > 60 else "")),
+            text=text, content_hash=content_hash(text), uri=url,
+            tags=tuple(tags), user_id=user_id, meta=meta or {})
+        return self.pipeline.ingest(doc)
+
     def ingest_push(self, capability: str, payload: dict) -> IngestResult | None:
         """Ingest a single pushed item (e.g. from the webhook receiver)."""
         adapter = self._adapter(capability)
@@ -113,6 +132,34 @@ class KnowledgeBase:
 
     def list_recent(self, limit: int = 20) -> list[tuple[str, str | None, str]]:
         return [(r.title or r.source_id, r.uri, r.capability) for r in self.ledger.recent(limit)]
+
+    def cluster_sources(self, capability: str, min_score: float = 0.62,
+                        neighbors: int = 6, limit: int = 400) -> list[list[dict]]:
+        """Group a collection's sources into semantic clusters: connected components
+        over edges between each source and its nearest neighbours. Returns lists of
+        source dicts (title, uri, tags, summary), largest cluster first."""
+        sources = self.store.list_sources(capability, limit=limit)
+        by_id = {s["source_id"]: s for s in sources}
+        parent = {sid: sid for sid in by_id}
+
+        def find(x: str) -> str:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for sid in list(by_id):
+            vec = self.store.representative_vector(capability, sid)
+            if not vec:
+                continue
+            for h in self.store.search(capability, vec, top_k=neighbors + 1, score_threshold=min_score):
+                if h.source_id != sid and h.source_id in parent:
+                    parent[find(sid)] = find(h.source_id)
+
+        clusters: dict[str, list[dict]] = {}
+        for sid in by_id:
+            clusters.setdefault(find(sid), []).append(by_id[sid])
+        return sorted(clusters.values(), key=lambda c: -len(c))
 
     def graph(self, neighbors: int = 4, min_score: float = 0.6, limit: int = 400) -> dict:
         """Build a knowledge graph: a node per source, edges to each source's nearest

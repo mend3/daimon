@@ -26,6 +26,33 @@ body, html, #root { margin: 0; height: 100%; background: var(--bg); color: var(-
 .wf { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .wf-body { display: flex; flex: 1; min-height: 0; }
 
+/* Feeds module */
+.feeds { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.feeds-note { padding: 6px 14px; background: #1c2128; border-bottom: 1px solid var(--border);
+  color: var(--text); font-size: 13px; }
+.feeds-body { display: flex; flex: 1; min-height: 0; }
+.feeds-side { width: 280px; flex-shrink: 0; border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 10px; }
+.feeds-main { flex: 1; min-width: 0; overflow-y: auto; padding: 14px; }
+.feeds-h { font-size: 11px; text-transform: uppercase; color: var(--muted);
+  margin: 12px 0 6px; }
+.feed-row { display: flex; justify-content: space-between; gap: 6px; padding: 5px 0;
+  border-bottom: 1px solid #21262d; }
+.feed-cat { color: var(--accent2); font-style: normal; font-size: 11px; }
+.entry { display: block; padding: 7px 8px; border: 1px solid var(--border);
+  border-radius: 6px; margin-bottom: 5px; color: var(--text); text-decoration: none; }
+.entry:hover { border-color: var(--accent); }
+.entry-title { font-size: 13px; }
+.topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; }
+.topic-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; }
+.topic-head { font-weight: 600; margin-bottom: 6px; }
+.topic-item { display: block; color: var(--text); text-decoration: none; font-size: 13px;
+  padding: 3px 0; border-bottom: 1px solid #21262d; }
+.topic-item:hover { color: var(--accent); }
+.topic-tag { color: var(--accent2); font-style: normal; font-size: 11px; }
+
 /* Knowledge module */
 .knowledge { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .kg-body { display: flex; flex: 1; min-height: 0; }

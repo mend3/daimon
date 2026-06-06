@@ -41,6 +41,9 @@ switches between them; the Chat panel is always present.
 - **Knowledge** — a 3D graph of the knowledge base: a node per source (colored by
   type), edges to each source's nearest semantic neighbours, with cross-type links
   (e.g. a url relating to a feed item) drawn distinctly. Click a node for details.
+- **Feeds** — keep a collection of feeds (Miniflux), browse unread items, and let
+  the model categorize them into topics; kept items are ingested into the RAG and
+  grouped by topic. Needs Miniflux + `MINIFLUX_*` in `~/.hermes/.env`.
 
 A new module is a drop-in: a component in `src/modules/`, an entry in the App
 registry, and the `ELLA_MODULES` gate.
