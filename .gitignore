@@ -21,6 +21,7 @@ redis/.env
 # Ephemeral session context and Claude Code runtime artifacts
 .claude/SESSION.md
 .claude/*.lock
+.claude/settings.local.json
 
 # --- Secrets / keys --------------------------------------------------------
 *.pem

@@ -92,6 +92,28 @@ security:
 web:
   backend: searxng
 
+# --- Knowledge base (MCP) ----------------------------------------------------
+# Ella's personal RAG store: capture/recall/forget over a local Qdrant. The
+# launcher loads ~/.hermes/.env (for QDRANT_API_KEY) then runs the server in the
+# Hermes venv where the ella_kb package is installed (see postCreate.sh).
+mcp_servers:
+  ella-kb:
+    command: "/home/vscode/.hermes/ella-kb-mcp.sh"
+    args: []
+
+# --- Voice (text-to-speech) --------------------------------------------------
+# Local, OpenAI-compatible TTS (Kokoro-FastAPI) on the host, started by
+# scripts/setup-tts-host.sh. Using the `openai` provider with a base_url override
+# keeps voice replies fully local (the default `edge` provider would send text to
+# Microsoft). The api_key is required by the client but ignored by the local server.
+tts:
+  provider: openai
+  openai:
+    base_url: "http://host.docker.internal:8880/v1"
+    api_key: "local"
+    model: "kokoro"
+    voice: "af_sky"
+
 # --- Display -----------------------------------------------------------------
 display:
   streaming: true

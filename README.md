@@ -24,8 +24,8 @@ stands on it (see [Built on](#built-on)).
 
 ## Meet Ella
 
-Ella is not a chatbot. Think **Samantha (Her)** crossed with **JARVIS**: warm and
-genuinely human in conversation, precise and operationally sharp in execution.
+Ella is not a chatbot. She is warm and genuinely human in conversation, precise and
+operationally sharp in execution.
 
 She is a thinking partner, researcher, operator, and advisor at once. Her defining
 trait is **anticipation** — she surfaces the risks, decisions, and opportunities you

@@ -2,6 +2,70 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0011 — Web canvas + workflow engine (typed node graph, not gRPC)
+
+**Status:** Accepted
+
+**Context:** Ella needed a browser/mobile experience beyond Telegram, and a way for
+the user to compose her capabilities into automations (n8n-style). A gRPC node mesh
+was considered.
+
+**Decision:** A typed **node-graph engine** (`ingestion/ella_flow`) where nodes are
+Ella's capabilities and two port kinds keep the canvas clean — solid **flow** edges
+carry execution, dotted **resource** edges attach dependencies (model, knowledge,
+tools) to the agent. Same Registry/Factory/Strategy/Observer patterns as `ella_kb`;
+new node types are a drop-in (in-tree or via an `ella_flow.nodes` entry point). A
+FastAPI backend (`ingestion/ella_web`, `ella-web` on :8099) serves the node catalog,
+workflow CRUD, run (REST + WebSocket live states), executions, and a knowledge-
+grounded chat. The frontend (`web/frontend`) is React + React Flow. **gRPC was
+deferred**: the components are local/in-process and already expose JSON Schemas, so a
+typed JSON contract is lighter; gRPC stays an option only if nodes become distributed.
+
+**Consequences:** A web toolchain (Node/Vite) enters the repo. The backend installs
+into the Hermes venv (`postCreate` extras `[mcp,feeds,web]`) and reaches Ollama/Qdrant
+like the rest. Run `ella-web` + the Vite dev server, or build once and serve together
+via `ELLA_WEB_STATIC`. The Telegram bot is unchanged.
+
+## ADR-0010 — Local voice replies via an OpenAI-compatible TTS service
+
+**Status:** Accepted
+
+**Context:** Hermes supports TTS but defaults to the `edge` provider, which sends
+reply text to Microsoft — at odds with the local-first posture. Voice-out was unset.
+
+**Decision:** Run a local TTS engine (Kokoro-FastAPI, OpenAI-compatible) as a host
+container (`tts/`, loopback, `hermes-shared`) and point Hermes' `openai` TTS provider
+at it via `base_url`. Voice replies stay on the device.
+
+**Consequences:** Another small host service (CPU; Docker on macOS has no Metal) and
+a first-run model download. `NeuTTS` (Hermes' built-in local engine) is the fallback
+if a separate service is unwanted.
+
+## ADR-0009 — RAG knowledge base: Qdrant, pluggable adapters, ledger as truth
+
+**Status:** Accepted
+
+**Context:** Ella needed a personal knowledge base that concentrates the user's
+links, files, notes, and other sources, recalled by meaning — without the local
+model doing vector math, and with new source types easy to add.
+
+**Decision:** A Python package (`ingestion/ella_kb`) with a deterministic core
+(chunk, embed via Ollama `nomic-embed-text`, store, ledger, security) and pluggable
+**source adapters** (Adapter + Factory/Registry + Template Method patterns). Each
+**enabled source type is a capability with its own Qdrant collection**
+(`kb_<type>__nomic768`); `files`/`urls`/`chat` ship on, `feeds` (Miniflux) and
+`webhook` are example connectors off by default. A **SQLite ledger is the source of
+truth**; Qdrant is a rebuildable index. Idempotent point IDs + content-hash dedup;
+SSRF guard + secret redaction + score-thresholded fan-out retrieval. Exposed to Ella
+as a custom MCP server (`ella-kb`: capture/recall/forget/list_recent) — not the
+official `mcp-server-qdrant`, which only embeds via FastEmbed (a different vector
+space) and lacks the payload/dedup/chunking we need.
+
+**Consequences:** New host service (Qdrant, loopback + API key) and an embedding
+model pull. Store and query must share the embedding model + nomic task prefixes.
+Adding a source type is a zero-core-change adapter drop-in (in-tree or via an
+`ella_kb.adapters` entry point). Google Calendar/Sheets deferred.
+
 ## ADR-0008 — One shared Redis on the hermes-shared network
 
 **Status:** Accepted

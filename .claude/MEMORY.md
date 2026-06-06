@@ -23,6 +23,7 @@ host. This repo is configuration + scripts, not application code.
 # Technical Standards
 
 - **Model:** `gpt-oss:20b` (MoE, ~3.6B active), served at a **64K context window**.
+  Vision: `qwen2.5vl:7b`. Embeddings: `nomic-embed-text` (768-dim) for the KB.
 - **Ollama install:** official `ollama-app` Homebrew cask (Metal runner), bound to
   `0.0.0.0`, with `OLLAMA_CONTEXT_LENGTH=65536`, flash attention, `q8_0` KV cache.
 - **Devcontainer:** Debian base; Hermes installed via the official installer into
@@ -39,7 +40,28 @@ host. This repo is configuration + scripts, not application code.
 - **Telegram** via the messaging gateway (`hermes gateway run`); `TELEGRAM_BOT_TOKEN`
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
-- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`.
+- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Ella speaks
+  in the **first person**; the framework is infrastructure, never identity.
+- **Voice replies (TTS):** local Kokoro-FastAPI (OpenAI-compatible) on the host
+  (`tts/`, `host.docker.internal:8880`), wired via the `openai` TTS provider in
+  config. STT in stays faster-whisper. See ADR-0010.
+- **Knowledge base (RAG):** `ingestion/ella_kb` package + **Qdrant** host service
+  (`host.docker.internal:6333`, API key in `~/.hermes/.env`). One collection per
+  enabled source type (`kb_<type>__nomic768`); pluggable **adapters** (`files`,
+  `urls`, `chat` on; `feeds`/`webhook` example connectors off). SQLite **ledger** in
+  hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Ella via the
+  `ella-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
+  skill; installed into the Hermes venv by `postCreate.sh`. **Feeds** use a host
+  **Miniflux** (`miniflux/`, optional). See ADR-0009 and `ingestion/README.md`.
+- **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
+  `status`, `knowledge-base`, `feeds-digest`.
+- **Web layer + workflows:** `ingestion/ella_flow` (typed node-graph engine — nodes
+  are Ella's capabilities; solid flow edges vs dotted resource edges) + `ingestion/
+  ella_web` (FastAPI `ella-web` on :8099: catalog, workflow CRUD, run via REST/WS,
+  chat) + `web/frontend` (React + React Flow canvas). Installed into the Hermes venv
+  by `postCreate` extras `[mcp,feeds,web]`. New node types drop in via the registry
+  or an `ella_flow.nodes` entry point. Telegram bot unchanged. See ADR-0011 and
+  `web/README.md`. gRPC deferred.
 - **Monitoring** (`monitoring/`): Grafana+Loki+Promtail+Prometheus+blackbox on the
   host. Grafana is **loopback-only** at `localhost:3000`. Promtail ships Hermes
   logs (hermes-data volume) and the Ollama log (`~/.hermes-monitoring/ollama.log`).

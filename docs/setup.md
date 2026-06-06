@@ -100,11 +100,17 @@ ollama pull qwen2.5vl:7b
 ```bash
 ./scripts/setup-redis-host.sh        # shared Redis (SearXNG's cache/limiter)
 ./scripts/setup-searxng-host.sh      # web search on localhost:8888
+./scripts/setup-tts-host.sh          # local voice replies on localhost:8880
+./scripts/setup-qdrant-host.sh       # knowledge-base vector store on localhost:6333
 ./scripts/setup-monitoring-host.sh   # Grafana/Loki/Prometheus on localhost:3000
 ```
 
 Run Redis before SearXNG (SearXNG uses it). The container reaches SearXNG at
-`host.docker.internal:8888` (`SEARXNG_URL`).
+`host.docker.internal:8888` (`SEARXNG_URL`), the TTS engine at
+`host.docker.internal:8880`, and Qdrant at `host.docker.internal:6333`. First TTS
+start downloads the voice model (a few minutes). `setup-qdrant-host.sh` prints an
+API key — copy it into `~/.hermes/.env` as `QDRANT_API_KEY` so Ella can connect.
+`make tts` / `make qdrant` run the same scripts.
 
 To make all of this (plus Ollama) start at login and survive reboots, install the
 launchd agents instead:
@@ -140,10 +146,50 @@ hermes doctor     # diagnostics
 |------------|---------|-------|
 | Chat / tools | `gpt-oss:20b` on host Ollama | default |
 | Vision | `qwen2.5vl:7b` on host Ollama | `ollama pull qwen2.5vl:7b` |
-| Voice (STT) | local faster-whisper | installed by `postCreate.sh` |
+| Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
+| Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
 | Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
+| Knowledge base | local Qdrant + `nomic-embed-text` | `./scripts/setup-qdrant-host.sh` |
+| Feeds (optional) | local Miniflux | `./scripts/setup-miniflux-host.sh` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
 | Identity / voice | `config/SOUL.md` | edit + rebuild |
+
+### Knowledge base
+
+Ella keeps a personal RAG memory: she captures links, files, and notes and recalls
+them by meaning. It runs as an MCP server (`ella-kb`, registered in `config.yaml`)
+backed by the local Qdrant; the `ella_kb` package is installed into the Hermes venv
+by `postCreate.sh`. Source types are pluggable adapters — `files`, `urls`, and
+`chat` ship enabled; `feeds` and `webhook` are wired but off by default. Toggle them
+in `config/ella_kb.yaml` under `capabilities`. Each enabled type gets its own Qdrant
+collection (`kb_<type>__nomic768`).
+
+Copy the API key printed by `setup-qdrant-host.sh` into `~/.hermes/.env` as
+`QDRANT_API_KEY`. Quick check from the container: `ella-kb init` then
+`ella-kb capture --text "remember this" && ella-kb recall "this"`.
+
+**Feeds (example connector).** Start Miniflux with `./scripts/setup-miniflux-host.sh`,
+add the `MINIFLUX_*` lines it prints to `~/.hermes/.env`, subscribe to feeds in its
+UI at `localhost:8930`, and set `feeds.enabled: true` in `config/ella_kb.yaml`
+(optionally `include`/`exclude` keywords). `ella-kb poll feeds` ingests new relevant
+items. For a proactive digest, create a cron job once:
+`hermes cron create "every 1d at 08:30" "Send me my feeds digest" --skill feeds-digest --deliver telegram --name feeds-digest`.
+
+**Webhook (example connector).** Set `KB_WEBHOOK_SECRET` in `~/.hermes/.env`, set
+`webhook.enabled: true`, and run `ella-kb webhook-serve`. External services POST
+`{"text": "...", "title": "...", "url": "..."}` to `/ingest` with an
+`X-Signature: sha256=<hmac>` header.
+
+### Web canvas
+
+A browser/mobile UI to chat with Ella and build workflows visually — nodes are her
+capabilities, wired on a canvas (solid edges = execution, dotted = the agent's
+dependencies). Backend `ella-web` (FastAPI, installed into the Hermes venv); frontend
+React + React Flow in `web/frontend`. Easiest: `make web` builds the frontend inside
+Docker and serves the canvas at **http://localhost:8099** — no local Node/npm needed
+(run the devcontainer once first so Ella's config is in the shared `hermes-data`
+volume). For hot-reload dev with Node on the host, run `ella-web` plus
+`cd web/frontend && npm run dev`. See [../web/README.md](../web/README.md).
 
 ### Telegram
 
@@ -181,7 +227,7 @@ by Hermes.
 The profile photo can only be set through **@BotFather → `/setuserpic`** (the Bot
 API has no method for it). Generate an avatar — face-focused so it reads at small
 size, warm and intelligent, not sexualized — and upload it there. A starting prompt
-(≈80% *Her*'s Samantha warmth, 20% JARVIS competence):
+(mostly warmth, a touch of quiet competence):
 
 > Head-and-shoulders portrait of a warm, intelligent young woman in her mid-twenties:
 > long copper-red hair loosely braided in a few subtle strands, very expressive
@@ -206,9 +252,9 @@ Activity"*. It streams, live:
 - **Ollama** requests and model loads from `~/.hermes-monitoring/ollama.log`.
 - A **chat panel** with the real conversation text per Telegram user (name +
   masked id), shipped from Hermes' `state.db`.
-- **Service status** (Ollama, SearXNG, Redis, Loki, Grafana, gateway) and live tool
-  usage. An **Ollama-down alert** DMs Telegram; put the bot token + your chat id in
-  `monitoring/.env` (gitignored).
+- **Service status** (Ollama, SearXNG, Redis, voice, knowledge, Loki, Grafana,
+  gateway) and live tool usage. An **Ollama-down alert** DMs Telegram; put the bot
+  token + your chat id in `monitoring/.env` (gitignored).
 
 Stop with `docker compose -f monitoring/docker-compose.yml down`.
 
