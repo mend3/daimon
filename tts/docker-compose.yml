@@ -20,7 +20,8 @@ services:
     networks:
       - hermes-shared
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8880/health >/dev/null 2>&1 || exit 1"]
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8880/health').status==200 else 1)"]
       interval: 15s
       timeout: 5s
       retries: 5

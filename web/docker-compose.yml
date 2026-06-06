@@ -16,6 +16,10 @@ services:
     user: "1000:1000"
     environment:
       HOME: /home/vscode
+      # Keep model/cache downloads inside the writable volume (the container home
+      # outside it is root-owned), and skip the Xet backend which ignores cache_dir.
+      HF_HOME: /home/vscode/.hermes/cache/hf
+      HF_HUB_DISABLE_XET: "1"
     ports:
       - "127.0.0.1:8099:8099"
     extra_hosts:

@@ -1,0 +1,5 @@
+{
+  "reset_by_platform": {
+    "telegram": { "mode": "idle", "idle_minutes": 30 }
+  }
+}

@@ -17,6 +17,18 @@ export const api = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ message, use_knowledge: useKnowledge }),
     }).then(j),
+  tts: (text) =>
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text }),
+    }).then((r) => (r.ok ? r.blob() : Promise.reject(new Error("tts failed")))),
+  stt: (blob) => {
+    const fd = new FormData();
+    fd.append("file", blob, "recording.webm");
+    return fetch("/api/stt", { method: "POST", body: fd })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("stt failed"))));
+  },
 };
 
 // Run a workflow over the WebSocket, streaming per-node states.

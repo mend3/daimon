@@ -55,6 +55,13 @@ if [ ! -f "${HERMES_HOME}/.env" ]; then
   cp "${REPO_CONFIG_DIR}/.env.example" "${HERMES_HOME}/.env"
 fi
 
+# Gateway session policy (e.g. Telegram idle reset). Seeded if absent so the
+# gateway's own runtime fields aren't clobbered; edit ~/.hermes/gateway.json (or
+# delete it to re-seed) to change.
+if [ ! -f "${HERMES_HOME}/gateway.json" ]; then
+  cp "${REPO_CONFIG_DIR}/gateway.json" "${HERMES_HOME}/gateway.json"
+fi
+
 # Ella's skills (each becomes a /command). Mirror the repo copies, which are the
 # source of truth, into the runtime skills dir.
 if [ -d "${REPO_CONFIG_DIR}/skills" ]; then

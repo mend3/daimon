@@ -8,8 +8,11 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import httpx
+import yaml
+from fastapi import FastAPI, File, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -131,6 +134,71 @@ def chat(req: ChatReq) -> dict:
                   f"Question: {req.message}")
     reply = OllamaChat().complete(prompt, system=soul_prompt())
     return {"reply": reply, "citations": citations}
+
+
+# ----- speak: turn text into audio via the local TTS engine -----
+def _tts_settings() -> dict:
+    """Reuse Hermes' tts.openai config (synced into ~/.hermes/config.yaml) so the
+    web voice matches Telegram's; fall back to the local Kokoro defaults."""
+    cfg = {"base_url": "http://host.docker.internal:8880/v1", "model": "kokoro",
+           "voice": "af_sky", "api_key": "local"}
+    p = Path("~/.hermes/config.yaml").expanduser()
+    if p.exists():
+        try:
+            tts = (yaml.safe_load(p.read_text()) or {}).get("tts", {}).get("openai", {})
+            cfg.update({k: tts[k] for k in ("base_url", "model", "voice", "api_key") if k in tts})
+        except Exception:
+            pass
+    return cfg
+
+
+class TtsReq(BaseModel):
+    text: str
+
+
+@app.post("/api/tts")
+def tts(req: TtsReq) -> Response:
+    s = _tts_settings()
+    r = httpx.post(f"{s['base_url'].rstrip('/')}/audio/speech",
+                   headers={"authorization": f"Bearer {s['api_key']}"},
+                   json={"model": s["model"], "voice": s["voice"],
+                         "input": req.text[:4000], "response_format": "mp3"}, timeout=120)
+    r.raise_for_status()
+    return Response(content=r.content, media_type="audio/mpeg")
+
+
+# ----- listen: transcribe a recorded clip with the local STT (faster-whisper) -----
+_whisper = None
+
+
+def _stt_model():
+    global _whisper
+    if _whisper is None:
+        from faster_whisper import WhisperModel
+        root = os.path.expanduser("~/.hermes/cache/whisper")
+        os.makedirs(root, exist_ok=True)
+        _whisper = WhisperModel(os.environ.get("STT_MODEL", "base"),
+                                device="cpu", compute_type="int8", download_root=root)
+    return _whisper
+
+
+@app.post("/api/stt")
+async def stt(file: UploadFile = File(...)) -> dict:
+    import tempfile
+    data = await file.read()
+    with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
+        tmp.write(data)
+        path = tmp.name
+
+    def _transcribe() -> str:
+        segments, _info = _stt_model().transcribe(path, vad_filter=True)
+        return "".join(s.text for s in segments).strip()
+
+    try:
+        text = await asyncio.to_thread(_transcribe)
+    finally:
+        os.unlink(path)
+    return {"text": text}
 
 
 @app.get("/api/health")
