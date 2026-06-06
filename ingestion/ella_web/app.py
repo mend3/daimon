@@ -201,6 +201,27 @@ async def stt(file: UploadFile = File(...)) -> dict:
     return {"text": text}
 
 
+# ----- modules: which features are enabled (plug-and-play, future per tier/user) -----
+_MODULE_META = {
+    "workflows": {"id": "workflows", "label": "Workflows", "icon": "🧩"},
+    "knowledge": {"id": "knowledge", "label": "Knowledge", "icon": "🕸"},
+}
+
+
+@app.get("/api/modules")
+def modules() -> list[dict]:
+    enabled = [m.strip() for m in os.environ.get("ELLA_MODULES", "workflows,knowledge").split(",")
+               if m.strip()]
+    return [_MODULE_META[m] for m in enabled if m in _MODULE_META]
+
+
+# ----- knowledge graph: sources as nodes, semantic neighbours as edges -----
+@app.get("/api/knowledge/graph")
+def knowledge_graph(neighbors: int = 4, min_score: float = 0.6, limit: int = 400) -> dict:
+    from ella_kb.service import KnowledgeBase
+    return KnowledgeBase().graph(neighbors=neighbors, min_score=min_score, limit=limit)
+
+
 @app.get("/api/health")
 def health() -> dict:
     return {"ok": True}

@@ -114,6 +114,38 @@ class KnowledgeBase:
     def list_recent(self, limit: int = 20) -> list[tuple[str, str | None, str]]:
         return [(r.title or r.source_id, r.uri, r.capability) for r in self.ledger.recent(limit)]
 
+    def graph(self, neighbors: int = 4, min_score: float = 0.6, limit: int = 400) -> dict:
+        """Build a knowledge graph: a node per source, edges to each source's nearest
+        semantic neighbours (across all enabled types, so a url links to a related
+        feed item). Undirected, deduped, cross_type flagged for styling."""
+        rows = self.ledger.recent(limit)
+        # Node id is qualified by capability: the same URL can exist as both a `urls`
+        # and a `feeds` source (distinct ledger rows), and they must stay distinct nodes.
+        def nid(capability: str, source_id: str) -> str:
+            return f"{capability}:{source_id}"
+
+        node_ids = {nid(r.capability, r.source_id) for r in rows}
+        nodes = [{"id": nid(r.capability, r.source_id), "title": r.title or r.source_id,
+                  "type": r.capability, "uri": r.uri} for r in rows]
+        links, seen = [], set()
+        for r in rows:
+            src = nid(r.capability, r.source_id)
+            vec = self.store.representative_vector(r.capability, r.source_id)
+            if not vec:
+                continue
+            for cap in self.adapters:  # hits from collection `cap` have that capability
+                for h in self.store.search(cap, vec, top_k=neighbors + 1, score_threshold=min_score):
+                    tgt = nid(cap, h.source_id)
+                    if tgt == src or tgt not in node_ids:
+                        continue
+                    key = tuple(sorted((src, tgt)))
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    links.append({"source": src, "target": tgt, "score": round(h.score, 3),
+                                  "cross_type": cap != r.capability})
+        return {"nodes": nodes, "links": links}
+
     def _adapter(self, name: str):
         if name not in self.adapters:
             raise ValueError(f"the {name!r} capability is not enabled")

@@ -2,6 +2,8 @@
 const j = (r) => r.json();
 
 export const api = {
+  modules: () => fetch("/api/modules").then(j),
+  knowledgeGraph: () => fetch("/api/knowledge/graph").then(j),
   catalog: () => fetch("/api/catalog").then(j),
   listWorkflows: () => fetch("/api/workflows").then(j),
   saveWorkflow: (wf) =>

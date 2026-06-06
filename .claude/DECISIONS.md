@@ -2,6 +2,28 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0012 — Plug-and-play web modules; Knowledge 3D graph
+
+**Status:** Accepted
+
+**Context:** The web app needed to grow beyond Workflows into separate features that
+can be enabled/disabled (future: per plan tier / user). The first new one visualizes
+the knowledge base.
+
+**Decision:** The web frontend is a **module shell**: `GET /api/modules` returns the
+enabled modules (from `ELLA_MODULES`, default `workflows,knowledge`; future
+per-tier/user), and a left rail switches between them while the Chat panel stays
+persistent. Each module is a self-contained React component registered by id. The
+**Knowledge** module renders a 3D force graph (`react-force-graph-3d`) from
+`GET /api/knowledge/graph`: a node per source (colored by type), edges to each
+source's nearest semantic neighbours via Qdrant — including cross-type links (a url
+relating to a feed item), drawn distinctly. The representative vector per source is
+its first chunk's vector.
+
+**Consequences:** New modules are a drop-in (a component + a registry entry + the
+`ELLA_MODULES` gate); tier/user gating slots into `/api/modules` later. The graph is
+built on demand (capped node count); large KBs may need precomputation/caching.
+
 ## ADR-0011 — Web canvas + workflow engine (typed node graph, not gRPC)
 
 **Status:** Accepted

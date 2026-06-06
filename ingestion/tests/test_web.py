@@ -24,6 +24,13 @@ BRANCH_WF = {
 }
 
 
+def test_modules():
+    r = client.get("/api/modules")
+    assert r.status_code == 200
+    ids = {m["id"] for m in r.json()}
+    assert {"workflows", "knowledge"} <= ids
+
+
 def test_catalog():
     r = client.get("/api/catalog")
     assert r.status_code == 200

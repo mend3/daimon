@@ -68,6 +68,18 @@ class QdrantStore:
         self.client.upsert(collection_name=name, points=points)
         return len(points)
 
+    def representative_vector(self, source_type: str, source_id: str) -> list[float] | None:
+        """The first chunk's vector — a stand-in for the whole document, used to
+        relate sources to each other in the knowledge graph."""
+        name = self.collection_for(source_type)
+        if not self.client.collection_exists(name):
+            return None
+        res = self.client.retrieve(collection_name=name, ids=[point_id(source_id, 0)],
+                                   with_vectors=True)
+        if res and res[0].vector:
+            return res[0].vector
+        return None
+
     def delete_by_source(self, source_type: str, source_id: str) -> None:
         name = self.collection_for(source_type)
         self.client.delete(

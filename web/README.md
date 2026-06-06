@@ -31,6 +31,20 @@ cd web/frontend && npm run build
 ELLA_WEB_STATIC="$PWD/dist" ella-web
 ```
 
+## Modules
+
+The app is a shell of plug-and-play **modules**, gated by `GET /api/modules`
+(`ELLA_MODULES` env, default `workflows,knowledge`; future per tier/user). A left rail
+switches between them; the Chat panel is always present.
+
+- **Workflows** — the node canvas (below).
+- **Knowledge** — a 3D graph of the knowledge base: a node per source (colored by
+  type), edges to each source's nearest semantic neighbours, with cross-type links
+  (e.g. a url relating to a feed item) drawn distinctly. Click a node for details.
+
+A new module is a drop-in: a component in `src/modules/`, an entry in the App
+registry, and the `ELLA_MODULES` gate.
+
 ## What's in the MVP
 
 - Infinite canvas (pan/zoom/grid), node palette with search, right-side properties.
