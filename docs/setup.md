@@ -43,10 +43,13 @@ startup.
   container-boot.sh   # PID 1: starts the gateway, then keeps the container alive
   start-gateway.sh    # idempotent gateway launcher (no-op without a token)
   patches/            # idempotent post-install patches applied to Hermes (e.g. clickable /help)
-config/
-  config.yaml         # Hermes config → mounted to ~/.hermes/config.yaml
-  SOUL.md             # agent identity/voice → mounted to ~/.hermes/SOUL.md
-  .env.example        # secrets/env template
+config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
+                      # ella_kb.yaml, gateway.json, skills/, .env.example
+ingestion/            # ella_kb (RAG), ella_flow (workflow engine), ella_web (FastAPI)
+web/                  # React Flow canvas: frontend/ + Dockerfile (served by `make web`)
+qdrant/               # vector store for the knowledge base
+tts/                  # local text-to-speech (voice replies)
+miniflux/             # feed reader for the optional `feeds` connector
 redis/
   docker-compose.yml  # shared, password-protected Redis on the hermes-shared network
 searxng/
@@ -55,8 +58,8 @@ searxng/
 monitoring/
   docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox + shippers
   grafana/ loki/ promtail/ prometheus/ blackbox/  # configs, dashboard, alert
-scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, monitoring,
-                      # launchd services, daily backup, LAN firewall
+scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, TTS, Qdrant,
+                      # Miniflux, web, monitoring, launchd services, backup, firewall
 ```
 
 ## Quick start

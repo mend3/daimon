@@ -1,8 +1,10 @@
 # Hermes Agent — Local Setup
 
-This repo configures and runs **Hermes Agent** locally: the agent runs isolated in
-a devcontainer and talks to a model served by **Ollama** running natively on the
-macOS host (Metal GPU). It is configuration + scripts, not application code.
+This repo runs **Ella** — a local AI companion built on **Hermes Agent** — in a
+devcontainer, talking to models served by **Ollama** on the macOS host (Metal GPU).
+It is the local-first deployment (config + host services + scripts) plus Ella's own
+application code: a RAG knowledge base, a workflow engine, and a web canvas
+(`ingestion/`, `web/`).
 
 ## What Hermes is, and when to use it
 
@@ -21,13 +23,17 @@ tasks from a local model. Start it inside the devcontainer with `hermes`.
 | `.claude/SESSION.md` | Ephemeral session context (gitignored) |
 | `.claude/skills/documentation-minimalism/` | Writing standard for all docs and comments |
 | `.devcontainer/` | Container definition, Dockerfile, `postCreate.sh` |
-| `config/config.yaml` | Hermes config — source of truth, synced to `~/.hermes/` |
-| `config/.env.example` | Secrets template, seeds `~/.hermes/.env` |
+| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `SOUL.md` (persona), `ella_kb.yaml`, `gateway.json`, `skills/`, `.env.example` |
+| `ingestion/` | Ella's Python: `ella_kb` (RAG), `ella_flow` (workflow engine), `ella_web` (FastAPI) |
+| `web/` | React Flow web canvas — frontend + Dockerized backend (`make web`) |
+| `qdrant/` | Vector store for the knowledge base |
+| `tts/` | Local text-to-speech engine (voice replies) |
+| `miniflux/` | Feed reader for the optional `feeds` connector |
 | `redis/` | Shared password-protected Redis (SearXNG cache + general use) |
 | `searxng/` | Local web-search engine for the `web` toolset |
 | `monitoring/` | Grafana/Loki/Promtail/Prometheus + chat-shipper + Ollama-down alert |
 | `scripts/` | Host setup + lifecycle (Ollama, services, backup, firewall) |
-| `README.md` | Human-facing setup guide |
+| `README.md` / `docs/setup.md` | Product overview / setup & operations guide |
 
 ## How to run
 

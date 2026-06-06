@@ -1,8 +1,10 @@
 # Project Overview
 
-Local, isolated setup for **Hermes Agent** (Nous Research CLI agent). Hermes runs
-in a devcontainer; inference is served by **Ollama** running natively on the macOS
-host. This repo is configuration + scripts, not application code.
+**Ella** — a local AI companion built on **Hermes Agent** (Nous Research CLI agent).
+Hermes runs in a devcontainer; inference is served by **Ollama** running natively on
+the macOS host. The repo is the local-first deployment (config + host services +
+scripts) plus Ella's application code: a RAG knowledge base, a workflow engine, and a
+web canvas.
 
 # Architecture
 
@@ -42,9 +44,14 @@ host. This repo is configuration + scripts, not application code.
   process and container are up.
 - **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Ella speaks
   in the **first person**; the framework is infrastructure, never identity.
-- **Voice replies (TTS):** local Kokoro-FastAPI (OpenAI-compatible) on the host
-  (`tts/`, `host.docker.internal:8880`), wired via the `openai` TTS provider in
-  config. STT in stays faster-whisper. See ADR-0010.
+- **Voice:** local both ways. TTS = Kokoro-FastAPI (`tts/`, `host.docker.internal:8880`)
+  via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
+  audio on voice input (the gateway gate fires only on `message_type == VOICE`, so
+  text-in stays text-out — left as-is). Web: `/api/tts` (🔊/auto-speak) and `/api/stt`
+  (🎙 record→transcribe, model cached in the volume). See ADR-0010.
+- **Telegram sessions:** one session per DM, reset after 30 min idle via
+  `config/gateway.json` (`reset_by_platform.telegram.idle_minutes`); seeded by
+  postCreate if absent. `/new` resets on demand. Durable memory is separate.
 - **Knowledge base (RAG):** `ingestion/ella_kb` package + **Qdrant** host service
   (`host.docker.internal:6333`, API key in `~/.hermes/.env`). One collection per
   enabled source type (`kb_<type>__nomic768`); pluggable **adapters** (`files`,

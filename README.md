@@ -18,9 +18,9 @@ own machine, keeps your data private, and combines human-like conversation with
 operational intelligence — sandboxed in a devcontainer, reachable over CLI and
 Telegram, and fully observable.
 
-This repository is the **persona, local-first deployment, multi-channel access, and
-observability layer** built around Hermes. It is not a fork of Hermes Agent — it
-stands on it (see [Built on](#built-on)).
+This repository is the **persona, local-first deployment, multi-channel access,
+knowledge base, visual workflows, and observability** built around Hermes. It is not
+a fork of Hermes Agent — it stands on it (see [Built on](#built-on)).
 
 ## Meet Ella
 
@@ -43,9 +43,10 @@ Most AI assistants are stateless chat windows. Ella is a persistent **companion*
 - 🧠 Keeps **long-term memory** across sessions and projects
 - 🔭 **Anticipates** — risks, missing context, next decisions
 - 🔍 **Searches the web** through a private, self-hosted engine
-- 👁️ **Sees images** and 🎙️ **hears voice messages**
+- 👁️ **Sees images** and 🎙️ **hears and speaks** voice
 - 🛠️ **Executes tools** — shell, files, code, browser, web
-- 💬 Reaches you over **CLI and Telegram**, sharing one memory
+- 🧩 **Builds workflows** on a visual canvas where the nodes are her own capabilities
+- 💬 Reaches you over **CLI, Telegram, and a web canvas**, sharing one memory
 - 📊 Is **fully observable** — every message, tool call, and model run on a dashboard
 - 🔒 Runs **100% locally** with your data under your control
 
@@ -56,9 +57,14 @@ Ella builds context across conversations and projects — preferences, decisions
 documentation, history — instead of starting from zero each session.
 
 ### 🎨 Multimodal
-Send text, **images** (analyzed by a local vision model), **voice messages**
-(transcribed locally), **links** (fetched and summarized), and **files** (read and
-used). She works with all of them and tells you what she received.
+Send text, **images** (analyzed by a local vision model), **voice** (transcribed
+locally; she can reply in voice too), **links** (fetched and summarized), and
+**files** (read and used). She works with all of them and tells you what she received.
+
+### 🧩 Visual workflows
+A web canvas to compose Ella's capabilities into automations — triggers, the agent,
+tools, logic, and outputs as nodes, wired and run with live state. Nodes are her own
+abilities; new node types drop in.
 
 ### 🛠️ Tool use
 A modular toolset lets her act: web search, vision, file operations, code execution,
@@ -69,8 +75,8 @@ Inference runs on local open models (gpt-oss, Qwen-VL) via Ollama with Metal GPU
 acceleration. Search, cache, and monitoring are self-hosted. No mandatory cloud.
 
 ### 📨 Multi-channel
-Talk to Ella from the **CLI** or **Telegram** (multi-user, allowlisted). The same
-memory and context follow you across every interface.
+Talk to Ella from the **CLI**, **Telegram** (multi-user, allowlisted), or the **web
+canvas**. The same memory and context follow you across every interface.
 
 ### 📊 Observability
 A built-in Grafana + Loki + Prometheus stack gives live visibility into conversations
@@ -81,7 +87,7 @@ alert straight to Telegram.
 
 ```text
                       ┌───────────────┐
-            CLI ──────►      Ella       ◄────── Telegram
+       CLI / Web ────►      Ella       ◄────── Telegram
                       │  (persona on   │
                       │  Hermes Agent) │
                       └───────┬───────┘
@@ -148,9 +154,8 @@ the monitoring layer on top.
 ## Roadmap
 
 - Knowledge-graph–backed memory
-- Multi-agent collaboration and workflow orchestration
-- Expanded tool ecosystem and custom integrations
-- Additional messaging channels
+- Multi-agent collaboration; scheduled/triggered workflow runs
+- Expanded tool ecosystem, workflow nodes, and custom integrations
 - Cross-platform host support (beyond macOS)
 
 ## Contributing
