@@ -62,6 +62,22 @@ web canvas.
   **Miniflux** (`miniflux/`, optional). See ADR-0009 and `ingestion/README.md`.
 - **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
   `status`, `knowledge-base`, `feeds-digest`.
+- **Kanban / profiles:** the dispatcher runs inside the gateway, which now starts
+  even without Telegram (`start-gateway.sh`); `ready` tasks **with an assignee** spawn
+  on the next tick. The assignee is a **profile**. The default profile is fully local
+  (`gpt-oss:20b`); a versioned **`openai`** profile (`config/profiles/openai/config.yaml`
+  → `~/.hermes/profiles/openai/`) runs task agents on the OpenAI API — `base_url`/
+  `api_key` explicit (overriding the container's Ollama-pointing `OPENAI_*` env), key
+  from `OPENAI_PROFILE_API_KEY` in `~/.hermes/.env`, `approvals: off` (headless) with
+  Tirith fail-closed. `postCreate` creates/syncs it and propagates the `OPENAI_*` +
+  `TELEGRAM_*` env into the profile's `.env` (the `openai-api` provider reads the key/
+  base_url from env, not config; Telegram creds let task agents `hermes send` results
+  to the chat). The model must be a **reasoning** model (gpt-5.x/o-series) — the
+  provider uses the Responses API with encrypted reasoning content. See ADR-0013.
+- **Web dashboard** (`hermes dashboard`): needs the `[web,pty]` extras and Node (both
+  wired into the container build — `postCreate` + the `node` devcontainer feature). The
+  frontend builds on first launch into the hermes-data volume. Loopback bind has no
+  auth gate; `--host 0.0.0.0` requires `--insecure` or an auth provider.
 - **Web layer + workflows:** `ingestion/ella_flow` (typed node-graph engine — nodes
   are Ella's capabilities; solid flow edges vs dotted resource edges) + `ingestion/
   ella_web` (FastAPI `ella-web` on :8099: catalog, workflow CRUD, run via REST/WS,
@@ -84,7 +100,8 @@ web canvas.
 - **Host services** are optional user-installed launchd agents
   (`scripts/install-host-services.sh`): Ollama as a managed service, stacks
   autostart, daily backup. Run by the user (persistence needs explicit consent).
-- **Security posture:** approvals manual, `redact_secrets`, Tirith **fail-closed**.
+- **Security posture:** approvals manual (the `openai` task profile uses `off` for
+  headless dispatch — Tirith still gates it), `redact_secrets`, Tirith **fail-closed**.
   Ollama/SearXNG must bind `0.0.0.0` (container reaches them via
   host.docker.internal); LAN exposure is mitigated by `scripts/firewall-host.sh`
   (user-run, sudo).

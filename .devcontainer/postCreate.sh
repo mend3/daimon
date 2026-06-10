@@ -27,6 +27,11 @@ else
   echo "==> Hermes already installed: $(command -v hermes)"
 fi
 
+# Web dashboard deps — install.sh installs Hermes CLI-only, so the dashboard's
+# FastAPI/Uvicorn (web) and ptyprocess (pty) extras must be added separately.
+echo "==> Ensuring web dashboard extras"
+"${VENV_PIP}" install -q 'hermes-agent[web,pty]' 2>/dev/null || true
+
 # Voice transcription (Telegram voice messages) — Hermes' local STT backend.
 echo "==> Ensuring faster-whisper (voice)"
 "${VENV_PIP}" install -q faster-whisper 2>/dev/null || true
@@ -68,6 +73,40 @@ if [ -d "${REPO_CONFIG_DIR}/skills" ]; then
   echo "==> Syncing skills"
   mkdir -p "${HERMES_HOME}/skills"
   cp -R "${REPO_CONFIG_DIR}/skills/." "${HERMES_HOME}/skills/"
+fi
+
+# OpenAI task profile — a separate Hermes home whose model runs on the OpenAI API.
+# Assign a kanban task to assignee "openai" to dispatch it here; the default profile
+# stays local/offline. Config is versioned; the key is propagated from ~/.hermes/.env
+# into the profile's isolated .env so secrets stay in one file.
+if [ -f "${REPO_CONFIG_DIR}/profiles/openai/config.yaml" ]; then
+  echo "==> Syncing openai task profile"
+  hermes profile create openai </dev/null >/dev/null 2>&1 || true
+  PROFILE_DIR="${HERMES_HOME}/profiles/openai"
+  mkdir -p "${PROFILE_DIR}"
+  cp "${REPO_CONFIG_DIR}/profiles/openai/config.yaml" "${PROFILE_DIR}/config.yaml"
+  # The openai-api provider reads OPENAI_API_KEY / OPENAI_BASE_URL from the env, not
+  # from config.yaml, and the container sets both to the local Ollama. The profile's
+  # own .env loads with precedence, so point them at the real OpenAI API here. The
+  # user-facing key lives once in ~/.hermes/.env as OPENAI_PROFILE_API_KEY.
+  RK="$(sed -n 's/^OPENAI_PROFILE_API_KEY=//p' "${HERMES_HOME}/.env" | head -1)"
+  if [ -n "${RK}" ]; then
+    touch "${PROFILE_DIR}/.env"
+    # Strip the keys we manage, then re-add: OpenAI endpoint/key for the model, plus
+    # the Telegram creds so task agents can `hermes send` results to the chat.
+    grep -vE "^(OPENAI_API_KEY|OPENAI_BASE_URL|OPENAI_PROFILE_API_KEY|TELEGRAM_)" "${PROFILE_DIR}/.env" \
+      > "${PROFILE_DIR}/.env.tmp" 2>/dev/null || true
+    {
+      echo "OPENAI_PROFILE_API_KEY=${RK}"
+      echo "OPENAI_API_KEY=${RK}"
+      echo "OPENAI_BASE_URL=https://api.openai.com/v1"
+      grep -E "^TELEGRAM_" "${HERMES_HOME}/.env" 2>/dev/null || true
+    } >> "${PROFILE_DIR}/.env.tmp"
+    mv "${PROFILE_DIR}/.env.tmp" "${PROFILE_DIR}/.env"
+  else
+    echo "    NOTE - OPENAI_PROFILE_API_KEY unset in ~/.hermes/.env; openai profile" \
+         "tasks will fail until you set it."
+  fi
 fi
 
 # 3. Quick reachability check against the host Ollama endpoint (non-fatal).

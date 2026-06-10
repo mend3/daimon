@@ -5,6 +5,12 @@
   },
   "remoteUser": "vscode",
 
+  // Node + npm for building the Hermes web dashboard frontend (built on first
+  // `hermes dashboard` launch). The Hermes installer's bundled Node is not on PATH.
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+
   // host.docker.internal lets the container reach Ollama running natively on the
   // macOS host (Metal-accelerated). host-gateway makes the alias resolve on Linux
   // Docker too, and is a harmless no-op on Docker Desktop for Mac.

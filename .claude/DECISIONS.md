@@ -2,6 +2,32 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0013 — Autonomous kanban: in-gateway dispatcher + OpenAI task profile
+
+**Status:** Accepted
+
+**Context:** The kanban board's dispatcher runs inside the gateway process, but
+`start-gateway.sh` only started the gateway when a Telegram token was set — so a
+Telegram-less setup had no dispatcher and `ready` tasks never spawned. Separately,
+task agents should be able to run on the OpenAI API while interactive chat stays
+local/offline.
+
+**Decision:** Start the gateway (hence the dispatcher) **regardless of Telegram**;
+the allowlist guard now fires only when a token *is* set. Task model selection rides
+on **profiles** (the kanban assignee is a profile name): a versioned `openai` profile
+(`config/profiles/openai/config.yaml`, synced to `~/.hermes/profiles/openai/`) runs on
+the OpenAI API. Its `base_url`/`api_key` are set **explicitly** to override the
+container-level `OPENAI_*` env that points at Ollama; the key resolves from
+`OPENAI_PROFILE_API_KEY` in `~/.hermes/.env`, which `postCreate` propagates into the
+profile's isolated `.env`. The profile runs `approvals: off` (headless tasks can't
+answer prompts) with Tirith still fail-closed as the safety net.
+
+**Consequences:** The gateway/dispatcher now always run; tasks must be in `ready`
+**with an assignee** to spawn (an unassigned `ready` task is skipped). The default
+profile stays fully local; only tasks assigned to `openai` reach the cloud. Other
+per-purpose profiles follow the same pattern. The web dashboard needs Node (devcontainer
+feature) + the `[web,pty]` extras, both wired into the container build.
+
 ## ADR-0012 — Plug-and-play web modules; Knowledge 3D graph
 
 **Status:** Accepted

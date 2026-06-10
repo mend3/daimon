@@ -1,7 +1,8 @@
 # Devcontainer base for Hermes Agent (CLI, isolated).
 # Debian Bookworm devcontainer base already ships git, curl, sudo and a
-# passwordless "vscode" user. The Hermes installer brings its own uv / Python 3.11
-# / Node 22, so here we only add the native deps it expects to find on PATH.
+# passwordless "vscode" user. The Hermes installer brings its own uv / Python 3.11,
+# so here we only add the native deps it expects to find on PATH. Node (for the web
+# dashboard frontend) comes from the node devcontainer feature, not the installer.
 FROM mcr.microsoft.com/devcontainers/base:bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
