@@ -124,6 +124,23 @@ if [ -f "${REPO_CONFIG_DIR}/profiles/openai/config.yaml" ]; then
   fi
 fi
 
+# Claude Code OAuth token in interactive shells — the `claude` CLI authenticates
+# only from CLAUDE_CODE_OAUTH_TOKEN in its process env (no headless credential file),
+# so export it from ~/.hermes/.env for interactive shells and the dashboard launched
+# from one. Hermes' launcher sanitizes its own env, so this does not affect it.
+BASHRC="${HOME}/.bashrc"
+if [ -f "${BASHRC}" ] && ! grep -qF "# ella: Claude Code OAuth token" "${BASHRC}"; then
+  echo "==> Adding Claude Code token export to ~/.bashrc"
+  cat >> "${BASHRC}" <<'EOF'
+
+# ella: Claude Code OAuth token — export from ~/.hermes/.env for the claude CLI.
+if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -f "$HOME/.hermes/.env" ]; then
+  _cct=$(sed -n 's/^CLAUDE_CODE_OAUTH_TOKEN=//p' "$HOME/.hermes/.env" | head -1)
+  [ -n "$_cct" ] && export CLAUDE_CODE_OAUTH_TOKEN="$_cct"; unset _cct
+fi
+EOF
+fi
+
 # 3. Quick reachability check against the host Ollama endpoint (non-fatal).
 echo "==> Checking Ollama at host.docker.internal:11434"
 if curl -fsS --max-time 3 http://host.docker.internal:11434/api/tags >/dev/null 2>&1; then
