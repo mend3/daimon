@@ -1,0 +1,84 @@
+# Hermes profile: ollama — fully local/offline (gpt-oss:20b on the host Ollama).
+# The local backend the default profile also falls back to. Assign kanban tasks to
+# assignee "ollama", or run `ollama chat`, to stay on-device with no API cost.
+# Synced into ~/.hermes/profiles/ollama/config.yaml by .devcontainer/postCreate.sh.
+
+# --- Model -------------------------------------------------------------------
+# gpt-oss:20b served by Ollama on the macOS host (Metal GPU). context_length pinned
+# to the 65536 window Ollama serves (OLLAMA_CONTEXT_LENGTH), satisfying the 64K min.
+model:
+  default: "gpt-oss:20b"
+  provider: custom
+  base_url: "http://host.docker.internal:11434/v1"
+  api_key: "ollama"
+  context_length: 65536
+
+providers:
+  custom:
+    request_timeout_seconds: 1800
+    stale_timeout_seconds: 600
+    models:
+      "gpt-oss:20b":
+        timeout_seconds: 1200
+
+terminal:
+  backend: local
+
+agent:
+  max_turns: 60
+  api_max_retries: 3
+  reasoning_effort: "medium"   # gpt-oss harmony reasoning effort
+  tool_use_enforcement: "auto"
+  disabled_toolsets:
+    - clarify
+
+# Text helpers reuse the local model; vision uses qwen2.5vl on the same Ollama.
+auxiliary:
+  compression:
+    provider: "main"
+    model: ""
+  vision:
+    provider: custom
+    model: "qwen2.5vl:7b"
+    base_url: "http://host.docker.internal:11434/v1"
+    api_key: "ollama"
+    timeout: 180
+  web_extract:
+    provider: "main"
+    model: ""
+
+# Local model has a smaller usable window than frontier APIs; compress earlier.
+compression:
+  enabled: true
+  threshold: 0.50
+  target_ratio: 0.20
+  protect_last_n: 16
+  protect_first_n: 3
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+
+approvals:
+  mode: manual
+
+security:
+  redact_secrets: true
+  tirith_enabled: true
+  tirith_fail_open: false
+
+web:
+  backend: searxng
+
+mcp_servers:
+  ella-kb:
+    command: "/home/vscode/.hermes/ella-kb-mcp.sh"
+    args: []
+
+display:
+  streaming: true
+  show_reasoning: false
+  tool_progress: all
+  language: en
+
+timezone: "UTC"

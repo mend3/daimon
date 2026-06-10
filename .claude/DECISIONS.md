@@ -2,6 +2,40 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0014 — Default to OpenAI gpt-5.5 with a local Ollama fallback; model profiles
+
+**Status:** Accepted
+
+**Context:** The owner wanted OpenAI as the primary model for the agents, the local
+model kept as a fallback, and their Claude subscription available on demand — without
+losing the offline path. Hermes' `openai-api` provider (used for gpt-5.x) reads its
+key/endpoint from the `OPENAI_API_KEY`/`OPENAI_BASE_URL` *environment*, not config,
+and the container points those at the local Ollama.
+
+**Decision:** Three model backends as profiles:
+- **`default`** (base home) — OpenAI **gpt-5.5** (`openai-api`, Responses API) with a
+  `fallback_providers` entry for local **gpt-oss:20b** (fires on 429/5xx/401/404/empty,
+  turn-scoped). postCreate writes the real `OPENAI_API_KEY`/`OPENAI_BASE_URL` into
+  `~/.hermes/.env` from the single `OPENAI_PROFILE_API_KEY`, overriding the container's
+  Ollama-pointing values (the profile `.env` loads with precedence).
+- **`ollama`** — fully local `gpt-oss:20b` (offline, no API cost).
+- **`claude-max`** — the Claude subscription (`anthropic`, `claude-sonnet-4-5`), OAuth
+  from `CLAUDE_CODE_OAUTH_TOKEN`. Named `claude-max`, not `claude`, so its profile
+  launcher doesn't clobber the Claude Code CLI binary.
+
+Profiles are versioned under `config/profiles/` and synced by a generic postCreate
+loop. The prior single-purpose `openai` task profile is removed (the default now is
+OpenAI). Approvals stay `manual` everywhere — the kanban dispatcher runs tasks headless
+and bypasses approvals itself, so no `off` profile is needed.
+
+**Consequences:** The default now needs an OpenAI key and bills per call (the Telegram
+gateway and unassigned kanban tasks included); the Ollama fallback keeps it answering
+through outages, and the `ollama` profile stays a zero-cost offline option. Local-first
+is no longer the default — Ollama remains the vision/embedding backend and the fallback.
+`claude-max` requires a Max plan with **extra usage credits** (else HTTP 400 "out of
+extra usage"); the base allowance is not usable via Hermes. Reasoning-model-only on the
+default (encrypted reasoning content); a non-reasoning model would 400.
+
 ## ADR-0013 — Autonomous kanban: in-gateway dispatcher + OpenAI task profile
 
 **Status:** Accepted

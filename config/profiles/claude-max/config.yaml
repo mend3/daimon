@@ -1,0 +1,74 @@
+# Hermes profile: claude-max — your Claude subscription (extra). Named claude-max,
+# not "claude", so its launcher does not clobber the Claude Code CLI binary. Run
+# `claude-max chat` or assign a kanban task to assignee "claude-max". Routing as
+# Claude Code against your Anthropic account needs a Claude Max plan with extra usage
+# credits; the OAuth credential resolves from CLAUDE_CODE_OAUTH_TOKEN in this profile's
+# .env (propagated from ~/.hermes/.env by postCreate). See `hermes auth list`.
+# Synced into ~/.hermes/profiles/claude-max/config.yaml by .devcontainer/postCreate.sh.
+
+# --- Model -------------------------------------------------------------------
+model:
+  default: "claude-sonnet-4-5"
+  provider: anthropic
+  context_length: 200000
+
+terminal:
+  backend: local
+
+agent:
+  max_turns: 60
+  api_max_retries: 3
+  tool_use_enforcement: "auto"
+  disabled_toolsets:
+    - clarify
+
+# Text helpers reuse Claude; vision stays on the local Ollama to avoid extra cost.
+auxiliary:
+  compression:
+    provider: "main"
+    model: ""
+  vision:
+    provider: custom
+    model: "qwen2.5vl:7b"
+    base_url: "http://host.docker.internal:11434/v1"
+    api_key: "ollama"
+    timeout: 180
+  web_extract:
+    provider: "main"
+    model: ""
+
+# Large window — compress late and keep a generous recent tail.
+compression:
+  enabled: true
+  threshold: 0.70
+  target_ratio: 0.25
+  protect_last_n: 24
+  protect_first_n: 3
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+
+approvals:
+  mode: manual
+
+security:
+  redact_secrets: true
+  tirith_enabled: true
+  tirith_fail_open: false
+
+web:
+  backend: searxng
+
+mcp_servers:
+  ella-kb:
+    command: "/home/vscode/.hermes/ella-kb-mcp.sh"
+    args: []
+
+display:
+  streaming: true
+  show_reasoning: false
+  tool_progress: all
+  language: en
+
+timezone: "UTC"

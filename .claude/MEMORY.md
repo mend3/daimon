@@ -24,8 +24,10 @@ web canvas.
 
 # Technical Standards
 
-- **Model:** `gpt-oss:20b` (MoE, ~3.6B active), served at a **64K context window**.
-  Vision: `qwen2.5vl:7b`. Embeddings: `nomic-embed-text` (768-dim) for the KB.
+- **Model:** default is **OpenAI gpt-5.5** (`openai-api`, Responses API) with the
+  local **`gpt-oss:20b`** as automatic fallback (`fallback_providers`). Alternate
+  profiles: `ollama` (local) and `claude-max` (Claude subscription). Vision stays
+  local `qwen2.5vl:7b`; embeddings `nomic-embed-text` (768-dim). See ADR-0014.
 - **Ollama install:** official `ollama-app` Homebrew cask (Metal runner), bound to
   `0.0.0.0`, with `OLLAMA_CONTEXT_LENGTH=65536`, flash attention, `q8_0` KV cache.
 - **Devcontainer:** Debian base; Hermes installed via the official installer into
@@ -64,16 +66,20 @@ web canvas.
   `status`, `knowledge-base`, `feeds-digest`.
 - **Kanban / profiles:** the dispatcher runs inside the gateway, which now starts
   even without Telegram (`start-gateway.sh`); `ready` tasks **with an assignee** spawn
-  on the next tick. The assignee is a **profile**. The default profile is fully local
-  (`gpt-oss:20b`); a versioned **`openai`** profile (`config/profiles/openai/config.yaml`
-  → `~/.hermes/profiles/openai/`) runs task agents on the OpenAI API — `base_url`/
-  `api_key` explicit (overriding the container's Ollama-pointing `OPENAI_*` env), key
-  from `OPENAI_PROFILE_API_KEY` in `~/.hermes/.env`, `approvals: off` (headless) with
-  Tirith fail-closed. `postCreate` creates/syncs it and propagates the `OPENAI_*` +
-  `TELEGRAM_*` env into the profile's `.env` (the `openai-api` provider reads the key/
-  base_url from env, not config; Telegram creds let task agents `hermes send` results
-  to the chat). The model must be a **reasoning** model (gpt-5.x/o-series) — the
-  provider uses the Responses API with encrypted reasoning content. See ADR-0013.
+  on the next tick. The assignee is a **profile** (a separate `~/.hermes/profiles/<n>`
+  home). Versioned in `config/profiles/`, synced by `postCreate` (which creates each
+  and propagates the creds each needs into its isolated `.env`):
+  - `default` — OpenAI **gpt-5.5** (`openai-api`, Responses API) + local Ollama
+    fallback. The provider reads `OPENAI_API_KEY`/`OPENAI_BASE_URL` from the env (not
+    config); postCreate writes them into `~/.hermes/.env` from `OPENAI_PROFILE_API_KEY`.
+    Must be a **reasoning** model (gpt-5.x/o-series) — encrypted reasoning content.
+  - `ollama` — local `gpt-oss:20b`, no API cost.
+  - `claude-max` — Claude subscription (`anthropic`, `claude-sonnet-4-5`); OAuth from
+    `CLAUDE_CODE_OAUTH_TOKEN`. Named `claude-max` so its launcher doesn't clobber the
+    `claude` CLI. **Needs a Max plan with extra usage credits** (else HTTP 400 "out of
+    extra usage"); the base allowance isn't usable via Hermes.
+  Telegram creds are propagated to each profile's `.env` so task agents can
+  `hermes send` results. See ADR-0013 and ADR-0014.
 - **Web dashboard** (`hermes dashboard`): needs the `[web,pty]` extras and Node (both
   wired into the container build — `postCreate` + the `node` devcontainer feature). The
   frontend builds on first launch into the hermes-data volume. Loopback bind has no
@@ -100,8 +106,9 @@ web canvas.
 - **Host services** are optional user-installed launchd agents
   (`scripts/install-host-services.sh`): Ollama as a managed service, stacks
   autostart, daily backup. Run by the user (persistence needs explicit consent).
-- **Security posture:** approvals manual (the `openai` task profile uses `off` for
-  headless dispatch — Tirith still gates it), `redact_secrets`, Tirith **fail-closed**.
+- **Security posture:** approvals **manual** across profiles (the kanban dispatcher
+  runs tasks headless and bypasses approvals on its own), `redact_secrets`, Tirith
+  **fail-closed**.
   Ollama/SearXNG must bind `0.0.0.0` (container reaches them via
   host.docker.internal); LAN exposure is mitigated by `scripts/firewall-host.sh`
   (user-run, sudo).

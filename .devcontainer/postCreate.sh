@@ -90,38 +90,43 @@ if [ -d "${REPO_CONFIG_DIR}/skills" ]; then
   cp -R "${REPO_CONFIG_DIR}/skills/." "${HERMES_HOME}/skills/"
 fi
 
-# OpenAI task profile — a separate Hermes home whose model runs on the OpenAI API.
-# Assign a kanban task to assignee "openai" to dispatch it here; the default profile
-# stays local/offline. Config is versioned; the key is propagated from ~/.hermes/.env
-# into the profile's isolated .env so secrets stay in one file.
-if [ -f "${REPO_CONFIG_DIR}/profiles/openai/config.yaml" ]; then
-  echo "==> Syncing openai task profile"
-  hermes profile create openai </dev/null >/dev/null 2>&1 || true
-  PROFILE_DIR="${HERMES_HOME}/profiles/openai"
-  mkdir -p "${PROFILE_DIR}"
-  cp "${REPO_CONFIG_DIR}/profiles/openai/config.yaml" "${PROFILE_DIR}/config.yaml"
-  # The openai-api provider reads OPENAI_API_KEY / OPENAI_BASE_URL from the env, not
-  # from config.yaml, and the container sets both to the local Ollama. The profile's
-  # own .env loads with precedence, so point them at the real OpenAI API here. The
-  # user-facing key lives once in ~/.hermes/.env as OPENAI_PROFILE_API_KEY.
-  RK="$(sed -n 's/^OPENAI_PROFILE_API_KEY=//p' "${HERMES_HOME}/.env" | head -1)"
-  if [ -n "${RK}" ]; then
-    touch "${PROFILE_DIR}/.env"
-    # Strip the keys we manage, then re-add: OpenAI endpoint/key for the model, plus
-    # the Telegram creds so task agents can `hermes send` results to the chat.
-    grep -vE "^(OPENAI_API_KEY|OPENAI_BASE_URL|OPENAI_PROFILE_API_KEY|TELEGRAM_)" "${PROFILE_DIR}/.env" \
-      > "${PROFILE_DIR}/.env.tmp" 2>/dev/null || true
-    {
-      echo "OPENAI_PROFILE_API_KEY=${RK}"
-      echo "OPENAI_API_KEY=${RK}"
-      echo "OPENAI_BASE_URL=https://api.openai.com/v1"
-      grep -E "^TELEGRAM_" "${HERMES_HOME}/.env" 2>/dev/null || true
-    } >> "${PROFILE_DIR}/.env.tmp"
-    mv "${PROFILE_DIR}/.env.tmp" "${PROFILE_DIR}/.env"
-  else
-    echo "    NOTE - OPENAI_PROFILE_API_KEY unset in ~/.hermes/.env; openai profile" \
-         "tasks will fail until you set it."
-  fi
+# Named profiles (config/profiles/*) — each a separate Hermes home for an alternate
+# model backend: `ollama` (local) and `claude` (your subscription). Their isolated
+# .env gets the Telegram creds (so task agents can `hermes send`) plus any provider
+# auth the profile needs. The default profile (above) is OpenAI gpt-5.5.
+for pdir in "${REPO_CONFIG_DIR}"/profiles/*/; do
+  [ -f "${pdir}config.yaml" ] || continue
+  pname="$(basename "${pdir}")"
+  echo "==> Syncing profile: ${pname}"
+  hermes profile create "${pname}" </dev/null >/dev/null 2>&1 || true
+  PDIR="${HERMES_HOME}/profiles/${pname}"
+  mkdir -p "${PDIR}"
+  cp "${pdir}config.yaml" "${PDIR}/config.yaml"
+  touch "${PDIR}/.env"
+  grep -vE "^(TELEGRAM_|CLAUDE_CODE_OAUTH_TOKEN=)" "${PDIR}/.env" > "${PDIR}/.env.tmp" 2>/dev/null || true
+  grep -E "^TELEGRAM_" "${HERMES_HOME}/.env" >> "${PDIR}/.env.tmp" 2>/dev/null || true
+  # The anthropic provider resolves its OAuth from CLAUDE_CODE_OAUTH_TOKEN in the env.
+  [ "${pname}" = "claude-max" ] && grep -E "^CLAUDE_CODE_OAUTH_TOKEN=" "${HERMES_HOME}/.env" >> "${PDIR}/.env.tmp" 2>/dev/null || true
+  mv "${PDIR}/.env.tmp" "${PDIR}/.env"
+done
+
+# Default model runs on OpenAI (config.yaml: openai-api / gpt-5.5). That provider
+# reads OPENAI_API_KEY / OPENAI_BASE_URL from the env, which the container points at
+# the local Ollama — so override them in ~/.hermes/.env (loaded with precedence) from
+# the single user-facing key OPENAI_PROFILE_API_KEY. Ollama still serves vision +
+# embeddings. Without the key the default model fails; warn so it's not a silent break.
+DK="$(sed -n 's/^OPENAI_PROFILE_API_KEY=//p' "${HERMES_HOME}/.env" | head -1)"
+if [ -n "${DK}" ]; then
+  grep -vE "^(OPENAI_API_KEY|OPENAI_BASE_URL)=" "${HERMES_HOME}/.env" \
+    > "${HERMES_HOME}/.env.tmp" 2>/dev/null || true
+  {
+    echo "OPENAI_API_KEY=${DK}"
+    echo "OPENAI_BASE_URL=https://api.openai.com/v1"
+  } >> "${HERMES_HOME}/.env.tmp"
+  mv "${HERMES_HOME}/.env.tmp" "${HERMES_HOME}/.env"
+else
+  echo "    WARN - OPENAI_PROFILE_API_KEY unset in ~/.hermes/.env; the default model" \
+       "(OpenAI gpt-5.5) will fail. Set it, or switch config.yaml back to local Ollama."
 fi
 
 # Claude Code OAuth token in interactive shells — the `claude` CLI authenticates
