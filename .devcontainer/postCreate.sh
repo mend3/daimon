@@ -43,10 +43,16 @@ echo "==> Installing ella_kb / ella_flow / ella_web"
 "${VENV_PIP}" install -q -e "${REPO_ROOT}/ingestion[mcp,feeds,web]" 2>/dev/null \
   || echo "    WARN - ella package install failed; check ${REPO_ROOT}/ingestion"
 
-# Make /help command listings tappable in Telegram (idempotent, non-fatal).
+# Make /help command listings tappable in Telegram (idempotent). Non-fatal, but a
+# non-zero exit means the patch couldn't apply (Hermes layout changed) — surface it
+# instead of silently dropping the feature.
 echo "==> Patching Telegram help for clickable commands"
-"${HOME}/.hermes/hermes-agent/venv/bin/python" \
-  "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patches/telegram-help-clickable.py" || true
+if ! "${HOME}/.hermes/hermes-agent/venv/bin/python" \
+    "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patches/telegram-help-clickable.py"; then
+  echo "    WARN - clickable-commands patch did not apply; /help commands won't be" \
+       "tappable in Telegram. Check .devcontainer/patches/telegram-help-clickable.py" \
+       "against the installed Hermes."
+fi
 
 # 2. Sync the version-controlled config into ~/.hermes.
 #    config.yaml is always overwritten from the repo (it is the source of truth);
