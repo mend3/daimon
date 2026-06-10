@@ -27,6 +27,15 @@ else
   echo "==> Hermes already installed: $(command -v hermes)"
 fi
 
+# Claude Code CLI — installs to ~/.local/bin (the persisted volume), so rebuilds
+# skip it after the first install.
+if ! command -v claude >/dev/null 2>&1; then
+  echo "==> Installing Claude Code (CLI)..."
+  curl -fsSL https://claude.ai/install.sh | bash
+else
+  echo "==> Claude Code already installed: $(command -v claude)"
+fi
+
 # Web dashboard deps — install.sh installs Hermes CLI-only, so the dashboard's
 # FastAPI/Uvicorn (web) and ptyprocess (pty) extras must be added separately.
 echo "==> Ensuring web dashboard extras"
