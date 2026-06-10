@@ -1,6 +1,6 @@
 # Ella
 
-[![lint](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/mend3/hermes-agent/actions/workflows/lint.yml)
+[![lint](https://github.com/mend3/ella/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/mend3/ella/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform: macOS](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon-black?logo=apple&logoColor=white)
 ![local LLM: Ollama](https://img.shields.io/badge/local%20LLM-Ollama%20gpt--oss-5A67D8)
@@ -130,13 +130,15 @@ per-token cloud costs, and independence from any single vendor.
 macOS host with Docker Desktop + Homebrew:
 
 ```bash
-git clone https://github.com/mend3/hermes-agent.git
+git clone https://github.com/mend3/ella.git
 cd hermes-agent
 make up                 # Ollama (Metal) + Redis + SearXNG + monitoring
 ```
 
 Then open the folder in a Dev Container ("Reopen in Container") and start talking to
-Ella. `make help` lists every target. Full installation and operations:
+Ella. Inside the container, `hermes` starts the agent and `hermes dashboard --port 8090`
+opens the web dashboard (kanban, sessions, config); its frontend builds on first launch.
+`make help` lists every target. Full installation and operations:
 **[docs/setup.md](docs/setup.md)**.
 
 ## Built on
