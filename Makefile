@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-.PHONY: help up ollama redis searxng tts qdrant miniflux web monitoring services firewall devcontainer backup down
+.PHONY: help up doctor ollama redis searxng tts qdrant miniflux web monitoring services firewall devcontainer backup down
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -10,6 +10,9 @@ help: ## Show available targets
 
 up: ollama redis searxng tts qdrant monitoring ## Bring up everything on the host
 	@echo "Host ready. Open the devcontainer (VS Code: Reopen in Container) and run 'hermes'."
+
+doctor: ## Check host services and models are reachable (preflight)
+	./scripts/doctor.sh
 
 ollama: ## Install Ollama + pull the chat, vision, and embedding models
 	./scripts/setup-ollama-host.sh
