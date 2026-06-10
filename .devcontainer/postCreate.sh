@@ -146,6 +146,18 @@ fi
 EOF
 fi
 
+# Proactivity: a daily morning briefing (Ella's signature is anticipation). Created
+# only when Telegram is configured and the job is absent (idempotent). Schedule is in
+# the config timezone (UTC by default). Pause/remove with `hermes cron pause|remove`.
+if grep -qE "^TELEGRAM_BOT_TOKEN=.+" "${HERMES_HOME}/.env" 2>/dev/null \
+   && ! hermes cron list 2>/dev/null | grep -q "morning-briefing"; then
+  echo "==> Creating morning-briefing cron job"
+  hermes cron create "0 8 * * *" \
+    "Bom dia. Faça um briefing curto de início de dia, no seu tom natural e conciso (é mensagem de chat): o que está pendente no quadro kanban (cheque com as ferramentas do kanban), qualquer coisa que eu tenha sinalizado, e uma coisa que valha minha atenção hoje. Se nada for relevante, uma saudação breve basta." \
+    --name "morning-briefing" --deliver telegram --profile default >/dev/null 2>&1 \
+    || echo "    NOTE - could not create morning-briefing cron job"
+fi
+
 # 3. Quick reachability check against the host Ollama endpoint (non-fatal).
 echo "==> Checking Ollama at host.docker.internal:11434"
 if curl -fsS --max-time 3 http://host.docker.internal:11434/api/tags >/dev/null 2>&1; then

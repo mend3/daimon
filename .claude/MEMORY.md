@@ -80,6 +80,12 @@ web canvas.
     extra usage"); the base allowance isn't usable via Hermes.
   Telegram creds are propagated to each profile's `.env` so task agents can
   `hermes send` results. See ADR-0013 and ADR-0014.
+- **Proactivity & UX** (config.yaml): a daily **`morning-briefing`** cron (Ella's
+  anticipation) runs on the `default` profile and delivers to the Telegram home channel
+  (postCreate creates it when Telegram is set; the gateway's scheduler fires it). The
+  **memory `curator`** runs weekly to archive stale memories (backups kept). `stt` local
+  (faster-whisper) for voice-in; `human_delay: natural` for human pacing;
+  `unauthorized_dm_behavior: ignore`; a `/health` quick command pings host services.
 - **Web dashboard** (`hermes dashboard`): needs the `[web,pty]` extras and Node (both
   wired into the container build — `postCreate` + the `node` devcontainer feature). The
   frontend builds on first launch into the hermes-data volume. Loopback bind has no

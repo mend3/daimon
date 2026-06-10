@@ -75,6 +75,11 @@ auxiliary:
   web_extract:
     provider: "main"
     model: ""
+  # The memory curator's model (see `curator` below). Runs weekly, so the main model
+  # (quality decisions) over the local one is a negligible cost.
+  curator:
+    provider: "main"
+    model: ""
 
 # --- Context management ------------------------------------------------------
 # Local models have a smaller usable context window than frontier APIs; compress
@@ -90,6 +95,20 @@ compression:
 memory:
   memory_enabled: true
   user_profile_enabled: true
+
+# Automatic memory hygiene — Ella's SOUL says "save what's durable, not passing
+# chatter", and the curator enforces it: weekly, when idle, it archives stale
+# memories and prunes noise (backups kept, so it's reversible).
+curator:
+  enabled: true
+  interval_hours: 168       # weekly
+  min_idle_hours: 2         # only when the user has been quiet a while
+  stale_after_days: 30
+  archive_after_days: 90
+  prune_builtins: true
+  backup:
+    enabled: true
+    keep: 5
 
 # --- Safety / approvals ------------------------------------------------------
 # Manual approval for actions; secret redaction and command scanning on.
@@ -142,6 +161,17 @@ stt:
 # Silently ignore DMs from users not on the Telegram allowlist (no pairing prompt) —
 # the agent has shell/file tools, so unknown senders get nothing.
 unauthorized_dm_behavior: ignore
+
+# Natural pacing on messaging platforms — Ella reads as "genuinely human" rather than
+# firing replies back instantly.
+human_delay:
+  mode: natural
+
+# Zero-token chat shortcuts (no LLM). /health pings the host services Ella relies on.
+quick_commands:
+  health:
+    type: exec
+    command: 'for hp in "Ollama 11434" "Qdrant 6333" "SearXNG 8888" "TTS 8880"; do set -- $hp; c=$(curl -s -o /dev/null -m3 -w "%{http_code}" "http://host.docker.internal:$2" 2>/dev/null); [ "$c" != "000" ] && echo "OK  $1" || echo "DOWN $1"; done'
 
 # --- Display -----------------------------------------------------------------
 display:
