@@ -131,8 +131,10 @@ macOS host with Docker Desktop + Homebrew:
 
 ```bash
 git clone https://github.com/mend3/ella.git
-cd hermes-agent
+cd ella
 make up                 # Ollama (Metal) + Redis + SearXNG + monitoring
+
+unset NODE_OPTIONS VSCODE_INSPECTOR_OPTIONS
 ```
 
 Then open the folder in a Dev Container ("Reopen in Container") and start talking to

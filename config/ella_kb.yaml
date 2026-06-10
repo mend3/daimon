@@ -43,7 +43,7 @@ ella_kb:
     # ingests them here; enabling makes them part of recall and the knowledge graph.
     # Needs scripts/setup-miniflux-host.sh + MINIFLUX_* in ~/.hermes/.env.
     feeds:
-      enabled: true
+      enabled: false
       settings:
         batch_limit: 50
 
