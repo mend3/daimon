@@ -130,6 +130,19 @@ tts:
     model: "kokoro"
     voice: "af_sky"
 
+# --- Voice in (speech-to-text) -----------------------------------------------
+# Transcribe Telegram/web voice messages locally with faster-whisper (installed by
+# postCreate). `base` balances speed/accuracy on CPU; bump to `small` for accuracy.
+stt:
+  provider: "local"
+  local:
+    model: "base"
+
+# --- Messaging gateway -------------------------------------------------------
+# Silently ignore DMs from users not on the Telegram allowlist (no pairing prompt) —
+# the agent has shell/file tools, so unknown senders get nothing.
+unauthorized_dm_behavior: ignore
+
 # --- Display -----------------------------------------------------------------
 display:
   streaming: true
