@@ -41,8 +41,16 @@
 
   "customizations": {
     "vscode": {
+      // Disable the JS debugger auto-attach: it injects NODE_OPTIONS (a --require
+      // bootloader) into terminals, which breaks node/npm — and the dashboard's
+      // frontend build — when the path is stale. Off means `hermes dashboard` works.
+      "settings": {
+        "debug.javascript.autoAttachFilter": "disabled"
+      },
       "extensions": [
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "anthropic.claude-code",
+        "esbenp.prettier-vscode"
       ]
     }
   }
