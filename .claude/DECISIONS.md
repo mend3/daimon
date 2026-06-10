@@ -2,7 +2,7 @@
 
 Major decisions that remain relevant. Newest first.
 
-## ADR-0014 — Default to OpenAI gpt-5.5 with a local Ollama fallback; model profiles
+## ADR-0014 — Default to OpenAI gpt-5-mini with a local Ollama fallback; model profiles
 
 **Status:** Accepted
 
@@ -13,7 +13,7 @@ key/endpoint from the `OPENAI_API_KEY`/`OPENAI_BASE_URL` *environment*, not conf
 and the container points those at the local Ollama.
 
 **Decision:** Three model backends as profiles:
-- **`default`** (base home) — OpenAI **gpt-5.5** (`openai-api`, Responses API) with a
+- **`default`** (base home) — OpenAI **gpt-5-mini** (`openai-api`, Responses API) with a
   `fallback_providers` entry for local **gpt-oss:20b** (fires on 429/5xx/401/404/empty,
   turn-scoped). postCreate writes the real `OPENAI_API_KEY`/`OPENAI_BASE_URL` into
   `~/.hermes/.env` from the single `OPENAI_PROFILE_API_KEY`, overriding the container's

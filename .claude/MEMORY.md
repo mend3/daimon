@@ -1,10 +1,10 @@
 # Project Overview
 
-**Ella** — a local AI companion built on **Hermes Agent** (Nous Research CLI agent).
-Hermes runs in a devcontainer; inference is served by **Ollama** running natively on
-the macOS host. The repo is the local-first deployment (config + host services +
-scripts) plus Ella's application code: a RAG knowledge base, a workflow engine, and a
-web canvas.
+**Ella** — an AI companion built on **Hermes Agent** (Nous Research CLI agent).
+Hermes runs in a devcontainer; the default model is **OpenAI gpt-5-mini** with a
+local **Ollama** (`gpt-oss:20b`, native on the macOS host) profile + automatic
+fallback. The repo is the deployment (config + host services + scripts) plus Ella's
+application code: a RAG knowledge base, a workflow engine, and a web canvas.
 
 # Architecture
 
@@ -24,7 +24,7 @@ web canvas.
 
 # Technical Standards
 
-- **Model:** default is **OpenAI gpt-5.5** (`openai-api`, Responses API) with the
+- **Model:** default is **OpenAI gpt-5-mini** (`openai-api`, Responses API) with the
   local **`gpt-oss:20b`** as automatic fallback (`fallback_providers`). Alternate
   profiles: `ollama` (local) and `claude-max` (Claude subscription). Vision stays
   local `qwen2.5vl:7b`; embeddings `nomic-embed-text` (768-dim). See ADR-0014.
@@ -69,7 +69,7 @@ web canvas.
   on the next tick. The assignee is a **profile** (a separate `~/.hermes/profiles/<n>`
   home). Versioned in `config/profiles/`, synced by `postCreate` (which creates each
   and propagates the creds each needs into its isolated `.env`):
-  - `default` — OpenAI **gpt-5.5** (`openai-api`, Responses API) + local Ollama
+  - `default` — OpenAI **gpt-5-mini** (`openai-api`, Responses API) + local Ollama
     fallback. The provider reads `OPENAI_API_KEY`/`OPENAI_BASE_URL` from the env (not
     config); postCreate writes them into `~/.hermes/.env` from `OPENAI_PROFILE_API_KEY`.
     Must be a **reasoning** model (gpt-5.x/o-series) — encrypted reasoning content.

@@ -6,9 +6,10 @@ Detailed installation and infrastructure for running Hermes locally on macOS
 
 ## Architecture
 
-Hermes runs isolated in a **devcontainer**, driven by **gpt-oss:20b** served by
-**Ollama** running natively on the macOS host so inference uses the Apple Silicon
-GPU via Metal.
+Hermes runs isolated in a **devcontainer**, driven by **OpenAI gpt-5-mini** by
+default with **gpt-oss:20b** on host **Ollama** as the local profile and automatic
+fallback — Ollama runs natively on the macOS host so its inference uses the Apple
+Silicon GPU via Metal (and also serves vision + embeddings).
 
 ```
 ┌─────────────── macOS host ───────────────┐
@@ -138,7 +139,7 @@ On first create, `postCreate.sh` installs Hermes, copies `config/config.yaml` an
 Inside the container:
 
 ```bash
-hermes            # start chatting against the local model
+hermes            # start chatting (default: OpenAI gpt-5-mini, local fallback)
 hermes config     # view the active configuration
 hermes doctor     # diagnostics
 ```
@@ -147,7 +148,7 @@ hermes doctor     # diagnostics
 
 | Capability | Backend | Setup |
 |------------|---------|-------|
-| Chat / tools | `gpt-oss:20b` on host Ollama | default |
+| Chat / tools | OpenAI `gpt-5-mini` (`openai-api`) | default; `gpt-oss:20b` on Ollama = `ollama` profile + fallback |
 | Vision | `qwen2.5vl:7b` on host Ollama | `ollama pull qwen2.5vl:7b` |
 | Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
 | Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |

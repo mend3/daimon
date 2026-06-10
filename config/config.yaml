@@ -1,11 +1,13 @@
-# Hermes Agent — default profile: OpenAI gpt-5.5 primary, local Ollama fallback.
+# Hermes Agent — default profile: OpenAI gpt-5-mini primary, local Ollama fallback.
 # The `ollama` (local) and `claude-max` (subscription) profiles live in config/profiles/.
 # Synced into ~/.hermes/config.yaml by .devcontainer/postCreate.sh.
 # Docs: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
 
 # --- Model -------------------------------------------------------------------
-# Default: OpenAI gpt-5.5 (a reasoning model) via the openai-api provider, which
-# uses the Responses API. This provider reads the key and endpoint from the
+# Default: OpenAI gpt-5-mini (a reasoning model, picked for cost/quality) via the
+# openai-api provider, which uses the Responses API — so the model must be a reasoning
+# model (gpt-5.x/o-series); gpt-4.x would 400 on encrypted reasoning content. This
+# provider reads the key and endpoint from the
 # OPENAI_API_KEY / OPENAI_BASE_URL *environment*, not the fields below; postCreate
 # writes the real values into ~/.hermes/.env from OPENAI_PROFILE_API_KEY. Ollama
 # stays the vision/embedding backend (see auxiliary + ella_kb). Switch the main
@@ -15,7 +17,7 @@
 #   - Your Claude subscription: provider anthropic, model claude-sonnet-4-5 — needs a
 #     Claude Max plan with extra usage credits (the credential is in `hermes auth`).
 model:
-  default: "gpt-5.5"
+  default: "gpt-5-mini"
   provider: openai-api
   base_url: "https://api.openai.com/v1"
   api_key: "${OPENAI_PROFILE_API_KEY}"

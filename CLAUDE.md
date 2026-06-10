@@ -1,15 +1,16 @@
 # Hermes Agent — Local Setup
 
-This repo runs **Ella** — a local AI companion built on **Hermes Agent** — in a
-devcontainer, talking to models served by **Ollama** on the macOS host (Metal GPU).
-It is the local-first deployment (config + host services + scripts) plus Ella's own
-application code: a RAG knowledge base, a workflow engine, and a web canvas
+This repo runs **Ella** — an AI companion built on **Hermes Agent** — in a
+devcontainer. It defaults to **OpenAI gpt-5-mini** with a fully-local **Ollama**
+(`gpt-oss:20b`, Metal GPU) profile + automatic fallback, so it can run cloud-default
+or fully local. It is the deployment (config + host services + scripts) plus Ella's
+own application code: a RAG knowledge base, a workflow engine, and a web canvas
 (`ingestion/`, `web/`).
 
 ## What Hermes is, and when to use it
 
 Hermes Agent (Nous Research) is a CLI AI agent with tool calling — shell, files,
-web, memory, cron, messaging gateways. The default profile runs **OpenAI gpt-5.5**
+web, memory, cron, messaging gateways. The default profile runs **OpenAI gpt-5-mini**
 (needs an OpenAI key) with the local **`gpt-oss:20b`** as an automatic fallback. Two
 alternate profiles ship alongside: **`ollama`** (fully local/offline) and
 **`claude-max`** (your Claude subscription). Switch with `hermes model` or per
@@ -49,7 +50,7 @@ profile. Start it inside the devcontainer with `hermes`.
 
 ## Invariants — keep these true
 
-- The default model is **OpenAI gpt-5.5** (`openai-api` provider, Responses API), so
+- The default model is **OpenAI gpt-5-mini** (`openai-api` provider, Responses API), so
   `OPENAI_PROFILE_API_KEY` must be set in `~/.hermes/.env`; postCreate writes it to
   `OPENAI_API_KEY`/`OPENAI_BASE_URL`, which that provider reads from the env.
 - Any **local** model (the `ollama` profile, the fallback, vision) must expose a
@@ -71,10 +72,10 @@ profile. Start it inside the devcontainer with `hermes`.
 
 - **Hermes Agent** — Nous Research CLI agent with tool calling; the thing this repo runs.
 - **Ollama** — local model server; exposes an OpenAI-compatible `/v1` API.
-- **gpt-5.5** — the default model (OpenAI, reasoning, via the openai-api provider).
+- **gpt-5-mini** — the default model (OpenAI, reasoning, via the openai-api provider).
 - **gpt-oss:20b** — the local model (MoE, ~3.6B active): the `ollama` profile + the
   default's automatic fallback.
-- **Profiles** — `default` (OpenAI gpt-5.5 + Ollama fallback), `ollama` (local),
+- **Profiles** — `default` (OpenAI gpt-5-mini + Ollama fallback), `ollama` (local),
   `claude-max` (Claude subscription); each a separate `~/.hermes` home.
 - **Metal** — Apple's GPU backend; why Ollama runs on the host, not in Docker.
 - **devcontainer** — the isolated container where Hermes and its tools execute.

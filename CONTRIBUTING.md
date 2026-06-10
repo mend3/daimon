@@ -1,7 +1,8 @@
 # Contributing
 
-This repo is configuration, scripts, and docs for running Hermes Agent locally
-(macOS host + devcontainer). There is no application code to build.
+This repo is the deployment for running Hermes Agent (macOS host + devcontainer)
+**plus Ella's own application code** — the RAG knowledge base, workflow engine, and
+web canvas under `ingestion/` (Python) and `web/` (React).
 
 ## Setup
 

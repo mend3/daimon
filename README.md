@@ -9,17 +9,18 @@
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 > An intelligent companion that helps you think, decide, create, and execute —
-> private, local-first, and entirely yours.
+> yours to run, on your machine, and private when you want it.
 
 **Ella** is a personal AI companion built on [Hermes
-Agent](https://hermes-agent.nousresearch.com/docs/) and local models served by
-[Ollama](https://ollama.com) with Apple Silicon GPU acceleration. She runs on your
-own machine, keeps your data private, and combines human-like conversation with
-operational intelligence — sandboxed in a devcontainer, reachable over CLI and
-Telegram, and fully observable.
+Agent](https://hermes-agent.nousresearch.com/docs/), sandboxed in a devcontainer on
+your own machine. She defaults to **OpenAI gpt-5-mini** for quality, with a
+**fully-local profile** and automatic fallback on [Ollama](https://ollama.com)
+(Apple Silicon GPU) — so you can trade quality for privacy whenever you choose. She
+combines human-like conversation with operational intelligence, reachable over CLI
+and Telegram, and fully observable.
 
-This repository is the **persona, local-first deployment, multi-channel access,
-knowledge base, visual workflows, and observability** built around Hermes. It is not
+This repository is the **persona, deployment, multi-channel access, knowledge base,
+visual workflows, and observability** built around Hermes. It is not
 a fork of Hermes Agent — it stands on it (see [Built on](#built-on)).
 
 ## Meet Ella
@@ -48,7 +49,7 @@ Most AI assistants are stateless chat windows. Ella is a persistent **companion*
 - 🧩 **Builds workflows** on a visual canvas where the nodes are her own capabilities
 - 💬 Reaches you over **CLI, Telegram, and a web canvas**, sharing one memory
 - 📊 Is **fully observable** — every message, tool call, and model run on a dashboard
-- 🔒 Runs **100% locally** with your data under your control
+- 🔒 **Can run 100% locally** — a fully-local model profile + self-hosted services
 
 ## Core capabilities
 
@@ -70,9 +71,10 @@ abilities; new node types drop in.
 A modular toolset lets her act: web search, vision, file operations, code execution,
 terminal, and browser automation — extensible with more.
 
-### 🌐 Local-first
-Inference runs on local open models (gpt-oss, Qwen-VL) via Ollama with Metal GPU
-acceleration. Search, cache, and monitoring are self-hosted. No mandatory cloud.
+### 🌐 Local-capable
+The default model is OpenAI gpt-5-mini, but a **fully-local profile** (gpt-oss,
+Qwen-VL via Ollama with Metal GPU) and an automatic local fallback are built in, and
+search, cache, and monitoring are self-hosted — so you can run with no cloud at all.
 
 ### 📨 Multi-channel
 Talk to Ella from the **CLI**, **Telegram** (multi-user, allowlisted), or the **web
@@ -152,7 +154,7 @@ reproduce them:
 - **[Ollama](https://ollama.com)** — local model serving with Metal GPU acceleration.
 - **SearXNG** (search), **Redis** (cache), **Grafana / Loki / Prometheus** (observability).
 
-This repo adds the persona, the local-first deployment, multi-channel access, and
+This repo adds the persona, the deployment, multi-channel access, and
 the monitoring layer on top.
 
 ## Roadmap

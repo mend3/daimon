@@ -18,7 +18,8 @@ boundaries:
   `host.docker.internal`; `scripts/firewall-host.sh` (and the LaunchDaemon
   installer) block them on the LAN. Grafana and Redis are loopback-only.
 - The Telegram gateway answers only paired users (`TELEGRAM_ALLOWED_USERS`); it
-  refuses to start with a token but no allowlist.
+  refuses to expose the bot when a token is set without an allowlist (the gateway
+  itself still runs for the kanban dispatcher and cron). Unknown DMs are ignored.
 
 ## Secrets
 
