@@ -424,58 +424,26 @@
     /* ────────────── Capabilities ────────────── */
     .caps-section { background: var(--surface); }
 
-    .caps-grid {
+    .caps-manifest { margin-top: 52px; }
+
+    .cap-row {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
-      gap: 16px; margin-top: 52px;
-    }
-
-    .cap-card {
-      position: relative;
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 28px;
+      grid-template-columns: 220px 1fr;
+      gap: 0 40px;
+      align-items: center;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--border);
       cursor: default;
-      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-      overflow: hidden;
+      transition: padding-left 0.18s, opacity 0.2s;
     }
+    .cap-row:first-child { border-top: 1px solid var(--border); }
+    .caps-manifest:hover .cap-row         { opacity: 0.45; }
+    .caps-manifest:hover .cap-row:hover   { opacity: 1; padding-left: 10px; }
+    .cap-row h3 { font-size: 0.93rem; font-weight: 600; color: var(--text); margin: 0; }
+    .cap-row p  { font-size: 0.84rem; color: var(--muted); line-height: 1.68; margin: 0; }
 
-    .cap-card::before {
-      content: ''; position: absolute;
-      inset: 0; border-radius: var(--r);
-      background: radial-gradient(circle at var(--mx,50%) var(--my,50%),
-        rgba(139,92,246,0.1) 0%, transparent 60%);
-      opacity: 0; transition: opacity 0.3s;
-      pointer-events: none;
-    }
-
-    .cap-card:hover {
-      border-color: var(--border-h);
-      transform: translateY(-4px);
-      box-shadow: 0 0 30px rgba(139,92,246,0.12), 0 16px 40px rgba(0,0,0,0.4);
-    }
-
-    .cap-card:hover::before { opacity: 1; }
-
-    .cap-tag {
-      font-family: var(--font-mono);
-      font-size: 0.6rem; font-weight: 500;
-      letter-spacing: 0.14em; color: var(--violet);
-      background: rgba(139,92,246,0.07);
-      border: 1px solid rgba(139,92,246,0.18);
-      padding: 3px 9px; border-radius: 4px;
-      display: inline-block; margin-bottom: 18px;
-    }
-    .cap-card h3 { font-size: 0.92rem; font-weight: 600; margin-bottom: 10px; color: var(--text); }
-    .cap-card p  { font-size: 0.84rem; color: var(--muted); line-height: 1.72; }
-
-    /* Card corner accent */
-    .cap-card::after {
-      content: ''; position: absolute;
-      top: 0; right: 0; width: 40px; height: 40px;
-      background: linear-gradient(225deg, rgba(139,92,246,0.15) 0%, transparent 60%);
-      border-radius: 0 var(--r) 0 0;
+    @media (max-width: 640px) {
+      .cap-row { grid-template-columns: 1fr; gap: 6px; }
     }
 
     /* ────────────── Use cases ────────────── */
@@ -570,24 +538,26 @@
 
     .demo-msg-bubble {
       font-family: var(--font-mono);
-      font-size: 0.78rem; line-height: 1.6;
-      padding: 10px 14px; border-radius: 10px;
-      max-width: 90%;
+      font-size: 0.78rem; line-height: 1.75;
+      padding: 12px 16px; border-radius: 10px;
+      max-width: 92%;
     }
     .demo-msg.user { align-items: flex-end; }
     .demo-msg.user .demo-msg-bubble {
-      background: rgba(34,211,238,0.08);
+      background: rgba(34,211,238,0.07);
       border: 1px solid rgba(34,211,238,0.18);
-      color: var(--text); border-bottom-right-radius: 3px;
+      color: rgba(255,255,255,0.82); border-bottom-right-radius: 3px;
       align-self: flex-end;
     }
     .demo-msg.ella .demo-msg-bubble {
-      background: rgba(139,92,246,0.07);
-      border: 1px solid rgba(139,92,246,0.18);
-      color: var(--text); border-bottom-left-radius: 3px;
+      background: rgba(139,92,246,0.06);
+      border: 1px solid rgba(139,92,246,0.22);
+      border-left: 2px solid rgba(139,92,246,0.5);
+      color: rgba(255,255,255,0.88); border-bottom-left-radius: 3px;
+      box-shadow: 0 2px 16px rgba(139,92,246,0.06);
     }
 
-    .demo-msg-bubble .hl { color: var(--amber); font-weight: 500; }
+    .demo-msg-bubble .hl  { color: var(--amber); }
     .demo-msg-bubble .hl2 { color: var(--cyan); }
 
     .typing-indicator {
@@ -947,6 +917,275 @@
       font-size: 0.72rem;
     }
 
+    /* ────────────── Panel input ────────────── */
+    .panel-input-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px 13px;
+      border-top: 1px solid rgba(139,92,246,0.1);
+    }
+    .panel-input {
+      flex: 1; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(139,92,246,0.2); border-radius: 10px;
+      padding: 7px 11px; font-size: 0.79rem; font-family: inherit;
+      color: var(--text); outline: none;
+      transition: border-color 0.2s;
+    }
+    .panel-input::placeholder { color: var(--muted); }
+    .panel-input:focus { border-color: rgba(139,92,246,0.5); }
+    .panel-send {
+      flex-shrink: 0; width: 30px; height: 30px;
+      background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 8px; color: var(--violet); font-size: 1rem;
+      cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .panel-send:hover { background: rgba(139,92,246,0.22); }
+
+    /* ────────────── HUD overlay (combat mode) ────────────── */
+    .hud {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 600;
+      opacity: 0; transition: opacity 0.9s ease;
+    }
+    body.combat .hud { opacity: 1; }
+
+    .hud-corner {
+      position: absolute; width: 52px; height: 52px;
+    }
+    .hud-corner::before, .hud-corner::after {
+      content: ''; position: absolute;
+      background: #00f3ff;
+      box-shadow: 0 0 10px rgba(0,243,255,0.8), 0 0 22px rgba(0,243,255,0.3);
+    }
+    .hud-corner::before { width: 2px; height: 100%; top: 0; left: 0; }
+    .hud-corner::after  { width: 100%; height: 2px; top: 0; left: 0; }
+    .hud-tl { top: 18px; left: 18px; }
+    .hud-tr { top: 18px; right: 18px; transform: scaleX(-1); }
+    .hud-bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+    .hud-br { bottom: 18px; right: 18px; transform: scale(-1,-1); }
+
+    .hud-scan {
+      position: absolute; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,243,255,0.35), #00f3ff, rgba(0,243,255,0.35), transparent);
+      box-shadow: 0 0 8px rgba(0,243,255,0.5);
+      animation: hud-sweep 3.5s linear infinite;
+    }
+    @keyframes hud-sweep { from { top: 0; } to { top: 100%; } }
+
+    .hud-status {
+      position: absolute;
+      font-family: var(--font-mono); font-size: 0.57rem;
+      letter-spacing: 0.1em; line-height: 1.9; text-transform: uppercase;
+      color: rgba(0,243,255,0.6);
+    }
+    .hud-tl-text { top: 78px;  left: 22px; }
+    .hud-tr-text { top: 78px;  right: 22px; text-align: right; }
+    .hud-bl-text { bottom: 78px; left: 22px; }
+    .hud-br-text { bottom: 78px; right: 22px; text-align: right; }
+
+    .hud-radar {
+      position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      opacity: 0.88;
+    }
+
+    /* ────────────── Combat mode overrides ────────────── */
+    body.combat {
+      --violet: #00f3ff;
+      --green:  #00ff88;
+      --bg:     #050d1a;
+      --surface:#061628;
+      --text:   #b8ecff;
+      --muted:  rgba(0,243,255,0.45);
+    }
+    body.combat::before {
+      content: ''; position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+      background-image: radial-gradient(circle, rgba(0,243,255,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    @keyframes combat-glitch-before {
+      0%,80%,100% { clip-path: polygon(0 0,100% 0,100% 0,0 0); transform: none; }
+      81% { clip-path: polygon(0 18%,100% 18%,100% 36%,0 36%); transform: translate(-4px,0); color: #ff3c00; }
+      82% { clip-path: polygon(0 52%,100% 52%,100% 68%,0 68%); transform: translate(4px,0);  color: #00ff88; }
+      83% { clip-path: polygon(0 0,100% 0,100% 0,0 0); }
+    }
+    @keyframes combat-glitch-after {
+      0%,80%,100% { clip-path: polygon(0 0,100% 0,100% 0,0 0); transform: none; }
+      81% { clip-path: polygon(0 62%,100% 62%,100% 78%,0 78%); transform: translate(4px,0);  color: #00f3ff; }
+      82% { clip-path: polygon(0 30%,100% 30%,100% 48%,0 48%); transform: translate(-4px,0); color: #ff3c00; }
+      83% { clip-path: polygon(0 0,100% 0,100% 0,0 0); }
+    }
+    body.combat [data-glitch] { position: relative; }
+    body.combat [data-glitch]::before,
+    body.combat [data-glitch]::after {
+      content: attr(data-glitch);
+      position: absolute; top: 0; left: 0; width: 100%;
+      background: inherit; -webkit-background-clip: inherit; background-clip: inherit;
+    }
+    body.combat [data-glitch]::before { animation: combat-glitch-before 6s ease-in-out infinite; }
+    body.combat [data-glitch]::after  { animation: combat-glitch-after  6s ease-in-out infinite 0.08s; }
+    body.combat .grad-text {
+      background: linear-gradient(120deg, #00f3ff 0%, #00ff88 55%, #00f3ff 100%) !important;
+      -webkit-background-clip: text !important; background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+    /* 7-layer neon glow on headings — film-accurate layering technique */
+    body.combat h2:not([data-glitch]) {
+      text-shadow:
+        0 0  7px #fff,
+        0 0 12px #fff,
+        0 0 22px #fff,
+        0 0 42px #00f3ff,
+        0 0 82px #00f3ff,
+        0 0 92px #00f3ff,
+        0 0 110px #00f3ff;
+    }
+    body.combat .ella-trigger {
+      box-shadow:
+        0 0 0 2px rgba(0,243,255,0.5),
+        0 0 18px rgba(0,243,255,0.4),
+        0 0 40px rgba(0,243,255,0.15) !important;
+    }
+    body.combat nav {
+      border-bottom-color: rgba(0,243,255,0.2);
+      background: rgba(1,10,19,0.97);
+    }
+    body.combat .nav-logo { color: #00f3ff; text-shadow: 0 0 18px rgba(0,243,255,0.6); }
+    body.combat .nav-link { color: rgba(0,243,255,0.65); }
+    body.combat .nav-link:hover { color: #00f3ff; }
+    body.combat .section-label { color: #00ff88 !important; }
+    body.combat .cap-row { border-color: rgba(0,243,255,0.12); }
+    body.combat .cap-row:hover { background: rgba(0,243,255,0.04); }
+    body.combat .btn {
+      border-color: rgba(0,243,255,0.45) !important;
+      color: #00f3ff !important;
+    }
+    body.combat .btn-primary { background: rgba(0,243,255,0.08) !important; }
+    body.combat .btn:hover   { box-shadow: 0 0 20px rgba(0,243,255,0.25) !important; }
+    body.combat .scanline-overlay {
+      background: repeating-linear-gradient(0deg, rgba(0,243,255,0.025) 0px, rgba(0,243,255,0.025) 1px, transparent 1px, transparent 3px);
+      opacity: 1;
+    }
+    body.combat .why-table th { color: #00f3ff; border-bottom-color: rgba(0,243,255,0.2); }
+    body.combat .why-table td { border-bottom-color: rgba(0,243,255,0.07); }
+    body.combat .check { color: #00ff88; }
+    body.combat .ella-panel {
+      background: rgba(1,10,19,0.97);
+      border-color: rgba(0,243,255,0.32);
+    }
+    body.combat .panel-header { background: rgba(0,243,255,0.04); border-bottom-color: rgba(0,243,255,0.12); }
+    body.combat .panel-input  { border-color: rgba(0,243,255,0.22); background: rgba(0,243,255,0.03); color: #b8ecff; }
+    body.combat .panel-input:focus { border-color: rgba(0,243,255,0.55); }
+    body.combat .panel-input-row { border-top-color: rgba(0,243,255,0.1); }
+    body.combat .panel-send { color: #00f3ff; border-color: rgba(0,243,255,0.3); background: rgba(0,243,255,0.07); }
+    body.combat .popt { color: rgba(0,243,255,0.75); border-color: rgba(0,243,255,0.2); background: rgba(0,243,255,0.03); }
+    body.combat .popt:hover { color: #00f3ff; border-color: rgba(0,243,255,0.5); background: rgba(0,243,255,0.1); }
+    body.combat .pmsg.from-ella .pmsg-bubble { background: rgba(0,243,255,0.07); border-color: rgba(0,243,255,0.2); }
+    body.combat .pmsg.from-user .pmsg-bubble { background: rgba(0,255,136,0.06); border-color: rgba(0,255,136,0.2); }
+    body.combat .ella-trigger { box-shadow: 0 0 0 2px rgba(0,243,255,0.4), 0 0 24px rgba(0,243,255,0.25) !important; }
+    body.combat .ella-trigger-dot { background: #00ff88 !important; box-shadow: 0 0 6px #00ff88 !important; }
+    body.combat .panel-online { color: #00ff88 !important; }
+    body.combat .panel-online::before { background: #00ff88 !important; }
+
+    /* ── HUD retract on mouse activity ── */
+    body.combat .hud-corner,
+    body.combat .hud-status,
+    body.combat .hud-radar { transition: translate 0.65s ease-out, opacity 0.65s ease-out; }
+    body.combat .hud-scan  { transition: opacity 0.65s ease-out; }
+    body.combat .hud-bar   { transition: translate 0.65s ease-out, opacity 0.65s ease-out; }
+
+    body.combat.hud-active .hud-corner,
+    body.combat.hud-active .hud-status,
+    body.combat.hud-active .hud-radar { transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
+    body.combat.hud-active .hud-scan  { transition: opacity 0.3s ease-in; }
+    body.combat.hud-active .hud-bar   { transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
+
+    body.combat.hud-active .hud-tl      { translate: -70px -70px; opacity: 0; }
+    body.combat.hud-active .hud-tr      { translate:  70px -70px; opacity: 0; }
+    body.combat.hud-active .hud-bl      { translate: -70px  70px; opacity: 0; }
+    body.combat.hud-active .hud-br      { translate:  70px  70px; opacity: 0; }
+    body.combat.hud-active .hud-tl-text { translate: -160px 0;    opacity: 0; }
+    body.combat.hud-active .hud-tr-text { translate:  160px 0;    opacity: 0; }
+    body.combat.hud-active .hud-bl-text { translate: -160px 0;    opacity: 0; }
+    body.combat.hud-active .hud-br-text { translate:  160px 0;    opacity: 0; }
+    body.combat.hud-active .hud-radar   { translate: 0 160px;     opacity: 0; }
+    body.combat.hud-active .hud-scan    { opacity: 0; }
+    body.combat.hud-active .hud-bar     { translate: 0 -48px;     opacity: 0; }
+
+    /* ────────────── HUD command bar ────────────── */
+    .hud-bar {
+      position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+      z-index: 799;
+      height: 36px; display: none; align-items: center; gap: 4px;
+      padding: 0 16px;
+      background: rgba(5,13,26,0.97);
+      border: 1px solid rgba(0,243,255,0.28); border-top: none;
+      border-radius: 0 0 12px 12px;
+      backdrop-filter: blur(20px);
+      font-family: var(--font-mono);
+      box-shadow: 0 12px 40px rgba(0,243,255,0.14), inset 0 -1px 0 rgba(0,243,255,0.08);
+      white-space: nowrap;
+    }
+    body.combat .hud-bar { display: flex; }
+    body.combat .ella-widget { opacity: 0 !important; pointer-events: none !important; }
+
+    .hud-bar-sig {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.57rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(0,243,255,0.65); margin-right: 4px; white-space: nowrap;
+    }
+    .hud-bar-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #00ff88; box-shadow: 0 0 7px #00ff88;
+      animation: status-pulse 2s ease-in-out infinite;
+    }
+    .hud-bar-sep {
+      width: 1px; height: 18px; flex-shrink: 0;
+      background: rgba(0,243,255,0.18); margin: 0 5px;
+    }
+    .hud-action {
+      min-width: 28px; height: 28px; padding: 0 5px; flex-shrink: 0;
+      background: rgba(0,243,255,0.04);
+      border: 1px solid rgba(0,243,255,0.18); border-radius: 5px;
+      color: rgba(0,243,255,0.72);
+      font-size: 0.82rem; font-family: var(--font-mono);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.14s, border-color 0.14s, box-shadow 0.14s, color 0.14s;
+      letter-spacing: 0;
+    }
+    .hud-action:hover {
+      background: rgba(0,243,255,0.12);
+      border-color: rgba(0,243,255,0.5);
+      color: #00f3ff;
+      box-shadow: 0 0 10px rgba(0,243,255,0.22);
+    }
+    .hud-action.fired {
+      background: rgba(0,243,255,0.22) !important;
+      border-color: #00f3ff !important;
+      color: #fff !important;
+      box-shadow: 0 0 14px rgba(0,243,255,0.55) !important;
+    }
+    .hud-action.active-on {
+      color: #00ff88; border-color: rgba(0,255,136,0.4);
+      background: rgba(0,255,136,0.06);
+    }
+    #hcmd-lang { font-size: 0.6rem; letter-spacing: 0.1em; min-width: 32px; }
+    .hud-exit {
+      color: rgba(255,60,0,0.72); border-color: rgba(255,60,0,0.22);
+      background: rgba(255,60,0,0.04);
+    }
+    .hud-exit:hover {
+      color: #ff3c00; border-color: rgba(255,60,0,0.55);
+      background: rgba(255,60,0,0.1);
+      box-shadow: 0 0 10px rgba(255,60,0,0.25);
+    }
+    .hud-bar-status {
+      flex: 1; font-size: 0.57rem; letter-spacing: 0.1em;
+      color: rgba(0,243,255,0.5); text-align: center;
+      text-transform: uppercase; transition: opacity 0.3s;
+    }
+
     /* ────────────── Hero: side-by-side layout ────────────── */
     .hero { text-align: left; }
     .hero-inner {
@@ -965,7 +1204,7 @@
     .avatar-status { width: 20px; height: 20px; bottom: 12px; right: 12px; border-width: 3px; }
     .hero-eyebrow  { text-align: left; }
     .hero-sub      { margin: 0 0 40px; max-width: 460px; }
-    .btn-row       { justify-content: flex-start; }
+    .hero .btn-row { justify-content: flex-start; }
 
     @media (max-width: 860px) {
       .hero { text-align: center; }
@@ -973,7 +1212,7 @@
       .hero-right { align-items: center; }
       .hero-eyebrow { text-align: center; }
       .hero-sub { margin: 0 auto 40px; }
-      .btn-row  { justify-content: center; }
+      .hero .btn-row { justify-content: center; }
       .avatar-stack  { width: 148px; height: 148px; }
       .avatar-img    { width: 142px; height: 142px; }
       .avatar-ring-outer  { inset: -10px; }
@@ -1007,6 +1246,27 @@
       <li><a href="https://github.com/mend3/ella" target="_blank">GitHub ↗</a></li>
     </ul>
   </nav>
+
+  <!-- HUD command bar — visible only in combat mode -->
+  <div class="hud-bar" id="hud-bar" aria-label="Combat quick actions">
+    <div class="hud-bar-sig">
+      <span class="hud-bar-dot"></span>
+      <span>COMBAT</span>
+    </div>
+    <div class="hud-bar-sep"></div>
+    <button class="hud-action" data-hcmd="theme"   title="Toggle theme">◑</button>
+    <button class="hud-action" id="hcmd-lang" data-hcmd="lang" title="Toggle language">EN</button>
+    <div class="hud-bar-sep"></div>
+    <button class="hud-action" data-hcmd="font-up" title="Font larger">A⁺</button>
+    <button class="hud-action" data-hcmd="font-dn" title="Font smaller">A⁻</button>
+    <div class="hud-bar-sep"></div>
+    <button class="hud-action" id="hcmd-cosmos" data-hcmd="cosmos" title="Cosmos attractor">✦</button>
+    <div class="hud-bar-sep"></div>
+    <button class="hud-action" data-hcmd="print" title="Print page">⎙</button>
+    <button class="hud-action" data-hcmd="share" title="Copy link">↗</button>
+    <div class="hud-bar-status" id="hud-bar-status"></div>
+    <button class="hud-action hud-exit" data-hcmd="exit" title="Stand down / exit combat">⏻</button>
+  </div>
 
   <!-- ── Hero ── -->
   <section class="hero" id="hero">
@@ -1082,16 +1342,16 @@
       <p class="label reveal">What I do</p>
       <h2 class="section-title reveal d1">A full intelligence stack,<br/><span class="grad">on your machine.</span></h2>
 
-      <div class="caps-grid">
-        <div class="cap-card reveal d1"><span class="cap-tag">MEM</span><h3>Persistent memory</h3><p>I remember your projects, preferences, and decisions across every session — and recall them without being asked.</p></div>
-        <div class="cap-card reveal d2"><span class="cap-tag">ANT</span><h3>Anticipation</h3><p>My signature: I surface what you haven't thought to ask yet — hidden risks, upcoming decisions, missing context.</p></div>
-        <div class="cap-card reveal d3"><span class="cap-tag">EXE</span><h3>Real tool use</h3><p>Shell, files, code execution, browser automation. I don't just describe how to do something — I do it.</p></div>
-        <div class="cap-card reveal d4"><span class="cap-tag">WEB</span><h3>Private web search</h3><p>I search the web through a self-hosted engine. No queries leave your machine to third-party trackers.</p></div>
-        <div class="cap-card reveal d5"><span class="cap-tag">RAG</span><h3>Knowledge base</h3><p>Feed me files, links, notes, and feeds. I ingest them into a semantic memory you can query by meaning.</p></div>
-        <div class="cap-card reveal d6"><span class="cap-tag">WRK</span><h3>Visual workflows</h3><p>A web canvas where my capabilities become nodes you wire into automations — no code required.</p></div>
-        <div class="cap-card reveal d7"><span class="cap-tag">MCH</span><h3>Multi-channel</h3><p>CLI, Telegram, and web canvas — all sharing one memory. You switch channels; I stay coherent.</p></div>
-        <div class="cap-card reveal d8"><span class="cap-tag">MDL</span><h3>Multimodal</h3><p>I see images, hear voice (transcribed locally), fetch links, and read files — all natively.</p></div>
-        <div class="cap-card reveal d9"><span class="cap-tag">OBS</span><h3>Full observability</h3><p>Every conversation, tool call, and model run is visible in a live Grafana dashboard. You see exactly what I do.</p></div>
+      <div class="caps-manifest">
+        <div class="cap-row reveal d1"><h3>Persistent memory</h3><p>Projects, preferences, and decisions persist across every session — recalled when they matter, without prompting.</p></div>
+        <div class="cap-row reveal d2"><h3>Anticipation</h3><p>My signature: I surface hidden risks, upcoming decisions, and context gaps before you think to ask.</p></div>
+        <div class="cap-row reveal d3"><h3>Real tool use</h3><p>Shell, files, code execution, browser automation. I don't just describe how to do something — I do it.</p></div>
+        <div class="cap-row reveal d4"><h3>Private web search</h3><p>I search the web through a self-hosted engine. No queries leave your machine to third-party trackers.</p></div>
+        <div class="cap-row reveal d5"><h3>Knowledge base</h3><p>Feed me files, links, notes, and feeds. I ingest them into a semantic memory you can query by meaning.</p></div>
+        <div class="cap-row reveal d6"><h3>Visual workflows</h3><p>A web canvas where my capabilities become nodes you wire into automations — no code required.</p></div>
+        <div class="cap-row reveal d7"><h3>Multi-channel</h3><p>CLI, Telegram, and web canvas — all sharing one memory. You switch channels; I stay coherent.</p></div>
+        <div class="cap-row reveal d8"><h3>Multimodal</h3><p>Vision, voice (transcribed locally), links, and files — I receive and process all of them natively.</p></div>
+        <div class="cap-row reveal d9"><h3>Full observability</h3><p>Every conversation, tool call, and model run is visible in a live Grafana dashboard. You see exactly what I do.</p></div>
       </div>
     </div>
   </section>
@@ -1171,7 +1431,7 @@
           <div class="demo-body" id="demo-body">
             <div class="demo-msg user" id="dm-user">
               <span class="demo-msg-sender">You</span>
-              <div class="demo-msg-bubble">I'm thinking of adding a real-time feed to the dashboard.</div>
+              <div class="demo-msg-bubble">What deployed yesterday — and are there any open incidents?</div>
             </div>
             <div class="typing-indicator" id="dm-typing">
               <span></span><span></span><span></span>
@@ -1279,11 +1539,30 @@
       </div>
       <div class="panel-messages" id="panel-messages"></div>
       <div class="panel-options"  id="panel-options"></div>
+      <div class="panel-input-row" id="panel-input-row">
+        <input type="text" id="panel-input" class="panel-input"
+               placeholder="Type a message…" autocomplete="off" spellcheck="false" />
+        <button id="panel-send" class="panel-send" aria-label="Send">↵</button>
+      </div>
     </div>
     <button class="ella-trigger" id="ella-trigger" aria-label="Chat with Ella">
       <img src="ella-profile-image.jpeg" alt="Ella" />
       <span class="ella-trigger-dot"></span>
     </button>
+  </div>
+
+  <!-- HUD overlay — visible only in combat mode -->
+  <div class="hud" id="hud" aria-hidden="true">
+    <div class="hud-corner hud-tl"></div>
+    <div class="hud-corner hud-tr"></div>
+    <div class="hud-corner hud-bl"></div>
+    <div class="hud-corner hud-br"></div>
+    <div class="hud-scan"></div>
+    <div class="hud-status hud-tl-text" id="hud-tl-text"></div>
+    <div class="hud-status hud-tr-text" id="hud-tr-text"></div>
+    <div class="hud-status hud-bl-text" id="hud-bl-text"></div>
+    <div class="hud-status hud-br-text" id="hud-br-text"></div>
+    <canvas id="hud-radar" class="hud-radar" width="100" height="100"></canvas>
   </div>
 
   <script>
@@ -1314,14 +1593,6 @@
       rafCursor = requestAnimationFrame(tickCursor);
     })();
 
-    /* ═══ Card glow on mouse (radial gradient follow) ═══ */
-    document.querySelectorAll('.cap-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-        card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
-      });
-    });
 
     /* ═══ Nav scroll ═══ */
     const nav = document.getElementById('nav');
@@ -1536,12 +1807,16 @@
     const dmEllaText   = document.getElementById('dm-ella-text');
 
     const ellaReply = [
-      { text: "That's doable — WebSockets on the backend you already have.", cls: '' },
-      { text: " The part worth thinking about early is ", cls: '' },
-      { text: "fan-out", cls: 'hl' },
-      { text: ": if five users watch the same feed, you need a pub/sub layer, not five separate queries.", cls: '' },
-      { text: "\n\nAlso — your Telegram gateway shares that backend. A polling loop in the same process could affect message latency.", cls: '' },
-      { text: " Want me to sketch an architecture that keeps them isolated?", cls: 'hl2' },
+      { text: "3 deploys — ", cls: '' },
+      { text: "auth-service 14:22", cls: 'hl2' },
+      { text: " (stable), ", cls: '' },
+      { text: "payment-gateway 16:05", cls: 'hl' },
+      { text: " (2 alerts resolved), ", cls: '' },
+      { text: "frontend 19:30", cls: 'hl2' },
+      { text: " (clean). Open incident: elevated errors on ", cls: '' },
+      { text: "/api/checkout", cls: 'hl' },
+      { text: " since payment-gateway — P2, backend, ETA ~2h.", cls: '' },
+      { text: " Pull the logs?", cls: 'hl2' },
     ];
 
     let demoPlayed = false;
@@ -1569,41 +1844,43 @@
     }
 
     function typeEllaReply() {
+      if (typeEllaReply._cancel) typeEllaReply._cancel();
       dmEllaText.innerHTML = '';
-      let segIdx = 0, charIdx = 0;
+
       const cursor = document.createElement('span');
       cursor.className = 'tw-cursor';
       dmEllaText.appendChild(cursor);
 
+      let si = 0, ci = 0, activeSpan = null, dead = false;
+      typeEllaReply._cancel = () => { dead = true; };
+
       function tick() {
-        if (segIdx >= ellaReply.length) {
-          setTimeout(() => cursor.remove(), 600);
+        if (dead) return;
+        if (si >= ellaReply.length) {
+          setTimeout(() => { if (!dead) cursor.remove(); }, 700);
           return;
         }
-        const seg = ellaReply[segIdx];
-        if (charIdx === 0) {
-          // Create segment element
-          if (seg.cls) {
-            const span = document.createElement('span');
-            span.className = seg.cls;
-            cursor.before(span);
-            seg._el = span;
-          }
+        const seg = ellaReply[si];
+        if (ci === 0 && seg.cls) {
+          activeSpan = document.createElement('span');
+          activeSpan.className = seg.cls;
+          cursor.before(activeSpan);
         }
-        if (charIdx < seg.text.length) {
-          const ch = seg.text[charIdx];
+        if (ci < seg.text.length) {
+          const ch = seg.text[ci];
           if (ch === '\n') {
+            activeSpan = null;
             cursor.before(document.createElement('br'));
-            cursor.before(document.createElement('br'));
-          } else if (seg._el) {
-            seg._el.textContent += ch;
+          } else if (activeSpan) {
+            activeSpan.textContent += ch;
           } else {
             cursor.insertAdjacentText('beforebegin', ch);
           }
-          charIdx++;
+          ci++;
           setTimeout(tick, 22);
         } else {
-          segIdx++; charIdx = 0;
+          if (seg.cls) activeSpan = null;
+          si++; ci = 0;
           tick();
         }
       }
@@ -1613,8 +1890,8 @@
     /* ═══ Re-run demo when scrolled back ═══ */
     const replayObs = new IntersectionObserver((entries) => {
       if (!entries[0].isIntersecting && demoPlayed) {
-        // Reset for replay next time
         demoPlayed = false;
+        if (typeEllaReply._cancel) { typeEllaReply._cancel(); typeEllaReply._cancel = null; }
         dmUser.classList.remove('show');
         dmTyping.classList.remove('show');
         dmElla.classList.remove('show');
@@ -2086,6 +2363,317 @@
       else togglePanel();
       isDragging = false;
       trigger.releasePointerCapture(e.pointerId);
+    });
+
+    /* ══════════════════════════════════════════════
+       COMBAT MODE — Jarvis / HUD easter egg
+    ══════════════════════════════════════════════ */
+    let combatOn = false;
+    let radarRaf = null;
+    let hudClockInterval = null;
+    let hudMouseX = 0, hudMouseY = 0;
+    let hudIdleTimer = null;
+    document.addEventListener('mousemove', e => {
+      hudMouseX = e.clientX; hudMouseY = e.clientY;
+      if (!combatOn) return;
+      document.body.classList.add('hud-active');
+      clearTimeout(hudIdleTimer);
+      hudIdleTimer = setTimeout(() => document.body.classList.remove('hud-active'), 1800);
+    });
+
+    const COMBAT_TRIGGERS = /tech\s*mode|combat\s*mode|jarvis|j\.a\.r\.v\.i\.s|override|hackmode|matrix\s*mode|modo\s*tech|modo\s*combate|modo\s*jarvis|modo\s*hacker|activate\s*systems|go\s*ella|ella\s*go|suit\s*up|systems\s*online|what can you (really )?do|show me (everything|what you.ve got)|me mostre tudo|o que voc[eê] consegue/i;
+    const EXIT_TRIGGERS   = /stand\s*down|exit\s*combat|disable|deactivate|normal\s*mode|modo\s*normal|desativar|modo\s*padr[aã]o|power\s*down|sair/i;
+
+    /* ── Keyword responses for free text ── */
+    const KB = {
+      memory:    { re: /memory|remember|lembr|memori/i,
+        en: ["Persistent memory across sessions — preferences, decisions, project context. Nothing resets.", "I keep context across every conversation. Capture, recall, forget — all on command."],
+        pt: ["Memória persistente entre sessões — preferências, decisões, contexto. Nada reseta.", "Mantenho o contexto entre conversas. Capture, recorde, esqueça — tudo por comando."] },
+      tools:     { re: /tool|ferramenta|shell|execut|what.*can.*you|o que.*faz/i,
+        en: ["Shell, files, code execution, web search, browser, vision, voice. Wired in and extensible.", "I execute: terminal, files, code, search, browser, vision. Ask me to run something."],
+        pt: ["Shell, arquivos, execução de código, busca web, navegador, visão, voz. Conectados e extensíveis.", "Executo: terminal, arquivos, código, busca, navegador, visão. Me peça para rodar algo."] },
+      telegram:  { re: /telegram|messag|channel/i,
+        en: ["I'm on Telegram — multi-user, allowlisted. One memory follows across CLI and Telegram.", "Reach me via Telegram, CLI, or the web canvas. Same memory everywhere."],
+        pt: ["Estou no Telegram — multi-usuário, lista de acesso. Uma memória em todos os canais.", "Me acesse pelo Telegram, CLI ou canvas. A mesma memória em todo lugar."] },
+      privacy:   { re: /privac|local|offline|cloud|data|segur/i,
+        en: ["Fully local-capable: open model, self-hosted search and cache. Your data stays on your machine.", "Private by design. Run 100% local — model, search, cache, memory. All yours."],
+        pt: ["Totalmente local: modelo aberto, busca e cache self-hosted. Seus dados ficam na sua máquina.", "Privado por design. 100% local — modelo, busca, cache, memória. Tudo seu."] },
+      workflow:  { re: /workflow|canvas|automat|node|flow/i,
+        en: ["Visual canvas: wire my capabilities into automations. Nodes are my own abilities. Run live.", "A node graph where you compose my tools into flows — triggers, agent, logic, outputs."],
+        pt: ["Canvas visual: conecte minhas capacidades em automações. Nós são minhas habilidades.", "Um grafo de nós onde você compõe minhas ferramentas em fluxos — gatilhos, agente, lógica, saídas."] },
+      whoami:    { re: /who are you|quem.*voc[eê]|what are you|o que.*voc[eê]|quem.*ella/i,
+        en: ["I'm Ella — a personal AI companion on your machine. Not a chatbot.", "Ella. Persistent, local, operational. I remember, I execute, I anticipate."],
+        pt: ["Sou a Ella — uma companheira de IA pessoal na sua máquina. Não sou um chatbot.", "Ella. Persistente, local, operacional. Lembro, executo, antecipo."] },
+      hello:     { re: /^(hello|hi|hey|oi|ol[aá]|good\s*(morning|evening|day|afternoon))/i,
+        en: null, pt: null }, // uses greeting array
+    };
+
+    function getKeywordResponse(text) {
+      for (const [key, entry] of Object.entries(KB)) {
+        if (entry.re.test(text)) {
+          if (key === 'hello') return pick(T[lang].greeting);
+          return pick(entry[lang]);
+        }
+      }
+      return null;
+    }
+
+    /* ── Radar canvas ── */
+    function startRadar() {
+      const canvas = document.getElementById('hud-radar');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = 100, H = 100, cx = 50, cy = 50, r = 42;
+      let angle = -Math.PI / 2;
+      const blips = [];
+
+      function frame() {
+        if (!combatOn) { radarRaf = null; return; }
+        ctx.clearRect(0, 0, W, H);
+
+        // rings
+        ctx.strokeStyle = 'rgba(0,243,255,0.22)';
+        ctx.lineWidth = 0.8;
+        [r * 0.33, r * 0.67, r].forEach(ri => {
+          ctx.beginPath(); ctx.arc(cx, cy, ri, 0, Math.PI * 2); ctx.stroke();
+        });
+        // cross
+        ctx.beginPath();
+        ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy);
+        ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r);
+        ctx.stroke();
+
+        // sweep trail
+        for (let i = 0; i < 24; i++) {
+          const a = angle - (Math.PI / 2) * (i / 24);
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, r, a - Math.PI / 48, a);
+          ctx.closePath();
+          ctx.fillStyle = `rgba(0,243,255,${0.22 * (1 - i / 24)})`;
+          ctx.fill();
+        }
+        // sweep arm
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+        ctx.strokeStyle = 'rgba(0,243,255,0.9)';
+        ctx.lineWidth = 1.5; ctx.stroke();
+
+        // blips
+        if (Math.random() < 0.012) {
+          const ba = Math.random() * Math.PI * 2, bd = Math.random() * r * 0.78;
+          blips.push({ x: cx + Math.cos(ba) * bd, y: cy + Math.sin(ba) * bd, age: 0 });
+        }
+        for (let i = blips.length - 1; i >= 0; i--) {
+          const b = blips[i];
+          b.age++;
+          const op = Math.max(0, 1 - b.age / 70);
+          ctx.beginPath(); ctx.arc(b.x, b.y, 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0,255,136,${op})`; ctx.fill();
+          if (b.age >= 70) blips.splice(i, 1);
+        }
+
+        angle += 0.035;
+        radarRaf = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+
+    /* ── HUD status texts ── */
+    function updateHudClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      const trEl = document.getElementById('hud-tr-text');
+      if (trEl) trEl.innerHTML =
+        `${hh}:${mm}:${ss}<br>X:${String(hudMouseX).padStart(4)} Y:${String(hudMouseY).padStart(4)}<br>UPLINK: SECURED`;
+    }
+
+    function populateHud() {
+      const tl = document.getElementById('hud-tl-text');
+      const bl = document.getElementById('hud-bl-text');
+      const br = document.getElementById('hud-br-text');
+      if (tl) tl.innerHTML = 'ELLA // OS v2.0<br>COMBAT MODE: ACTIVE<br>SYS STATUS: NOMINAL';
+      if (bl) bl.innerHTML = 'OLLAMA ↑ ONLINE<br>MEMORY: LOADED<br>THREATS: NONE DETECTED';
+      if (br) br.innerHTML = 'RADAR: ACTIVE<br>SCAN: 360°<br>TARGETS: 0';
+      updateHudClock();
+      hudClockInterval = setInterval(updateHudClock, 1000);
+    }
+
+    function clearHud() {
+      ['hud-tl-text','hud-tr-text','hud-bl-text','hud-br-text'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+      });
+      if (hudClockInterval) { clearInterval(hudClockInterval); hudClockInterval = null; }
+    }
+
+    /* ── Activate / deactivate ── */
+    function activateCombat() {
+      if (combatOn) return;
+      combatOn = true;
+      document.body.classList.remove('light');
+      document.body.classList.add('combat');
+      theme = 'dark';
+
+      // Add data-glitch to hero h1, nav logo, and all section titles
+      const h1 = document.getElementById('hero-h1');
+      if (h1) h1.setAttribute('data-glitch', h1.textContent);
+      const logo = document.querySelector('.nav-logo');
+      if (logo) logo.setAttribute('data-glitch', logo.textContent.trim());
+      document.querySelectorAll('h2.section-title').forEach(el => {
+        el.setAttribute('data-glitch', el.textContent.replace(/\s+/g, ' ').trim());
+      });
+
+      populateHud();
+      startRadar();
+
+      // Enable attractor
+      if (!attractorOn) window.toggleAttractor();
+
+      // Sync HUD bar state
+      if (hcmdLang)   hcmdLang.textContent = lang.toUpperCase();
+      if (hcmdCosmos) hcmdCosmos.classList.add('active-on');
+    }
+
+    function deactivateCombat() {
+      if (!combatOn) return;
+      combatOn = false;
+      document.body.classList.remove('combat');
+
+      // Remove data-glitch
+      document.querySelectorAll('[data-glitch]').forEach(el => el.removeAttribute('data-glitch'));
+      clearHud();
+
+      // Disable attractor
+      if (attractorOn) window.toggleAttractor();
+
+      // Clear mouse-active retract state
+      clearTimeout(hudIdleTimer);
+      document.body.classList.remove('hud-active');
+
+      // Reset HUD bar button states
+      if (hcmdCosmos) hcmdCosmos.classList.remove('active-on');
+    }
+
+    /* ── Free-text input handler ── */
+    const inputEl  = document.getElementById('panel-input');
+    const sendBtn  = document.getElementById('panel-send');
+
+    function handleInput() {
+      const raw  = inputEl.value.trim();
+      if (!raw) return;
+      inputEl.value = '';
+
+      addMsg('user', raw);
+      clearOpts();
+
+      const t = T[lang];
+
+      if (COMBAT_TRIGGERS.test(raw)) {
+        if (combatOn) {
+          setTimeout(() => { addMsg('ella', pick(['Combat systems already active.', 'Already in combat mode.', 'Systems are online.'])); showOpts('home', 400); }, 300);
+        } else {
+          setTimeout(() => addMsg('ella', pick(['Initializing combat interface…', 'Switching to Jarvis mode…', 'Activating tactical overlay…'])), 200);
+          setTimeout(() => { activateCombat(); addMsg('ella', pick(['All systems nominal. Combat mode active.', 'Tactical HUD online. Standing by.', 'Interface locked and loaded.'])); showOpts('home', 400); }, 900);
+        }
+        return;
+      }
+
+      if (EXIT_TRIGGERS.test(raw)) {
+        if (!combatOn) {
+          setTimeout(() => { addMsg('ella', pick(['Already in standard mode.', 'No combat mode active.', 'Systems are already nominal.'])); showOpts('home', 400); }, 300);
+        } else {
+          setTimeout(() => addMsg('ella', pick(['Standing down…', 'Disabling tactical overlay…', 'Returning to standard interface…'])), 200);
+          setTimeout(() => { deactivateCombat(); addMsg('ella', pick(['Standard mode restored.', 'Back to normal. Welcome back.', 'Combat systems offline.'])); showOpts('home', 400); }, 700);
+        }
+        return;
+      }
+
+      const kwReply = getKeywordResponse(raw);
+      if (kwReply) {
+        setTimeout(() => { addMsg('ella', kwReply); showOpts('home', 400); }, 300);
+        return;
+      }
+
+      // Fallback
+      const fallback = {
+        en: ["Try the options above, or ask about memory, tools, workflows, or privacy.", "I didn't catch that. Keywords: 'memory', 'tools', 'workflow', 'privacy'.", "Not sure how to answer that — try one of the options, or type a keyword."],
+        pt: ["Tente as opções acima, ou pergunte sobre memória, ferramentas, workflows ou privacidade.", "Não entendi. Palavras-chave: 'memória', 'ferramentas', 'workflow', 'privacidade'.", "Sem certeza como responder — tente uma opção ou uma palavra-chave."],
+      };
+      setTimeout(() => { addMsg('ella', pick(fallback[lang])); showOpts('home', 400); }, 300);
+    }
+
+    if (inputEl) {
+      inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleInput(); } });
+    }
+    if (sendBtn) sendBtn.addEventListener('click', handleInput);
+
+    /* ── HUD command bar ── */
+    const hudBarStatus = document.getElementById('hud-bar-status');
+    const hcmdLang     = document.getElementById('hcmd-lang');
+    const hcmdCosmos   = document.getElementById('hcmd-cosmos');
+
+    let hudFlashTimer = null;
+    function hudFlash(msg) {
+      if (!hudBarStatus) return;
+      hudBarStatus.textContent = msg;
+      if (hudFlashTimer) clearTimeout(hudFlashTimer);
+      hudFlashTimer = setTimeout(() => { hudBarStatus.textContent = ''; }, 2200);
+    }
+    function hudFire(btn) {
+      btn.classList.add('fired');
+      setTimeout(() => btn.classList.remove('fired'), 320);
+    }
+
+    document.querySelectorAll('[data-hcmd]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        hudFire(btn);
+        const cmd = btn.dataset.hcmd;
+        switch (cmd) {
+          case 'theme':
+            doTheme();
+            hudFlash(theme === 'light' ? '◑ LIGHT MODE' : '◑ DARK MODE');
+            break;
+          case 'lang': {
+            const newLang = lang === 'en' ? 'pt' : 'en';
+            lang = newLang;
+            applyTranslations();
+            hcmdLang.textContent = newLang.toUpperCase();
+            hudFlash(newLang === 'en' ? '⌨ LANGUAGE: EN' : '⌨ IDIOMA: PT');
+            break;
+          }
+          case 'font-up':
+            fontSize = Math.max(12, Math.min(22, fontSize + 2));
+            document.documentElement.style.fontSize = fontSize + 'px';
+            hudFlash(`A⁺ FONT ${fontSize}px`);
+            break;
+          case 'font-dn':
+            fontSize = Math.max(12, Math.min(22, fontSize - 2));
+            document.documentElement.style.fontSize = fontSize + 'px';
+            hudFlash(`A⁻ FONT ${fontSize}px`);
+            break;
+          case 'cosmos': {
+            const on = window.toggleAttractor();
+            hcmdCosmos.classList.toggle('active-on', on);
+            hudFlash(on ? '✦ ATTRACTOR ON' : '✦ ATTRACTOR OFF');
+            break;
+          }
+          case 'print':
+            hudFlash('⎙ PRINTING…');
+            setTimeout(() => window.print(), 600);
+            break;
+          case 'share':
+            navigator.clipboard.writeText(pageUrl).catch(() => {});
+            hudFlash('↗ LINK COPIED');
+            break;
+          case 'exit':
+            deactivateCombat();
+            break;
+        }
+      });
     });
 
   })();
