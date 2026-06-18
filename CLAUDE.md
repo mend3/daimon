@@ -29,12 +29,8 @@ profile. Start it inside the devcontainer with `hermes`.
 | `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `SOUL.md` (persona), `ella_kb.yaml`, `gateway.json`, `skills/`, `.env.example` |
 | `ingestion/` | Ella's Python: `ella_kb` (RAG), `ella_flow` (workflow engine), `ella_web` (FastAPI) |
 | `web/` | React Flow web canvas — frontend + Dockerized backend (`make web`) |
-| `qdrant/` | Vector store for the knowledge base |
-| `tts/` | Local text-to-speech engine (voice replies) |
-| `miniflux/` | Feed reader for the optional `feeds` connector |
-| `redis/` | Shared password-protected Redis (SearXNG cache + general use) |
-| `searxng/` | Local web-search engine for the `web` toolset |
-| `monitoring/` | Grafana/Loki/Promtail/Prometheus + chat-shipper + Ollama-down alert |
+| `docker-compose.yml` | All host sidecars (searxng, tts, web, telemetry) with profiles |
+| `docker/` | Container configs: `searxng/`, `chat-shipper/`, `status-exporter/` |
 | `scripts/` | Host setup + lifecycle (Ollama, services, backup, firewall) |
 | `README.md` / `docs/setup.md` | Product overview / setup & operations guide |
 

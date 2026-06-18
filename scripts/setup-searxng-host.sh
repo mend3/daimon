@@ -1,27 +1,20 @@
 #!/usr/bin/env bash
 # Run this ON THE macOS HOST. Starts a local SearXNG for Hermes' web search,
-# reachable from the devcontainer at host.docker.internal:8080.
+# reachable from the devcontainer at host.docker.internal:8888. Its cache/limiter
+# uses oracle's Redis on the external `workspace` network (DNS `redis:6379`, db 5)
+# — bring up oracle first: `cd ../oracle && make up`.
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")/../searxng"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-# SearXNG's cache/limiter uses the shared Redis — it must exist first.
-REDIS_PW="$( [ -f ../redis/.env ] && grep '^REDIS_PASSWORD=' ../redis/.env | cut -d= -f2 )"
-if [ -z "${REDIS_PW}" ]; then
-  echo "ERROR: redis/.env not found. Run scripts/setup-redis-host.sh first."
-  exit 1
-fi
-
-if [ ! -f settings.yml ]; then
+if [ ! -f docker/searxng/settings.yml ]; then
   echo "==> Generating settings.yml with a fresh secret"
-  cp settings.yml.example settings.yml
-  sed -i '' "s/GENERATE_ME/$(openssl rand -hex 32)/" settings.yml
+  cp docker/searxng/settings.yml.example docker/searxng/settings.yml
+  sed -i '' "s/GENERATE_ME/$(openssl rand -hex 32)/" docker/searxng/settings.yml
 fi
-# Inject the Redis password (idempotent; no-op once already substituted).
-sed -i '' "s/__REDIS_PASSWORD__/${REDIS_PW}/g" settings.yml
 
 echo "==> Starting SearXNG"
-docker compose up -d
+docker compose up -d searxng
 
 echo "==> Waiting for the JSON API"
 for _ in $(seq 1 20); do

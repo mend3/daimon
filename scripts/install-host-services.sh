@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Install per-user LaunchAgents so the host side survives reboot/logout:
 #   com.hermes.ollama  — Ollama as a managed service (RunAtLoad + KeepAlive)
-#   com.hermes.stacks  — bring up SearXNG + monitoring at login
-#   com.hermes.backup  — daily backup of the hermes-data and Qdrant volumes
+#   com.hermes.stacks  — bring up SearXNG + TTS + telemetry sidecars at login
+#   com.hermes.backup  — daily backup of the hermes-data volume
+# Shared infra (redis/qdrant/observability) is owned by oracle, not Ella.
 # Idempotent; re-run to update. No sudo required (user agents).
 set -euo pipefail
 
@@ -45,7 +46,7 @@ cat > "${LA}/com.hermes.ollama.plist" <<PLIST
 PLIST
 reload com.hermes.ollama "${LA}/com.hermes.ollama.plist"
 
-echo "==> com.hermes.stacks (SearXNG + monitoring at login)"
+echo "==> com.hermes.stacks (SearXNG + TTS + telemetry sidecars at login)"
 cat > "${LA}/com.hermes.stacks.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -65,7 +66,7 @@ cat > "${LA}/com.hermes.backup.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
   <key>Label</key><string>com.hermes.backup</string>
-  <key>ProgramArguments</key><array><string>/bin/bash</string><string>-c</string><string>${REPO}/scripts/backup-hermes.sh; ${REPO}/scripts/backup-qdrant-host.sh</string></array>
+  <key>ProgramArguments</key><array><string>/bin/bash</string><string>-c</string><string>${REPO}/scripts/backup-hermes.sh</string></array>
   <key>StartCalendarInterval</key><dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>30</integer></dict>
   <key>StandardOutPath</key><string>${HOME}/.hermes-monitoring/backup.log</string>
   <key>StandardErrorPath</key><string>${HOME}/.hermes-monitoring/backup.log</string>

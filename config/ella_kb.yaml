@@ -41,7 +41,7 @@ ella_kb:
 
     # Feeds connector (Miniflux). The web Feeds module processes items with AI and
     # ingests them here; enabling makes them part of recall and the knowledge graph.
-    # Needs scripts/setup-miniflux-host.sh + MINIFLUX_* in ~/.hermes/.env.
+    # Needs Miniflux (provided by oracle) + MINIFLUX_* in ~/.hermes/.env.
     feeds:
       enabled: false
       settings:

@@ -9,14 +9,12 @@ on:
       - '**.yml'
       - '**.yaml'
       - '.yamllint'
-      - 'monitoring/grafana/dashboards/*.json'
   pull_request:
     paths:
       - '**.sh'
       - '**.yml'
       - '**.yaml'
       - '.yamllint'
-      - 'monitoring/grafana/dashboards/*.json'
 
 jobs:
   lint:
@@ -31,6 +29,3 @@ jobs:
         run: |
           pipx install yamllint
           yamllint .
-
-      - name: Validate dashboard JSON
-        run: python3 -c "import json; json.load(open('monitoring/grafana/dashboards/hermes.json'))"

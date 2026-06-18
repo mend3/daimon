@@ -1,0 +1,127 @@
+# Ella's host sidecars, consolidated. Shared infra (redis/qdrant/ollama/postgres +
+# observability + miniflux) is owned by oracle on the external `workspace` network —
+# bring oracle up first (`cd ../oracle && make up`). Profiles group the services so
+# subsets can be started independently (mirrors the Makefile targets):
+#   - searxng, tts: core host sidecars (no profile / `core`); started by `make up`.
+#   - web: Ella's web canvas (profile `web`, built locally).
+#   - chat-shipper, status-exporter: app-level telemetry (profile `monitoring`).
+name: ella
+
+services:
+  searxng:
+    image: searxng/searxng:latest@sha256:1081d08bdcd6126533de497ee597f64de94064339e7bc03bc046352adfe320e6
+    container_name: hermes-searxng
+    restart: unless-stopped
+    profiles: [core]
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./docker/searxng/settings.yml:/etc/searxng/settings.yml:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8888/
+    networks:
+      - default
+      - workspace
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://localhost:8080/healthz').status==200 else sys.exit(1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  tts:
+    # Pin by digest after the first pull (see scripts/setup-tts-host.sh), matching
+    # the project's image-pinning convention.
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.2.4
+    container_name: hermes-tts
+    restart: unless-stopped
+    profiles: [core]
+    ports:
+      - "127.0.0.1:8880:8880"
+    volumes:
+      - tts-models:/app/models
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8880/health').status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: hermes-web
+    restart: unless-stopped
+    profiles: [web]
+    # Run as the same uid as the devcontainer (vscode=1000) with a matching home, so
+    # files created in the shared hermes-data volume stay owned by that user.
+    user: "1000:1000"
+    environment:
+      HOME: /home/vscode
+      # Keep model/cache downloads inside the writable volume (the container home
+      # outside it is root-owned), and skip the Xet backend which ignores cache_dir.
+      HF_HOME: /home/vscode/.hermes/cache/hf
+      HF_HUB_DISABLE_XET: "1"
+    ports:
+      - "127.0.0.1:8099:8099"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - hermes-data:/home/vscode/.hermes
+    networks:
+      - default
+      - workspace
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8099/api/health').status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # App-level telemetry sidecar: ships real conversation text from Hermes' state.db
+  # to oracle's Loki (DNS `loki:3100`) for the Grafana chat panel.
+  chat-shipper:
+    image: python@sha256:236173eb74001afe2f60862de935b74fcbd00adfca247b2c27051a70a6a39a2d
+    container_name: hermes-chat-shipper
+    restart: unless-stopped
+    profiles: [monitoring]
+    command: ["python3", "/app/ship.py"]
+    environment:
+      LOKI_URL: "http://loki:3100/loki/api/v1/push"
+    volumes:
+      - ./docker/chat-shipper/ship.py:/app/ship.py:ro
+      - hermes-data:/hermes:ro
+      - chat-shipper-state:/state
+    networks: [workspace]
+
+  # App-level telemetry sidecar: exposes Hermes' gateway status (`hermes_gateway_up`,
+  # read from agent.log) at `ella-status-exporter:9101/metrics` for oracle's Prometheus.
+  status-exporter:
+    image: python@sha256:236173eb74001afe2f60862de935b74fcbd00adfca247b2c27051a70a6a39a2d
+    container_name: hermes-status-exporter
+    restart: unless-stopped
+    profiles: [monitoring]
+    command: ["python3", "/app/exporter.py"]
+    volumes:
+      - ./docker/status-exporter/exporter.py:/app/exporter.py:ro
+      - hermes-data:/hermes:ro
+    networks:
+      workspace:
+        aliases: [ella-status-exporter]
+
+volumes:
+  tts-models:
+  chat-shipper-state:
+  hermes-data:
+    external: true
+
+networks:
+  default:
+  workspace:
+    name: workspace
+    external: true

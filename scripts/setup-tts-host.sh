@@ -7,10 +7,10 @@
 # the image and downloads the voice model into the tts-models volume (~minutes).
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")/../tts"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 echo "==> Starting TTS (Kokoro-FastAPI)"
-docker compose up -d
+docker compose up -d tts
 
 echo "==> Waiting for TTS (first run downloads the voice model)"
 for _ in $(seq 1 60); do

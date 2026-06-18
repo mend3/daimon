@@ -15,9 +15,6 @@ reach() {
   code=$(curl -sS -o /dev/null -m 4 -w '%{http_code}' "$1" 2>/dev/null || true)
   [ -n "$code" ] && [ "$code" != "000" ]
 }
-# TCP probe for non-HTTP services (Redis).
-tcp() { (exec 3<>"/dev/tcp/$1/$2") 2>/dev/null; }
-
 echo "Ella host preflight"
 echo
 
@@ -33,12 +30,23 @@ else
   FAIL "Ollama unreachable (localhost:11434) — run: make ollama (and OLLAMA_HOST=0.0.0.0)"
 fi
 
-# --- Supporting host services ------------------------------------------------
+# --- Ella host sidecars ------------------------------------------------------
 reach "http://localhost:8888"          && PASS "SearXNG (web search, :8888)"        || WARN "SearXNG down (:8888) — run: make searxng"
-tcp 127.0.0.1 6379                      && PASS "Redis (:6379)"                       || WARN "Redis down (:6379) — run: make redis"
-reach "http://localhost:6333/healthz"  && PASS "Qdrant (knowledge base, :6333)"      || WARN "Qdrant down (:6333) — run: make qdrant"
 reach "http://localhost:8880/health"   && PASS "TTS (voice, :8880)"                  || WARN "TTS down (:8880) — run: make tts"
-reach "http://localhost:3000"          && PASS "Grafana (monitoring, :3000)"         || WARN "Grafana down (:3000) — run: make monitoring"
+
+# --- Shared infra (owned by oracle on the `workspace` network) ----------------
+# redis/qdrant/observability come from oracle, not Ella. Probe the network and,
+# best-effort, the services from a throwaway container on `workspace`.
+ORACLE="cd ../oracle && make up"
+if docker network inspect workspace >/dev/null 2>&1; then
+  PASS "Docker network 'workspace' exists (oracle infra)"
+  qprobe() { docker run --rm --network workspace curlimages/curl:latest -sS -o /dev/null -m 4 "$1" >/dev/null 2>&1; }
+  qprobe "http://qdrant:6333/healthz"  && PASS "Qdrant (oracle, qdrant:6333)"  || WARN "Qdrant unreachable on workspace — run: ${ORACLE}"
+  docker run --rm --network workspace redis:alpine redis-cli -h redis -p 6379 ping >/dev/null 2>&1 \
+    && PASS "Redis (oracle, redis:6379/5)" || WARN "Redis unreachable on workspace — run: ${ORACLE}"
+else
+  WARN "Docker network 'workspace' missing — bring up oracle: ${ORACLE}"
+fi
 
 echo
 printf 'Summary: %d ok, %d warnings, %d failures\n' "$pass" "$warn" "$fail"

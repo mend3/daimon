@@ -46,7 +46,7 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
   process and container are up.
 - **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Ella speaks
   in the **first person**; the framework is infrastructure, never identity.
-- **Voice:** local both ways. TTS = Kokoro-FastAPI (`tts/`, `host.docker.internal:8880`)
+- **Voice:** local both ways. TTS = Kokoro-FastAPI (`docker-compose.yml` `tts` service, `host.docker.internal:8880`)
   via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
   audio on voice input (the gateway gate fires only on `message_type == VOICE`, so
   text-in stays text-out — left as-is). Web: `/api/tts` (🔊/auto-speak) and `/api/stt`
@@ -61,7 +61,8 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
   hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Ella via the
   `ella-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
   skill; installed into the Hermes venv by `postCreate.sh`. **Feeds** use a host
-  **Miniflux** (`miniflux/`, optional). See ADR-0009 and `ingestion/README.md`.
+  **Miniflux** provided by oracle (`miniflux:8080` / `host.docker.internal:8930`,
+  optional). See ADR-0009 and `ingestion/README.md`.
 - **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
   `status`, `knowledge-base`, `feeds-digest`.
 - **Kanban / profiles:** the dispatcher runs inside the gateway, which now starts
@@ -97,13 +98,12 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
   by `postCreate` extras `[mcp,feeds,web]`. New node types drop in via the registry
   or an `ella_flow.nodes` entry point. Telegram bot unchanged. See ADR-0011 and
   `web/README.md`. gRPC deferred.
-- **Monitoring** (`monitoring/`): Grafana+Loki+Promtail+Prometheus+blackbox on the
-  host. Grafana is **loopback-only** at `localhost:3000`. Promtail ships Hermes
-  logs (hermes-data volume) and the Ollama log (`~/.hermes-monitoring/ollama.log`).
-  Prometheus/blackbox probe up/down; an "Ollama down" alert DMs Telegram
-  (`monitoring/.env` + generated `contactpoints.yaml`, both gitignored). No
-  docker.sock mount (security). A `chat-shipper` sidecar reads Hermes' `state.db`
-  (conversation `messages`) and ships the real text to Loki for the chat panel.
+- **Monitoring:** the observability plane (Grafana/Loki/Prometheus/blackbox) is
+  centralized in **oracle** on `workspace`. Ella keeps only two app-level telemetry
+  sidecars in the root `docker-compose.yml` (`monitoring` profile): `chat-shipper`
+  reads Hermes' `state.db` (conversation `messages`) and ships the real text to
+  oracle's Loki for the chat panel; `status-exporter` exposes `hermes_gateway_up`
+  (from `agent.log`) at `ella-status-exporter:9101/metrics` for oracle's Prometheus.
 - **Redis** (`redis/`): single shared, password-protected, loopback-only
   (`127.0.0.1:6379`) instance on the external `hermes-shared` Docker network.
   Backs SearXNG's cache/limiter (db 1) and is open for current/future containers

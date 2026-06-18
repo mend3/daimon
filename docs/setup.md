@@ -48,19 +48,18 @@ config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
                       # ella_kb.yaml, gateway.json, skills/, .env.example
 ingestion/            # ella_kb (RAG), ella_flow (workflow engine), ella_web (FastAPI)
 web/                  # React Flow canvas: frontend/ + Dockerfile (served by `make web`)
-qdrant/               # vector store for the knowledge base
-tts/                  # local text-to-speech (voice replies)
-miniflux/             # feed reader for the optional `feeds` connector
-redis/
-  docker-compose.yml  # shared, password-protected Redis on the hermes-shared network
-searxng/
-  docker-compose.yml  # web-search engine; cache/limiter on the shared Redis
-  settings.yml.example
-monitoring/
-  docker-compose.yml  # Grafana + Loki + Promtail + Prometheus + blackbox + shippers
-  grafana/ loki/ promtail/ prometheus/ blackbox/  # configs, dashboard, alert
-scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, TTS, Qdrant,
-                      # Miniflux, web, monitoring, launchd services, backup, firewall
+docker-compose.yml    # all host sidecars (searxng, tts, web, telemetry) with profiles
+docker/               # container configs for the sidecars:
+  searxng/settings.yml.example  # web-search engine; cache/limiter on oracle's Redis (workspace)
+  chat-shipper/ status-exporter/  # app-level telemetry sidecars (see Monitoring)
+scripts/              # HOST setup + lifecycle: Ollama, SearXNG, TTS,
+                      # web, launchd services, backup, firewall
+
+Redis, Qdrant, Miniflux, and the observability plane (Grafana/Loki/Prometheus/blackbox)
+are **not** run by Ella — the **oracle** orchestrator provides them on the shared
+`workspace` Docker network. Bring up oracle first (`cd ../oracle && make up`). Ella's
+services reach them by DNS: Redis at `redis:6379` (logical db index 5), Qdrant at
+`qdrant:6333`, Loki at `loki:3100`, Miniflux at `miniflux:8080`.
 ```
 
 ## Quick start
@@ -68,11 +67,14 @@ scripts/              # HOST setup + lifecycle: Ollama, Redis, SearXNG, TTS, Qdr
 macOS host with Docker Desktop + Homebrew:
 
 ```bash
-make up           # Ollama (Metal) + Redis + SearXNG + monitoring
+cd ../oracle && make up   # shared infra: workspace network + Redis/Qdrant/observability
+cd ../ella && make up      # Ella's host sidecars: SearXNG + TTS
 # then open the folder in VS Code → "Reopen in Container" and run `hermes`
 ```
 
-`make help` lists every target. The steps below explain each one.
+Bring up **oracle first** — it owns the `workspace` Docker network and the shared
+Redis/Qdrant/observability plane Ella consumes. `make help` lists every target. The
+steps below explain each one.
 
 ### 1. On the macOS host — start Ollama and pull the model
 
@@ -101,23 +103,24 @@ ollama pull qwen2.5vl:7b
 
 ### 2. Start the host services
 
+Shared Redis and Qdrant come from oracle — bring it up first (`cd ../oracle &&
+make up`). Then start Ella's own host sidecars:
+
 ```bash
-./scripts/setup-redis-host.sh        # shared Redis (SearXNG's cache/limiter)
 ./scripts/setup-searxng-host.sh      # web search on localhost:8888
 ./scripts/setup-tts-host.sh          # local voice replies on localhost:8880
-./scripts/setup-qdrant-host.sh       # knowledge-base vector store on localhost:6333
-./scripts/setup-monitoring-host.sh   # Grafana/Loki/Prometheus on localhost:3000
 ```
 
-Run Redis before SearXNG (SearXNG uses it). The container reaches SearXNG at
-`host.docker.internal:8888` (`SEARXNG_URL`), the TTS engine at
-`host.docker.internal:8880`, and Qdrant at `host.docker.internal:6333`. First TTS
-start downloads the voice model (a few minutes). `setup-qdrant-host.sh` prints an
-API key — copy it into `~/.hermes/.env` as `QDRANT_API_KEY` so Ella can connect.
-`make tts` / `make qdrant` run the same scripts.
+SearXNG's cache/limiter uses oracle's Redis on the `workspace` network
+(`redis:6379`, logical db index 5). The container reaches SearXNG at
+`host.docker.internal:8888` (`SEARXNG_URL`) and the TTS engine at
+`host.docker.internal:8880`; first TTS start downloads the voice model (a few
+minutes). `make searxng` / `make tts` run the same scripts. The knowledge base
+points at oracle's Qdrant (`qdrant:6333`) over `workspace` via
+`config/ella_kb.yaml` — no per-host Qdrant setup.
 
-To make all of this (plus Ollama) start at login and survive reboots, install the
-launchd agents instead:
+To make all of this (plus Ollama and the telemetry sidecars) start at login and
+survive reboots, install the launchd agents instead:
 
 ```bash
 ./scripts/install-host-services.sh                 # managed Ollama + stacks + daily backup
@@ -153,8 +156,8 @@ hermes doctor     # diagnostics
 | Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
 | Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
 | Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
-| Knowledge base | local Qdrant + `nomic-embed-text` | `./scripts/setup-qdrant-host.sh` |
-| Feeds (optional) | local Miniflux | `./scripts/setup-miniflux-host.sh` |
+| Knowledge base | oracle's Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by oracle on `workspace` |
+| Feeds (optional) | Miniflux (provided by oracle) | enable in oracle; `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
 | Identity / voice | `config/SOUL.md` | edit + rebuild |
 
@@ -162,19 +165,23 @@ hermes doctor     # diagnostics
 
 Ella keeps a personal RAG memory: she captures links, files, and notes and recalls
 them by meaning. It runs as an MCP server (`ella-kb`, registered in `config.yaml`)
-backed by the local Qdrant; the `ella_kb` package is installed into the Hermes venv
-by `postCreate.sh`. Source types are pluggable adapters — `files`, `urls`, and
-`chat` ship enabled; `feeds` and `webhook` are wired but off by default. Toggle them
-in `config/ella_kb.yaml` under `capabilities`. Each enabled type gets its own Qdrant
-collection (`kb_<type>__nomic768`).
+backed by oracle's Qdrant (`qdrant:6333` on the `workspace` network); the `ella_kb`
+package is installed into the Hermes venv by `postCreate.sh`. Source types are
+pluggable adapters — `files`, `urls`, and `chat` ship enabled; `feeds` and `webhook`
+are wired but off by default. Toggle them in `config/ella_kb.yaml` under
+`capabilities`. Each enabled type gets its own Qdrant collection
+(`kb_<type>__nomic768`).
 
-Copy the API key printed by `setup-qdrant-host.sh` into `~/.hermes/.env` as
-`QDRANT_API_KEY`. Quick check from the container: `ella-kb init` then
+Qdrant is provided by oracle — point `config/ella_kb.yaml` at `qdrant:6333` and set
+any required `QDRANT_API_KEY` in `~/.hermes/.env` to match oracle's config. Quick
+check from the container: `ella-kb init` then
 `ella-kb capture --text "remember this" && ella-kb recall "this"`.
 
-**Feeds (example connector).** Start Miniflux with `./scripts/setup-miniflux-host.sh`,
-add the `MINIFLUX_*` lines it prints to `~/.hermes/.env`, subscribe to feeds in its
-UI at `localhost:8930`, and set `feeds.enabled: true` in `config/ella_kb.yaml`
+**Feeds (example connector).** Miniflux runs in oracle
+(`oracle/vendors/miniflux.compose.yml`) — bring it up there. Add the `MINIFLUX_*`
+lines to `~/.hermes/.env` (API at `host.docker.internal:8930`, or `miniflux:8080` on
+`workspace`), subscribe to feeds in its UI at `localhost:8930`, and set
+`feeds.enabled: true` in `config/ella_kb.yaml`
 (optionally `include`/`exclude` keywords). `ella-kb poll feeds` ingests new relevant
 items. For a proactive digest, create a cron job once:
 `hermes cron create "every 1d at 08:30" "Send me my feeds digest" --skill feeds-digest --deliver telegram --name feeds-digest`.
@@ -248,19 +255,21 @@ Negative prompt: `robot, android, helmet, armor, weapon, fantasy, anime, over-st
 
 ## Monitoring
 
-`./scripts/setup-monitoring-host.sh` brings up the stack; open
-**http://localhost:3000** (loopback-only, no login) → dashboard *"Hermes — Live
-Activity"*. It streams, live:
+The observability plane (Grafana/Loki/Prometheus/Promtail/blackbox) is centralized
+in **oracle** on the `workspace` network — Ella no longer runs its own. The dashboards
+and alert/scrape configs of record live in oracle (`oracle/.docker/{prometheus,grafana,
+loki,blackbox}/`). Open Grafana from oracle.
 
-- **Agent / Telegram** activity from Hermes `agent.log` (via the `hermes-data` volume).
-- **Ollama** requests and model loads from `~/.hermes-monitoring/ollama.log`.
-- A **chat panel** with the real conversation text per Telegram user (name +
-  masked id), shipped from Hermes' `state.db`.
-- **Service status** (Ollama, SearXNG, Redis, voice, knowledge, Loki, Grafana,
-  gateway) and live tool usage. An **Ollama-down alert** DMs Telegram; put the bot
-  token + your chat id in `monitoring/.env` (gitignored).
+Ella keeps two app-level telemetry **sidecars** (`docker-compose.yml`, `monitoring`
+profile, started by `make monitoring` or the login agent), both attached to `workspace`:
 
-Stop with `docker compose -f monitoring/docker-compose.yml down`.
+- **chat-shipper** — pushes real conversation text per Telegram user (name + masked
+  id) from Hermes' `state.db` to oracle's Loki (`loki:3100`) for the Grafana chat panel.
+- **status-exporter** — exposes `hermes_gateway_up` (read from `agent.log`) at
+  `ella-status-exporter:9101/metrics`, scraped by oracle's Prometheus, since the
+  agent runs inside the devcontainer where blackbox can't probe it.
+
+Stop the sidecars with `docker compose --profile monitoring down`.
 
 ## Changing the model
 
@@ -292,10 +301,11 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
 - **No host filesystem access:** the agent's terminal backend is `local`, scoped
   to the container only.
 - **Network:** Ollama and SearXNG bind `0.0.0.0` (the container reaches them via
-  `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN.
-  Grafana and Redis are loopback-only.
+  `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN. Shared
+  Redis/Qdrant/observability live on the `workspace` network, owned by oracle.
 - **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
-  daily, archiving the `hermes-data` volume to `~/hermes-backups`.
+  daily, archiving the `hermes-data` volume to `~/hermes-backups`. Qdrant is a
+  rebuildable index owned by oracle, so it is backed up there, not by Ella.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) and [SECURITY.md](../SECURITY.md) for
 conventions and the security posture.

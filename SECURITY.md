@@ -23,8 +23,8 @@ boundaries:
 
 ## Secrets
 
-Real secrets live only in gitignored files (`*.env`, `searxng/settings.yml`, the
-generated `contactpoints.yaml`); only `*.example` templates are committed. If a
+Real secrets live only in gitignored files (`*.env`, `docker/searxng/settings.yml`);
+only `*.example` templates are committed. If a
 secret is ever committed, rotate it (new Telegram bot token, regenerate the
 Redis/SearXNG secrets) and scrub history before publishing.
 

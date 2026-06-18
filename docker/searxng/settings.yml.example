@@ -17,10 +17,10 @@ server:
   limiter: false          # programmatic access from Hermes, no rate limiter
   image_proxy: true
 
-# Cache/limiter backend — the shared Redis (db 1), reached over the hermes-shared
-# network. The password is injected from redis/.env by setup-searxng-host.sh.
+# Cache/limiter backend — oracle's Redis (logical db index 5), reached over the
+# external `workspace` network (passwordless).
 valkey:
-  url: redis://:__REDIS_PASSWORD__@redis:6379/1
+  url: redis://redis:6379/5
 
 search:
   formats:

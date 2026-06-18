@@ -6,7 +6,7 @@
 # SOUL, secrets, and knowledge ledger are populated and shared with the web service).
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")/../web"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 if ! docker volume inspect hermes-data >/dev/null 2>&1; then
   echo "ERROR: the hermes-data volume doesn't exist yet."
@@ -15,7 +15,7 @@ if ! docker volume inspect hermes-data >/dev/null 2>&1; then
 fi
 
 echo "==> Building + starting the web layer (first build compiles the frontend)"
-docker compose up -d --build
+docker compose --profile web up -d --build web
 
 echo "==> Waiting for the web server"
 for _ in $(seq 1 40); do

@@ -74,7 +74,8 @@ terminal, and browser automation — extensible with more.
 ### 🌐 Local-capable
 The default model is OpenAI gpt-5-mini, but a **fully-local profile** (gpt-oss,
 Qwen-VL via Ollama with Metal GPU) and an automatic local fallback are built in, and
-search, cache, and monitoring are self-hosted — so you can run with no cloud at all.
+search, cache, and monitoring are self-hosted (cache/vector store/observability via
+the shared **oracle** infra) — so you can run with no cloud at all.
 
 ### 📨 Multi-channel
 Talk to Ella from the **CLI**, **Telegram** (multi-user, allowlisted), or the **web
@@ -103,12 +104,14 @@ alert straight to Telegram.
    └─────────────┘    └──────────────┘    └──────────────────┘
           └───────────────────┬───────────────────┘
                               ▼
-        Self-hosted services:  Ollama · SearXNG · Redis
-                  Observability: Grafana · Loki · Prometheus
+   Ella host sidecars:  Ollama (vision/embeddings) · SearXNG · TTS
+   Shared infra (oracle, `workspace` network):  Redis · Qdrant · Miniflux · observability
 ```
 
-Components are modular — they evolve independently. Full topology in
-[docs/setup.md](docs/setup.md).
+Components are modular — they evolve independently. Shared infra (Redis, Qdrant,
+and the Grafana/Loki/Prometheus observability plane) is provided centrally by the
+**oracle** orchestrator on the `workspace` Docker network, not by Ella. Full
+topology in [docs/setup.md](docs/setup.md).
 
 ## Built for privacy
 
@@ -134,7 +137,8 @@ macOS host with Docker Desktop + Homebrew:
 ```bash
 git clone https://github.com/mend3/ella.git
 cd ella
-make up                 # Ollama (Metal) + Redis + SearXNG + monitoring
+cd ../oracle && make up   # shared infra: workspace network + Redis/Qdrant/observability
+cd ../ella && make up     # Ella's host sidecars: SearXNG + TTS (Ollama via `make ollama`)
 
 unset NODE_OPTIONS VSCODE_INSPECTOR_OPTIONS
 ```
@@ -152,7 +156,9 @@ reproduce them:
 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/docs/)** (Nous Research) — the agent framework and toolset.
 - **[Ollama](https://ollama.com)** — local model serving with Metal GPU acceleration.
-- **SearXNG** (search), **Redis** (cache), **Grafana / Loki / Prometheus** (observability).
+- **SearXNG** (search) runs as an Ella host sidecar; **Redis** (cache), **Qdrant**
+  (vectors), and **Grafana / Loki / Prometheus** (observability) are provided by the
+  shared **oracle** infra on the `workspace` network.
 
 This repo adds the persona, the deployment, multi-channel access, and
 the monitoring layer on top.
