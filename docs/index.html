@@ -3,16 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ella — Your intelligent companion</title>
+  <title>Ella — Personal AI Companion · Local, Private, Always On</title>
+  <meta name="description" content="Ella is a personal AI companion that lives on your machine. Persistent memory, anticipation, real tool use, private web search, and full observability — local-first and open source." />
+  <link rel="canonical" href="https://mend3.github.io/ella/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://mend3.github.io/ella/" />
+  <meta property="og:title"       content="Ella — Personal AI Companion" />
+  <meta property="og:description" content="A persistent AI companion that lives on your machine. Memory, anticipation, tool use, private search — local-first and open source." />
+  <meta property="og:image"       content="https://mend3.github.io/ella/ella-profile-image.jpeg" />
+  <meta property="og:image:alt"   content="Ella — Personal AI Companion" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Ella — Personal AI Companion" />
+  <meta name="twitter:description" content="A persistent AI companion that lives on your machine. Memory, anticipation, tool use, private search — local-first and open source." />
+  <meta name="twitter:image"       content="https://mend3.github.io/ella/ella-profile-image.jpeg" />
+  <meta name="twitter:image:alt"   content="Ella — Personal AI Companion" />
+
+  <meta name="robots" content="index, follow" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Ella",
+    "description": "A persistent personal AI companion that lives on your machine. Memory, anticipation, tool use, private web search, and full observability — local-first and open source.",
+    "applicationCategory": "AIApplication",
+    "operatingSystem": "macOS",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "url": "https://mend3.github.io/ella/",
+    "codeRepository": "https://github.com/mend3/ella",
+    "license": "https://github.com/mend3/ella/blob/main/LICENSE"
+  }
+  </script>
+
+  <!-- Fonts: load async to avoid render-blocking -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
   <style>
     /* ────────────── Reset ────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { user-select: none; -webkit-user-select: none; }
+    /* Limit user-select to interactive chrome only — content must remain selectable */
+    nav, .hud, .hud-bar, .introspect-bar, .ella-widget,
+    .cursor-dot, .cursor-ring { user-select: none; -webkit-user-select: none; }
+    .skip-link {
+      position: fixed; top: -100%; left: 16px; z-index: 99999;
+      background: var(--violet); color: #fff;
+      padding: 8px 16px; border-radius: 4px; font-size: 0.85rem;
+      text-decoration: none; transition: top 0.15s;
+    }
+    .skip-link:focus { top: 8px; }
+    section { scroll-margin-top: 80px; }
+    .reveal.is-visible { will-change: auto; }
+    :focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; border-radius: 3px; }
+
+    /* Registered custom properties — enables CSS transitions on palette variables */
+    @property --bg       { syntax: '<color>'; inherits: true; initial-value: #05050f; }
+    @property --surface  { syntax: '<color>'; inherits: true; initial-value: #090916; }
+    @property --violet   { syntax: '<color>'; inherits: true; initial-value: #8B5CF6; }
+    @property --violet-d { syntax: '<color>'; inherits: true; initial-value: #6D28D9; }
+    @property --violet-g { syntax: '<color>'; inherits: true; initial-value: rgba(139,92,246,0.18); }
+    @property --cyan     { syntax: '<color>'; inherits: true; initial-value: #22D3EE; }
+    @property --cyan-g   { syntax: '<color>'; inherits: true; initial-value: rgba(34,211,238,0.15); }
+    @property --green    { syntax: '<color>'; inherits: true; initial-value: #10B981; }
+    @property --amber    { syntax: '<color>'; inherits: true; initial-value: #F59E0B; }
+    @property --text     { syntax: '<color>'; inherits: true; initial-value: #EEEDF8; }
+    @property --muted    { syntax: '<color>'; inherits: true; initial-value: #8280a4; }
+    @property --border   { syntax: '<color>'; inherits: true; initial-value: rgba(139,92,246,0.12); }
+    @property --border-h { syntax: '<color>'; inherits: true; initial-value: rgba(139,92,246,0.35); }
 
     /* ────────────── Variables ────────────── */
     :root {
@@ -31,8 +98,8 @@
       --green:    #10B981;
 
       --text:     #EEEDF8;
-      --muted:    #6B6A90;
-      --dim:      #3D3C58;
+      --muted:    #8280a4;
+      --dim:      #7e7d9e;
 
       --r: 16px;
       --font-mono: 'JetBrains Mono', monospace;
@@ -46,6 +113,14 @@
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      transition:
+        background 0.8s ease, color 0.8s ease,
+        --bg 0.8s ease, --surface 0.8s ease,
+        --violet 0.8s ease, --violet-d 0.8s ease, --violet-g 0.8s ease,
+        --cyan 0.8s ease, --cyan-g 0.8s ease,
+        --green 0.8s ease, --amber 0.8s ease,
+        --text 0.8s ease, --muted 0.8s ease,
+        --border 0.8s ease, --border-h 0.8s ease;
     }
 
     /* Custom scrollbar */
@@ -78,7 +153,12 @@
     }
 
     /* ────────────── Custom cursor ────────────── */
-    * { cursor: none !important; }
+    @media (pointer: fine) {
+      *:not(input):not(textarea):not(select) { cursor: none !important; }
+    }
+    @media (pointer: coarse) {
+      .cursor-dot, .cursor-ring { display: none; }
+    }
 
     .cursor-dot, .cursor-ring {
       position: fixed;
@@ -98,7 +178,7 @@
 
     .cursor-ring {
       width: 32px; height: 32px;
-      border: 1px solid rgba(139,92,246,0.5);
+      border: 1px solid color-mix(in srgb, var(--violet) 50%, transparent);
       transition-duration: 0.18s;
       mix-blend-mode: screen;
     }
@@ -215,7 +295,7 @@
     .pad { padding: 100px 0; }
 
     .label {
-      font-size: 0.68rem; font-weight: 600;
+      font-size: 0.75rem; font-weight: 600;
       letter-spacing: 0.22em; text-transform: uppercase;
       color: var(--violet); margin-bottom: 14px;
       display: flex; align-items: center; gap: 10px;
@@ -329,7 +409,7 @@
 
     /* Hero text — hidden by default; JS drives the boot sequence */
     .hero-eyebrow {
-      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.22em;
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.22em;
       text-transform: uppercase; color: var(--cyan);
       margin-bottom: 20px; opacity: 0;
       transition: opacity 0.6s;
@@ -381,7 +461,7 @@
       position: absolute; bottom: 36px; left: 50%;
       transform: translateX(-50%);
       display: flex; flex-direction: column; align-items: center; gap: 6px;
-      color: var(--dim); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--dim); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
       animation: cue-float 3.5s ease-in-out infinite;
       opacity: 0; transition: opacity 1s 2.5s;
     }
@@ -509,11 +589,11 @@
     .t-dot.g { background: #28C840; }
     .t-title {
       margin-left: 8px; font-family: var(--font-mono);
-      font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em;
+      font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em;
     }
     .t-badge {
       margin-left: auto; font-family: var(--font-mono);
-      font-size: 0.62rem; color: var(--green);
+      font-size: 0.75rem; color: var(--green);
       background: rgba(16,185,129,0.1);
       border: 1px solid rgba(16,185,129,0.2);
       padding: 2px 8px; border-radius: 10px; letter-spacing: 0.06em;
@@ -531,7 +611,7 @@
 
     .demo-msg-sender {
       font-family: var(--font-mono);
-      font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+      font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
     }
     .demo-msg.user .demo-msg-sender { color: var(--cyan); text-align: right; }
     .demo-msg.ella .demo-msg-sender { color: var(--violet); }
@@ -599,7 +679,7 @@
       background: radial-gradient(ellipse at top left, rgba(139,92,246,0.08) 0%, transparent 60%);
     }
     .cmp-col h3 {
-      font-family: var(--font-mono); font-size: 0.72rem;
+      font-family: var(--font-mono); font-size: 0.75rem;
       font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
       margin-bottom: 24px;
     }
@@ -614,7 +694,7 @@
     .cmp-list li .icon {
       flex-shrink: 0; width: 16px; height: 16px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.6rem; margin-top: 2px;
+      font-size: 0.7rem; margin-top: 2px;
     }
     .cmp-col:not(.ella-col) .icon { background: rgba(239,68,68,0.1); color: #EF4444; }
     .cmp-col.ella-col .icon { background: rgba(16,185,129,0.1); color: var(--green); }
@@ -707,6 +787,19 @@
       .intro-grid, .comparison, .anticipation-inner { grid-template-columns: 1fr; gap: 32px; }
       .case-item { grid-template-columns: 1fr; gap: 6px; }
       footer { flex-direction: column; gap: 16px; text-align: center; }
+      /* Hide introspect/combat overlays that would cover content on small screens */
+      .notif-stack, .hud-corner, .hud-status, .hud-radar { display: none !important; }
+      .introspect-bar { flex-wrap: wrap; gap: 2px; padding: 0 8px; }
+      .ibar-btn { padding: 0 7px; font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      .pad { padding: 64px 0; }
+      .hero { min-height: auto; padding: 80px 0 48px; }
+      .cap-row h3 { font-size: 0.88rem; }
+      .why-grid { grid-template-columns: 1fr; }
+      .cta-section .btn-row { flex-direction: column; align-items: stretch; }
+      .introspect-bar { display: none !important; }
     }
 
     /* ────────────── Reduced motion ────────────── */
@@ -715,8 +808,10 @@
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
       }
+      html { scroll-behavior: auto; }
       .reveal { opacity: 1 !important; transform: none !important; }
       .hero-eyebrow, .hero-sub, .btn-row { opacity: 1 !important; transform: none !important; }
+      .cursor-dot, .cursor-ring { display: none; }
     }
 
     /* ────────────── Light mode ────────────── */
@@ -805,8 +900,8 @@
 
     /* ── Chat panel ── */
     .ella-panel {
-      width: 304px;
-      max-height: calc(100vh - 34px); /* 24px bottom gap + 10px top clearance */
+      width: min(304px, calc(100vw - 32px));
+      max-height: calc(100vh - 34px);
       background: rgba(9,9,22,0.94);
       backdrop-filter: blur(28px);
       border: 1px solid rgba(139,92,246,0.22);
@@ -838,7 +933,7 @@
     }
     .panel-name { font-size: 0.86rem; font-weight: 600; color: var(--text); line-height: 1.2; }
     .panel-online {
-      font-family: var(--font-mono); font-size: 0.58rem;
+      font-family: var(--font-mono); font-size: 0.75rem;
       letter-spacing: 0.1em; color: var(--green);
       display: flex; align-items: center; gap: 4px;
     }
@@ -914,7 +1009,7 @@
     .popt.back-opt {
       background: transparent;
       border-color: rgba(255,255,255,0.08);
-      font-size: 0.72rem;
+      font-size: 0.75rem;
     }
 
     /* ────────────── Panel input ────────────── */
@@ -967,14 +1062,14 @@
     .hud-scan {
       position: absolute; left: 0; right: 0; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(0,243,255,0.35), #00f3ff, rgba(0,243,255,0.35), transparent);
-      box-shadow: 0 0 8px rgba(0,243,255,0.5);
+      filter: drop-shadow(0 0 4px rgba(0,243,255,0.6));
       animation: hud-sweep 3.5s linear infinite;
     }
     @keyframes hud-sweep { from { top: 0; } to { top: 100%; } }
 
     .hud-status {
       position: absolute;
-      font-family: var(--font-mono); font-size: 0.57rem;
+      font-family: var(--font-mono); font-size: 0.7rem;
       letter-spacing: 0.1em; line-height: 1.9; text-transform: uppercase;
       color: rgba(0,243,255,0.6);
     }
@@ -990,12 +1085,19 @@
 
     /* ────────────── Combat mode overrides ────────────── */
     body.combat {
-      --violet: #00f3ff;
-      --green:  #00ff88;
-      --bg:     #050d1a;
-      --surface:#061628;
-      --text:   #b8ecff;
-      --muted:  rgba(0,243,255,0.45);
+      --violet:   #00f3ff;
+      --violet-d: #0099bb;
+      --violet-g: rgba(0,243,255,0.18);
+      --green:    #00ff88;
+      --cyan:     #00f3ff;
+      --cyan-g:   rgba(0,243,255,0.15);
+      --amber:    #ffb830;
+      --bg:       #050d1a;
+      --surface:  #061628;
+      --text:     #b8ecff;
+      --muted:    rgba(0,243,255,0.72);
+      --border:   rgba(0,243,255,0.12);
+      --border-h: rgba(0,243,255,0.38);
     }
     body.combat::before {
       content: ''; position: fixed; inset: 0; z-index: 0;
@@ -1087,18 +1189,16 @@
     body.combat .panel-online { color: #00ff88 !important; }
     body.combat .panel-online::before { background: #00ff88 !important; }
 
-    /* ── HUD retract on mouse activity ── */
+    /* ── HUD retract on mouse activity — bar stays; only corners/radar retract ── */
     body.combat .hud-corner,
     body.combat .hud-status,
     body.combat .hud-radar { transition: translate 0.65s ease-out, opacity 0.65s ease-out; }
     body.combat .hud-scan  { transition: opacity 0.65s ease-out; }
-    body.combat .hud-bar   { transition: translate 0.65s ease-out, opacity 0.65s ease-out; }
 
     body.combat.hud-active .hud-corner,
     body.combat.hud-active .hud-status,
     body.combat.hud-active .hud-radar { transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
     body.combat.hud-active .hud-scan  { transition: opacity 0.3s ease-in; }
-    body.combat.hud-active .hud-bar   { transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
 
     body.combat.hud-active .hud-tl      { translate: -70px -70px; opacity: 0; }
     body.combat.hud-active .hud-tr      { translate:  70px -70px; opacity: 0; }
@@ -1110,7 +1210,6 @@
     body.combat.hud-active .hud-br-text { translate:  160px 0;    opacity: 0; }
     body.combat.hud-active .hud-radar   { translate: 0 160px;     opacity: 0; }
     body.combat.hud-active .hud-scan    { opacity: 0; }
-    body.combat.hud-active .hud-bar     { translate: 0 -48px;     opacity: 0; }
 
     /* ────────────── HUD command bar ────────────── */
     .hud-bar {
@@ -1131,7 +1230,7 @@
 
     .hud-bar-sig {
       display: flex; align-items: center; gap: 6px;
-      font-size: 0.57rem; letter-spacing: 0.16em; text-transform: uppercase;
+      font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
       color: rgba(0,243,255,0.65); margin-right: 4px; white-space: nowrap;
     }
     .hud-bar-dot {
@@ -1170,7 +1269,7 @@
       color: #00ff88; border-color: rgba(0,255,136,0.4);
       background: rgba(0,255,136,0.06);
     }
-    #hcmd-lang { font-size: 0.6rem; letter-spacing: 0.1em; min-width: 32px; }
+    #hcmd-lang { font-size: 0.7rem; letter-spacing: 0.1em; min-width: 32px; }
     .hud-exit {
       color: rgba(255,60,0,0.72); border-color: rgba(255,60,0,0.22);
       background: rgba(255,60,0,0.04);
@@ -1181,10 +1280,185 @@
       box-shadow: 0 0 10px rgba(255,60,0,0.25);
     }
     .hud-bar-status {
-      flex: 1; font-size: 0.57rem; letter-spacing: 0.1em;
+      flex: 1; font-size: 0.7rem; letter-spacing: 0.1em;
       color: rgba(0,243,255,0.5); text-align: center;
       text-transform: uppercase; transition: opacity 0.3s;
     }
+
+    /* ══════════════════════════════════════════
+       Introspection Mode
+    ══════════════════════════════════════════ */
+    body.introspect {
+      --violet:   #c8a04a;
+      --violet-d: #9a6f28;
+      --violet-g: rgba(200,160,74,0.18);
+      --green:    #90c09a;
+      --cyan:     #c8a04a;
+      --cyan-g:   rgba(200,160,74,0.15);
+      --amber:    #e8c87a;
+      --bg:       #080712;
+      --surface:  #0d0b1e;
+      --text:     #e8e4f5;
+      --muted:    rgba(200,160,74,0.8);
+      --border:   rgba(200,160,74,0.12);
+      --border-h: rgba(200,160,74,0.38);
+    }
+    body.introspect::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 25% 15%, rgba(200,160,74,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 85%, rgba(100,80,200,0.05) 0%, transparent 55%);
+    }
+    body.introspect h2.section-title {
+      text-shadow: 0 0 48px rgba(200,160,74,0.12);
+    }
+    body.introspect .hero-eyebrow {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      letter-spacing: 0.22em; color: rgba(200,160,74,0.7);
+    }
+    .intro-confirm {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      letter-spacing: 0.22em; color: #c8a04a;
+      display: block; margin-bottom: 10px; opacity: 0.85;
+    }
+
+    /* Introspect bar */
+    .introspect-bar {
+      position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+      z-index: 799; height: 36px; display: none;
+      align-items: center; gap: 0; padding: 0 16px;
+      background: rgba(8,7,18,0.97);
+      border: 1px solid rgba(200,160,74,0.25); border-top: none;
+      border-radius: 0 0 12px 12px; backdrop-filter: blur(20px);
+      font-family: var(--font-mono); white-space: nowrap;
+      box-shadow: 0 12px 40px rgba(200,160,74,0.08), inset 0 -1px 0 rgba(200,160,74,0.06);
+    }
+    body.introspect .introspect-bar { display: flex; }
+    body.introspect .ella-widget     { opacity: 0 !important; pointer-events: none !important; }
+    .ibar-sig {
+      display: flex; align-items: center; gap: 6px; margin-right: 6px;
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(200,160,74,0.55);
+    }
+    .ibar-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #c8a04a; box-shadow: 0 0 7px #c8a04a;
+      animation: status-pulse 2.5s ease-in-out infinite;
+    }
+    .ibar-sep { width: 1px; height: 16px; background: rgba(200,160,74,0.14); margin: 0 6px; flex-shrink: 0; }
+    .ibar-btn {
+      height: 44px; padding: 0 9px; flex-shrink: 0;
+      background: transparent; border: none;
+      color: rgba(200,160,74,0.5);
+      font-size: 0.7rem; font-family: var(--font-mono);
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+      transition: color 0.2s; border-radius: 4px;
+    }
+    .ibar-btn:hover { color: #c8a04a; background: rgba(200,160,74,0.06); }
+    .ibar-toggle { color: rgba(200,160,74,0.55); }
+    .ibar-toggle:hover { color: #c8a04a; background: rgba(200,160,74,0.06); }
+    .ibar-toggle.effects-off { color: rgba(200,160,74,0.25); text-decoration: line-through; }
+    .ibar-toggle.effects-off:hover { color: rgba(200,160,74,0.5); background: rgba(200,160,74,0.04); }
+    body.introspect-no-fx .notif-stack,
+    body.introspect-no-fx .cog-radar,
+    body.introspect-no-fx .thought-stream { opacity: 0 !important; pointer-events: none !important; }
+    .ibar-exit { color: rgba(200,160,74,0.3); }
+    .ibar-exit:hover { color: rgba(220,80,50,0.8); background: rgba(220,80,50,0.06); }
+
+    /* Thought stream */
+    .thought-stream {
+      position: fixed; inset: 0; pointer-events: none; z-index: 599;
+      overflow: hidden; opacity: 0; transition: opacity 2.5s ease;
+    }
+    body.introspect .thought-stream { opacity: 1; }
+    .ts-line {
+      position: absolute; left: 0; width: max-content;
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: #e8e4f5; opacity: 0.055; letter-spacing: 0.06em;
+      white-space: nowrap; animation: ts-drift linear infinite;
+    }
+    .ts-line-r { animation-name: ts-drift-r; }
+    @keyframes ts-drift   { from { transform: translateX(0);    } to { transform: translateX(-50%); } }
+    @keyframes ts-drift-r { from { transform: translateX(-50%); } to { transform: translateX(0);    } }
+
+    /* Cognitive radar */
+    .cog-radar {
+      position: fixed; bottom: 22px; left: 22px;
+      opacity: 0; pointer-events: none; z-index: 601;
+    }
+    body.introspect .cog-radar { opacity: 0.9; }
+
+    /* Notification stack */
+    .notif-stack {
+      position: fixed; right: 16px; top: 80px; bottom: 16px;
+      width: 228px; z-index: 700;
+      display: flex; flex-direction: column; justify-content: flex-start;
+      gap: 7px; overflow: hidden;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.9s ease;
+    }
+    body.introspect .notif-stack { opacity: 1; pointer-events: auto; }
+    @keyframes notif-in {
+      from { translate: 260px 0; opacity: 0; }
+      to   { translate: 0 0;     opacity: 1; }
+    }
+    .notif-card {
+      width: 100%; flex-shrink: 0;
+      background: rgba(8,7,18,0.93);
+      border: 1px solid rgba(200,160,74,0.2);
+      border-radius: 6px; padding: 10px 12px 11px;
+      animation: notif-in 0.46s cubic-bezier(0.22,1,0.36,1) both;
+      overflow: hidden;
+      transition: max-height 0.38s ease, opacity 0.28s ease,
+                  margin-top 0.38s ease, padding 0.38s ease;
+    }
+    .notif-card.notif-exit {
+      max-height: 0 !important; opacity: 0;
+      margin-top: -7px; padding-top: 0; padding-bottom: 0;
+    }
+    .notif-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .notif-type {
+      font-family: var(--font-mono); font-size: 0.7rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(200,160,74,0.6);
+    }
+    .notif-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #c8a04a; box-shadow: 0 0 6px #c8a04a; flex-shrink: 0;
+      animation: status-pulse 2.5s ease-in-out infinite;
+    }
+    .notif-text {
+      font-size: 0.76rem; line-height: 1.6; color: rgba(232,228,245,0.8);
+      margin-bottom: 9px;
+    }
+    .notif-footer {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .notif-bar-wrap {
+      flex: 1; height: 2px; background: rgba(200,160,74,0.1);
+      border-radius: 1px; overflow: hidden;
+    }
+    .notif-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #c8a04a, rgba(200,160,74,0.3));
+      border-radius: 1px;
+    }
+    .notif-conf {
+      font-family: var(--font-mono); font-size: 0.7rem; color: #c8a04a;
+      flex-shrink: 0;
+    }
+
+    /* Introspect retract on mouse activity — bar stays; only side widgets retract */
+    body.introspect .notif-stack,
+    body.introspect .cog-radar {
+      transition: translate 0.65s ease-out, opacity 0.65s ease-out;
+    }
+    body.introspect.hud-active .notif-stack  { translate: 250px 0; opacity: 0; transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
+    body.introspect.hud-active .cog-radar    { translate: 0 290px; opacity: 0; transition: translate 0.3s ease-in, opacity 0.3s ease-in; }
+    body.introspect .thought-stream { transition: opacity 2.5s ease; } /* never retracts */
 
     /* ────────────── Hero: side-by-side layout ────────────── */
     .hero { text-align: left; }
@@ -1223,17 +1497,19 @@
 </head>
 <body>
 
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
   <!-- Background layers -->
-  <canvas id="bg-canvas"></canvas>
-  <div class="dot-grid"></div>
-  <div class="scanline-overlay"></div>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="dot-grid" aria-hidden="true"></div>
+  <div class="scanline-overlay" aria-hidden="true"></div>
 
   <!-- Custom cursor -->
   <div class="cursor-dot" id="cursor-dot"></div>
   <div class="cursor-ring" id="cursor-ring"></div>
 
   <!-- ── Nav ── -->
-  <nav id="nav">
+  <nav id="nav" aria-label="Main navigation">
     <a class="nav-logo" href="#">
       <span class="nav-status"></span>
       Ella
@@ -1243,9 +1519,27 @@
       <li><a id="nav-use"  href="#usecases">Use cases</a></li>
       <li><a id="nav-why"  href="#why">Why Ella</a></li>
       <li><a id="nav-priv" href="#privacy">Privacy</a></li>
-      <li><a href="https://github.com/mend3/ella" target="_blank">GitHub ↗</a></li>
+      <li><a href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
     </ul>
   </nav>
+
+  <!-- Introspect bar — visible only in introspection mode -->
+  <div class="introspect-bar" id="introspect-bar" aria-label="Cognitive navigation">
+    <div class="ibar-sig">
+      <span class="ibar-dot"></span>
+      <span>COGNITIVE VIEW</span>
+    </div>
+    <div class="ibar-sep"></div>
+    <button class="ibar-btn" data-iscroll="intro-section">WHO I AM</button>
+    <button class="ibar-btn" data-iscroll="capabilities">HOW I THINK</button>
+    <button class="ibar-btn" data-iscroll="usecases">WHAT I DO</button>
+    <button class="ibar-btn" data-iscroll="why">WHY I EXIST</button>
+    <button class="ibar-btn" data-iscroll="privacy">WHAT I PROTECT</button>
+    <div class="ibar-sep"></div>
+    <button class="ibar-btn ibar-toggle" id="ibar-toggle" aria-pressed="true" aria-label="Toggle effects">EFFECTS ON</button>
+    <div class="ibar-sep"></div>
+    <button class="ibar-btn ibar-exit" id="ibar-exit">RETURN TO SURFACE ×</button>
+  </div>
 
   <!-- HUD command bar — visible only in combat mode -->
   <div class="hud-bar" id="hud-bar" aria-label="Combat quick actions">
@@ -1254,21 +1548,22 @@
       <span>COMBAT</span>
     </div>
     <div class="hud-bar-sep"></div>
-    <button class="hud-action" data-hcmd="theme"   title="Toggle theme">◑</button>
-    <button class="hud-action" id="hcmd-lang" data-hcmd="lang" title="Toggle language">EN</button>
-    <div class="hud-bar-sep"></div>
-    <button class="hud-action" data-hcmd="font-up" title="Font larger">A⁺</button>
-    <button class="hud-action" data-hcmd="font-dn" title="Font smaller">A⁻</button>
-    <div class="hud-bar-sep"></div>
-    <button class="hud-action" id="hcmd-cosmos" data-hcmd="cosmos" title="Cosmos attractor">✦</button>
-    <div class="hud-bar-sep"></div>
-    <button class="hud-action" data-hcmd="print" title="Print page">⎙</button>
-    <button class="hud-action" data-hcmd="share" title="Copy link">↗</button>
-    <div class="hud-bar-status" id="hud-bar-status"></div>
-    <button class="hud-action hud-exit" data-hcmd="exit" title="Stand down / exit combat">⏻</button>
+    <button class="hud-action" data-hcmd="theme"   aria-label="Toggle theme">◑</button>
+    <button class="hud-action" id="hcmd-lang" data-hcmd="lang" aria-label="Toggle language">EN</button>
+    <div class="hud-bar-sep" aria-hidden="true"></div>
+    <button class="hud-action" data-hcmd="font-up" aria-label="Increase font size">A⁺</button>
+    <button class="hud-action" data-hcmd="font-dn" aria-label="Decrease font size">A⁻</button>
+    <div class="hud-bar-sep" aria-hidden="true"></div>
+    <button class="hud-action" id="hcmd-cosmos" data-hcmd="cosmos" aria-label="Toggle cosmos attractor">✦</button>
+    <div class="hud-bar-sep" aria-hidden="true"></div>
+    <button class="hud-action" data-hcmd="print" aria-label="Print page">⎙</button>
+    <button class="hud-action" data-hcmd="share" aria-label="Copy link">↗</button>
+    <div class="hud-bar-status" id="hud-bar-status" aria-live="polite" aria-atomic="true"></div>
+    <button class="hud-action hud-exit" data-hcmd="exit" aria-label="Exit combat mode">⏻</button>
   </div>
 
   <!-- ── Hero ── -->
+  <main id="main-content" tabindex="-1">
   <section class="hero" id="hero">
     <div class="hero-orb hero-orb-1"></div>
     <div class="hero-orb hero-orb-2"></div>
@@ -1287,7 +1582,7 @@
       <div class="hero-right">
         <p class="hero-eyebrow" id="hero-eyebrow">Personal AI Companion</p>
 
-        <h1 class="hero-h1" id="hero-h1"></h1>
+        <h1 class="hero-h1" id="hero-h1"><noscript>I anticipate. I don't just react.</noscript></h1>
 
         <p class="hero-sub" id="hero-sub">
           A thinking partner, researcher, operator, and advisor — all at once.
@@ -1296,7 +1591,7 @@
         </p>
 
         <div class="btn-row" id="hero-btns">
-          <a id="hero-btn-start" class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank">Get started →</a>
+          <a id="hero-btn-start" class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">Get started →</a>
           <a id="hero-btn-why"   class="btn btn-ghost"   href="#why">Why Ella?</a>
         </div>
       </div>
@@ -1312,7 +1607,7 @@
   </section>
 
   <!-- ── Intro ── -->
-  <section class="intro-section">
+  <section class="intro-section" aria-label="About Ella">
     <div class="container pad">
       <p class="label reveal">About me</p>
       <h2 class="section-title reveal d1">Most AI forgets you the<br/><span class="grad-warm">moment you close the tab.</span></h2>
@@ -1408,7 +1703,7 @@
   </section>
 
   <!-- ── Anticipation demo ── -->
-  <section class="anticipation-section">
+  <section class="anticipation-section" aria-label="Anticipation demo">
     <div class="container pad">
       <div class="anticipation-inner">
         <div>
@@ -1502,51 +1797,53 @@
   </section>
 
   <!-- ── CTA ── -->
-  <section class="cta-section">
+  <section class="cta-section" aria-label="Get started">
     <div class="cta-glow"></div>
     <div class="container" style="position:relative;z-index:1">
       <p class="label reveal" style="justify-content:center">Get started</p>
       <h2 class="section-title reveal d1">Ready for a companion<br/><span class="grad">that actually remembers you?</span></h2>
       <p class="section-body reveal d2">Runs on macOS Apple Silicon. Docker Desktop + an OpenAI API key is enough to start. The local-only profile needs no API key at all.</p>
       <div class="btn-row reveal d3" style="opacity:1;transform:none">
-        <a class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank">View on GitHub →</a>
-        <a class="btn btn-ghost" href="setup.md">Read the setup guide</a>
+        <a class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+        <a class="btn btn-ghost" href="https://github.com/mend3/ella/blob/main/docs/setup.md" target="_blank" rel="noopener noreferrer">Read the setup guide</a>
       </div>
-      <p class="cta-meta reveal d4">Open source · MIT license · <a href="https://github.com/mend3/ella/blob/main/CONTRIBUTING.md" target="_blank">Contributions welcome</a></p>
+      <p class="cta-meta reveal d4">Open source · MIT license · <a href="https://github.com/mend3/ella/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributions welcome</a></p>
     </div>
   </section>
+  </main>
 
   <!-- ── Footer ── -->
   <footer>
-    <span>Ella — built on <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank">Hermes Agent</a> by Nous Research</span>
+    <span>Ella — built on <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener noreferrer">Hermes Agent</a> by Nous Research</span>
     <div class="footer-links">
-      <a href="https://github.com/mend3/ella" target="_blank">GitHub</a>
-      <a href="setup.md">Setup</a>
-      <a href="https://github.com/mend3/ella/blob/main/LICENSE" target="_blank">MIT</a>
+      <a href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://github.com/mend3/ella/blob/main/docs/setup.md" target="_blank" rel="noopener noreferrer">Setup</a>
+      <a href="https://github.com/mend3/ella/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>
     </div>
   </footer>
 
   <!-- ── Floating chat widget ── -->
   <div class="ella-widget" id="ella-widget">
-    <div class="ella-panel" id="ella-panel">
+    <div class="ella-panel" id="ella-panel" role="dialog" aria-modal="true" aria-label="Chat with Ella">
       <div class="panel-header" id="panel-header">
-        <img class="panel-avatar" src="ella-profile-image.jpeg" alt="Ella" />
+        <img class="panel-avatar" src="ella-profile-image.jpeg" alt="Ella" loading="lazy" />
         <div>
           <div class="panel-name">Ella</div>
           <div class="panel-online" id="panel-online">online</div>
         </div>
-        <button class="panel-close" id="panel-close">✕</button>
+        <button class="panel-close" id="panel-close" aria-label="Close chat panel">✕</button>
       </div>
       <div class="panel-messages" id="panel-messages"></div>
       <div class="panel-options"  id="panel-options"></div>
       <div class="panel-input-row" id="panel-input-row">
         <input type="text" id="panel-input" class="panel-input"
-               placeholder="Type a message…" autocomplete="off" spellcheck="false" />
+               placeholder="Type a message… or ask what I can do" autocomplete="off" spellcheck="false"
+               aria-label="Message Ella" />
         <button id="panel-send" class="panel-send" aria-label="Send">↵</button>
       </div>
     </div>
-    <button class="ella-trigger" id="ella-trigger" aria-label="Chat with Ella">
-      <img src="ella-profile-image.jpeg" alt="Ella" />
+    <button class="ella-trigger" id="ella-trigger" aria-label="Chat with Ella" aria-expanded="false">
+      <img src="ella-profile-image.jpeg" alt="Ella" loading="lazy" />
       <span class="ella-trigger-dot"></span>
     </button>
   </div>
@@ -1562,8 +1859,13 @@
     <div class="hud-status hud-tr-text" id="hud-tr-text"></div>
     <div class="hud-status hud-bl-text" id="hud-bl-text"></div>
     <div class="hud-status hud-br-text" id="hud-br-text"></div>
-    <canvas id="hud-radar" class="hud-radar" width="100" height="100"></canvas>
+    <canvas id="hud-radar" class="hud-radar" width="100" height="100" aria-hidden="true"></canvas>
   </div>
+
+  <!-- Introspection mode overlays -->
+  <div class="thought-stream"   id="thought-stream"   aria-hidden="true"></div>
+  <canvas class="cog-radar"     id="cog-radar"   width="260" height="260" aria-hidden="true"></canvas>
+  <div class="notif-stack" id="notif-stack" aria-hidden="true"></div>
 
   <script>
   (() => {
@@ -1575,28 +1877,53 @@
     let mx = -100, my = -100, rx = -100, ry = -100;
     let rafCursor;
 
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-    document.addEventListener('mouseleave', () => {
-      dot.style.opacity = '0'; ring.style.opacity = '0';
-    });
-    document.addEventListener('mouseenter', () => {
-      dot.style.opacity = '1'; ring.style.opacity = '1';
-    });
+    if (window.matchMedia('(pointer: fine)').matches) {
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+      document.addEventListener('mouseleave', () => {
+        dot.style.opacity = '0'; ring.style.opacity = '0';
+      });
+      document.addEventListener('mouseenter', () => {
+        dot.style.opacity = '1'; ring.style.opacity = '1';
+      });
 
-    (function tickCursor() {
-      dot.style.left  = mx + 'px';
-      dot.style.top   = my + 'px';
-      rx += (mx - rx) * 0.15;
-      ry += (my - ry) * 0.15;
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
-      rafCursor = requestAnimationFrame(tickCursor);
-    })();
+      (function tickCursor() {
+        dot.style.left  = mx + 'px';
+        dot.style.top   = my + 'px';
+        rx += (mx - rx) * 0.15;
+        ry += (my - ry) * 0.15;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        rafCursor = requestAnimationFrame(tickCursor);
+      })();
+    }
 
 
     /* ═══ Nav scroll ═══ */
     const nav = document.getElementById('nav');
-    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+    const navSections = [
+      { id: 'capabilities', linkId: 'nav-cap' },
+      { id: 'usecases',     linkId: 'nav-use' },
+      { id: 'why',          linkId: 'nav-why' },
+      { id: 'privacy',      linkId: 'nav-priv' },
+    ];
+    const onScroll = () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+      const mid = window.innerHeight / 2;
+      let active = null;
+      navSections.forEach(({ id }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= mid && rect.bottom > 0) active = id;
+      });
+      navSections.forEach(({ id, linkId }) => {
+        const link = document.getElementById(linkId);
+        if (link) {
+          if (active === id) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        }
+      });
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
 
     /* ═══ Particle canvas ═══ */
@@ -1608,11 +1935,22 @@
     const MAX = 130;
 
     function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.scale(dpr, dpr);
     }
     resize();
-    window.addEventListener('resize', () => { resize(); spawnParticles(); });
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      resize();
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(spawnParticles, 100);
+    });
 
     function spawnParticles() {
       const count = N();
@@ -1630,7 +1968,7 @@
     window.toggleAttractor = () => (attractorOn = !attractorOn);
 
     let mouseX = -9999, mouseY = -9999;
-    window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+    window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
 
     function drawParticles() {
       ctx.clearRect(0, 0, W, H);
@@ -1654,27 +1992,39 @@
         ctx.fill();
       });
 
-      // Connections
+      // Connections — axis-aligned cull then d² check avoids sqrt on ~95% of pairs
+      const MAX2 = MAX * MAX;
+      ctx.lineWidth = 0.5;
       for (let i = 0; i < particles.length; i++) {
+        const pi = particles[i];
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d  = Math.sqrt(dx*dx + dy*dy);
-          if (d < MAX) {
-            const a = (1 - d/MAX) * 0.25;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(139,92,246,${a})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
+          const pj = particles[j];
+          const dx = pi.x - pj.x;
+          if (dx > MAX || dx < -MAX) continue;
+          const dy = pi.y - pj.y;
+          const d2 = dx*dx + dy*dy;
+          if (d2 >= MAX2) continue;
+          const a = (1 - Math.sqrt(d2) / MAX) * 0.25;
+          ctx.beginPath();
+          ctx.moveTo(pi.x, pi.y);
+          ctx.lineTo(pj.x, pj.y);
+          ctx.strokeStyle = `rgba(139,92,246,${a.toFixed(3)})`;
+          ctx.stroke();
         }
       }
 
       animId = requestAnimationFrame(drawParticles);
     }
     drawParticles();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId);
+        if (rafCursor) cancelAnimationFrame(rafCursor);
+      } else {
+        drawParticles();
+      }
+    });
 
     /* ═══ Hero boot sequence ═══ */
     const heroEyebrow = document.getElementById('hero-eyebrow');
@@ -1747,13 +2097,18 @@
 
     /* ═══ Hero parallax (mouse) ═══ */
     const heroInner = document.getElementById('hero-inner');
+    let parallaxRaf = null;
     document.addEventListener('mousemove', e => {
       if (window.scrollY > 200) return;
-      const cx = window.innerWidth  / 2;
-      const cy = window.innerHeight / 2;
-      const dx = (e.clientX - cx) / cx;
-      const dy = (e.clientY - cy) / cy;
-      heroInner.style.transform = `translate(${dx * 6}px, ${dy * 6}px)`;
+      if (parallaxRaf) return;
+      parallaxRaf = requestAnimationFrame(() => {
+        parallaxRaf = null;
+        const cx = window.innerWidth  / 2;
+        const cy = window.innerHeight / 2;
+        const dx = (e.clientX - cx) / cx;
+        const dy = (e.clientY - cy) / cy;
+        heroInner.style.transform = `translate(${dx * 6}px, ${dy * 6}px)`;
+      });
     });
 
     /* ═══ Scroll reveal (IntersectionObserver) ═══ */
@@ -1773,6 +2128,10 @@
     /* ═══ Typewriter on scroll ═══ */
     function startTypewriter(el) {
       const text = el.dataset.typewriter;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = text;
+        return;
+      }
       el.textContent = '';
       const cur = document.createElement('span');
       cur.className = 'tw-cursor';
@@ -2087,6 +2446,7 @@
     /* ── Panel open/close ── */
     function openPanel() {
       panelOpen = true;
+      trigger.setAttribute('aria-expanded', 'true');
       snapPanel();
       panel.classList.add('open');
       clampWidget();
@@ -2095,24 +2455,33 @@
         addMsg('ella', pick(T[lang].greeting), 200);
         showOpts('home', 500);
       }
+      const inputEl = document.getElementById('panel-input');
+      if (inputEl) setTimeout(() => inputEl.focus(), 80);
     }
     function closePanel() {
       // Read direction before panel is removed from layout
       const onRight = widget.style.flexDirection === 'row';
       panelOpen = false;
+      trigger.setAttribute('aria-expanded', 'false');
       panel.classList.remove('open');
       snapToEdge(onRight);
+      trigger.focus();
     }
     function togglePanel() { panelOpen ? closePanel() : openPanel(); }
 
     closeBtn.addEventListener('click', e => { e.stopPropagation(); closePanel(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && panelOpen) closePanel(); });
 
     /* ── Message helpers ── */
     function addMsg(from, text, delay = 0) {
       return new Promise(res => setTimeout(() => {
         const d = document.createElement('div');
         d.className = `pmsg from-${from}`;
-        d.innerHTML = `<div class="pmsg-bubble">${text}</div>`;
+        const bubble = document.createElement('div');
+        bubble.className = 'pmsg-bubble';
+        if (from === 'user') bubble.textContent = text;
+        else bubble.innerHTML = text;
+        d.appendChild(bubble);
         msgs.appendChild(d);
         msgs.scrollTop = msgs.scrollHeight;
         res();
@@ -2206,6 +2575,7 @@
 
     function doSetLang(newLang) {
       lang = newLang;
+      document.documentElement.lang = newLang;
       applyTranslations();
       const ack = newLang === 'en' ? 'Switched to English.' : 'Idioma alterado para Português.';
       setTimeout(() => { addMsg('ella', ack); showOpts('home', 380); }, 400);
@@ -2224,7 +2594,7 @@
       const hs = document.getElementById('hero-sub');
       if(hs) hs.textContent = t.hero_sub;
       const h1 = document.getElementById('hero-h1');
-      if(h1) h1.innerHTML = `${t.hero_line1}<br/><em class="grad">${t.hero_line2}</em>`;
+      if(h1 && !introspectOn) h1.innerHTML = `${t.hero_line1}<br/><em class="grad">${t.hero_line2}</em>`;
       const bs = document.getElementById('hero-btn-start');
       if(bs) bs.textContent = t.hero_btn_start;
       const bw = document.getElementById('hero-btn-why');
@@ -2368,18 +2738,21 @@
     /* ══════════════════════════════════════════════
        COMBAT MODE — Jarvis / HUD easter egg
     ══════════════════════════════════════════════ */
-    let combatOn = false;
-    let radarRaf = null;
+    let combatOn     = false;
+    let introspectOn = false;
+    let radarRaf = null, cogRaf = null;
     let hudClockInterval = null;
+    let notifTimer = null, notifPoolIdx = 0;
+    let heroOriginalHTML = null, eyebrowOriginalText = null;
     let hudMouseX = 0, hudMouseY = 0;
     let hudIdleTimer = null;
     document.addEventListener('mousemove', e => {
       hudMouseX = e.clientX; hudMouseY = e.clientY;
-      if (!combatOn) return;
+      if (!combatOn && !introspectOn) return;
       document.body.classList.add('hud-active');
       clearTimeout(hudIdleTimer);
       hudIdleTimer = setTimeout(() => document.body.classList.remove('hud-active'), 1800);
-    });
+    }, { passive: true });
 
     const COMBAT_TRIGGERS = /tech\s*mode|combat\s*mode|jarvis|j\.a\.r\.v\.i\.s|override|hackmode|matrix\s*mode|modo\s*tech|modo\s*combate|modo\s*jarvis|modo\s*hacker|activate\s*systems|go\s*ella|ella\s*go|suit\s*up|systems\s*online|what can you (really )?do|show me (everything|what you.ve got)|me mostre tudo|o que voc[eê] consegue/i;
     const EXIT_TRIGGERS   = /stand\s*down|exit\s*combat|disable|deactivate|normal\s*mode|modo\s*normal|desativar|modo\s*padr[aã]o|power\s*down|sair/i;
@@ -2422,8 +2795,13 @@
     function startRadar() {
       const canvas = document.getElementById('hud-radar');
       if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const CSS = 100;
+      canvas.width = CSS * dpr; canvas.height = CSS * dpr;
+      canvas.style.width = CSS + 'px'; canvas.style.height = CSS + 'px';
       const ctx = canvas.getContext('2d');
-      const W = 100, H = 100, cx = 50, cy = 50, r = 42;
+      ctx.scale(dpr, dpr);
+      const W = CSS, H = CSS, cx = 50, cy = 50, r = 42;
       let angle = -Math.PI / 2;
       const blips = [];
 
@@ -2558,6 +2936,246 @@
       if (hcmdCosmos) hcmdCosmos.classList.remove('active-on');
     }
 
+    /* ══ Introspection Mode ══ */
+    const INTROSPECT_TRIGGERS = /introspect(ion)?(\s+mode)?|cognitive\s+(view|mode)|show\s+(me\s+)?how\s+you\s+think|inside\s+(ella|your\s+mind)|how\s+do\s+you\s+(think|reason)|como\s+voc[eê]\s+(pensa|raciocina)|vis[aã]o\s+cognitiva|introspec[çc][aã]o\s*(modo)?|modo\s+cognitivo|dentro\s+(da\s+)?ella/i;
+
+    const NOTIF_STATIC = [
+      { type: 'MEMORY ACTIVE',    text: '14 prior sessions indexed and available for retrieval.', conf: 100 },
+      { type: 'CONTEXT LOADED',   text: 'Architecture decision from 2 weeks ago is relevant here.', conf: 95 },
+    ];
+    const NOTIF_POOL = [
+      { type: 'RISK DETECTED',    text: 'Project complexity increasing beyond single-agent scope.', conf: 84 },
+      { type: 'FUTURE QUESTION',  text: '"How should I structure this for multiple tenants?"',     conf: 71 },
+      { type: 'MISSING CONTEXT',  text: 'Authentication strategy has not been defined yet.',       conf: 92 },
+      { type: 'OPPORTUNITY',      text: 'Recurring pattern detected. Workflow automation possible.', conf: 67 },
+      { type: 'DECISION NEEDED',  text: 'API versioning required before the system can scale.',   conf: 88 },
+      { type: 'PATTERN MATCH',    text: 'Similar project solved with event-driven architecture.', conf: 77 },
+      { type: 'ANTICIPATION',     text: 'User will likely ask about deployment strategy next.',   conf: 73 },
+      { type: 'CROSS-REFERENCE',  text: 'Three prior conversations contain relevant context.',    conf: 89 },
+      { type: 'TEMPORAL INDEX',   text: 'Last session was 18 hours ago. Resuming context.',       conf: 97 },
+      { type: 'INTENT DETECTED',  text: 'Query pattern suggests a refactor decision is forming.', conf: 68 },
+    ];
+
+    const TS_PHRASES = [
+      'context loaded', 'related project detected', 'searching long-term memory',
+      'knowledge graph expanded', 'semantic connection established', 'pattern recognized',
+      'potential dependency found', 'architectural risk identified', 'temporal index updated',
+      'relevant decision recovered', 'cross-referencing prior sessions', 'anticipation model updated',
+      'working memory synchronized', 'executive context refreshed', 'intent vector computed',
+      'prior conversation indexed', 'semantic clustering in progress', 'memory retrieval complete',
+      'inference chain active', 'salience scoring', 'attention head re-weighted',
+      'entity resolution complete', 'causal model updated', 'belief state revised',
+      'uncertainty estimate reduced', 'user preference model updated', 'planning horizon extended',
+      'retrieval-augmented context merged', 'hypothesis pruned', 'confidence threshold met',
+      'episodic buffer flushed', 'discourse model updated', 'pragmatic inference complete',
+      'world model delta computed', 'meta-cognitive check passed', 'response pre-computed',
+    ];
+
+    function startThoughtStream() {
+      const el = document.getElementById('thought-stream');
+      if (!el) return;
+      el.innerHTML = '';
+      const LINES = 7;
+      const SEP = '   ·   ';
+      for (let i = 0; i < LINES; i++) {
+        // shuffle all phrases differently per line
+        const shuffled = [...TS_PHRASES].sort(() => Math.random() - 0.5);
+        const half = shuffled.join(SEP) + SEP;
+        const line = document.createElement('div');
+        line.className = i % 2 === 1 ? 'ts-line ts-line-r' : 'ts-line';
+        line.textContent = half + half;
+        line.style.top = (4 + i * 13) + '%';
+        line.style.animationDuration = (90 + i * 18 + Math.random() * 20) + 's';
+        line.style.animationDelay = -(Math.random() * 60) + 's';
+        // slight opacity variation for depth
+        line.style.opacity = (0.035 + (i % 3) * 0.015).toFixed(3);
+        el.appendChild(line);
+      }
+    }
+    function stopThoughtStream() {
+      const el = document.getElementById('thought-stream');
+      if (el) el.innerHTML = '';
+    }
+
+    const NOTIF_MAX = 8;
+    function dismissNotif(card) {
+      if (!card || !card.parentNode) return;
+      card.style.maxHeight = card.offsetHeight + 'px';
+      requestAnimationFrame(() => card.classList.add('notif-exit'));
+      card.addEventListener('transitionend', () => card.remove(), { once: true });
+    }
+    function addNotif(n, delay) {
+      const stack = document.getElementById('notif-stack');
+      if (!stack) return;
+      setTimeout(() => {
+        if (!introspectOn) return;
+        while (stack.children.length >= NOTIF_MAX) dismissNotif(stack.lastElementChild);
+        const card = document.createElement('div');
+        card.className = 'notif-card';
+        card.innerHTML =
+          `<div class="notif-header"><span class="notif-type">${n.type}</span><span class="notif-dot"></span></div>` +
+          `<div class="notif-text">${n.text}</div>` +
+          `<div class="notif-footer"><div class="notif-bar-wrap"><div class="notif-bar" style="width:${n.conf}%"></div></div><span class="notif-conf">${n.conf}%</span></div>`;
+        stack.insertBefore(card, stack.firstChild);
+        if (!n.static) setTimeout(() => dismissNotif(card), 16000 + Math.random() * 6000);
+      }, delay || 0);
+    }
+    function startNotifications() {
+      const stack = document.getElementById('notif-stack');
+      if (stack) stack.innerHTML = '';
+      notifPoolIdx = 0;
+      NOTIF_STATIC.forEach((n, i) => addNotif({ ...n, static: true }, i * 700));
+      function scheduleNext() {
+        notifTimer = setTimeout(() => {
+          if (!introspectOn) return;
+          addNotif(NOTIF_POOL[notifPoolIdx % NOTIF_POOL.length]);
+          notifPoolIdx++;
+          scheduleNext();
+        }, 4200 + Math.random() * 5000);
+      }
+      setTimeout(scheduleNext, 2800);
+    }
+    function stopNotifications() {
+      clearTimeout(notifTimer); notifTimer = null;
+      const stack = document.getElementById('notif-stack');
+      if (stack) stack.innerHTML = '';
+    }
+
+    function startCogRadar() {
+      const canvas = document.getElementById('cog-radar');
+      if (!canvas) return;
+      const dprC = window.devicePixelRatio || 1;
+      const CSSC = 260;
+      canvas.width = CSSC * dprC; canvas.height = CSSC * dprC;
+      canvas.style.width = CSSC + 'px'; canvas.style.height = CSSC + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dprC, dprC);
+      const W = CSSC, H = CSSC, cx = 130, cy = 130, R = 106;
+      const DOMAINS = ['MEMORY','REASONING','RESEARCH','EXECUTION','ANTICIPATION'];
+      let arm = -Math.PI / 2;
+      const blips = [[], [], [], [], []];
+
+      function frame() {
+        if (!introspectOn) { cogRaf = null; return; }
+        ctx.clearRect(0, 0, W, H);
+
+        // rings
+        ctx.strokeStyle = 'rgba(200,160,74,0.14)'; ctx.lineWidth = 0.8;
+        [R * 0.33, R * 0.66, R].forEach(ri => {
+          ctx.beginPath(); ctx.arc(cx, cy, ri, 0, Math.PI * 2); ctx.stroke();
+        });
+
+        // sector dividers
+        DOMAINS.forEach((_, i) => {
+          const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+          ctx.beginPath(); ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+          ctx.strokeStyle = 'rgba(200,160,74,0.09)'; ctx.stroke();
+        });
+
+        // domain labels
+        ctx.font = '500 8px JetBrains Mono,monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        DOMAINS.forEach((name, i) => {
+          const a = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI / 2;
+          ctx.fillStyle = 'rgba(200,160,74,0.6)';
+          ctx.fillText(name, cx + Math.cos(a) * R * 0.78, cy + Math.sin(a) * R * 0.78);
+        });
+
+        // sweep trail
+        for (let i = 0; i < 24; i++) {
+          const a = arm - (Math.PI / 2) * (i / 24);
+          ctx.beginPath(); ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, R, a - Math.PI / 48, a); ctx.closePath();
+          ctx.fillStyle = `rgba(200,160,74,${0.14 * (1 - i / 24)})`; ctx.fill();
+        }
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(arm) * R, cy + Math.sin(arm) * R);
+        ctx.strokeStyle = 'rgba(200,160,74,0.8)'; ctx.lineWidth = 1.4; ctx.stroke();
+
+        // blips per domain — appear as arm sweeps through
+        const cur = Math.floor(((arm + Math.PI / 2) / (Math.PI * 2) + 1) % 1 * 5);
+        if (Math.random() < 0.016) {
+          const da  = (cur / 5) * Math.PI * 2 - Math.PI / 2;
+          const da2 = ((cur + 1) / 5) * Math.PI * 2 - Math.PI / 2;
+          const ba  = da + Math.random() * (da2 - da);
+          const bd  = Math.random() * R * 0.76;
+          blips[cur].push({ x: cx + Math.cos(ba)*bd, y: cy + Math.sin(ba)*bd, age: 0 });
+        }
+        blips.forEach(group => {
+          for (let i = group.length - 1; i >= 0; i--) {
+            const b = group[i]; b.age++;
+            const op = Math.max(0, 1 - b.age / 90);
+            ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(144,192,154,${op})`; ctx.fill();
+            if (b.age >= 90) group.splice(i, 1);
+          }
+        });
+
+        arm += 0.028;
+        cogRaf = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+    function stopCogRadar() { if (cogRaf) { cancelAnimationFrame(cogRaf); cogRaf = null; } }
+
+    function activateIntrospect() {
+      if (introspectOn) return;
+      if (combatOn) deactivateCombat();
+      introspectOn = true;
+      document.body.classList.remove('light');
+      document.body.classList.add('introspect');
+      theme = 'dark';
+
+      const h1 = document.getElementById('hero-h1');
+      const ey = document.getElementById('hero-eyebrow');
+      if (h1) { heroOriginalHTML = h1.innerHTML; h1.innerHTML = '<span class="intro-confirm">IDENTITY CONFIRMED</span>I am Ella.<br><em class="grad">A persistent intelligence,<br>not a chat interface.</em>'; }
+      if (ey) { eyebrowOriginalText = ey.textContent; ey.textContent = 'INTROSPECTION MODE'; }
+
+      document.querySelectorAll('h2.section-title').forEach(el => {
+        el.setAttribute('data-glitch', el.textContent.replace(/\s+/g, ' ').trim());
+      });
+
+      const notifStack = document.getElementById('notif-stack');
+      if (notifStack) {
+        notifStack.setAttribute('aria-hidden', 'false');
+        notifStack.setAttribute('aria-live', 'polite');
+        notifStack.setAttribute('aria-label', 'Cognitive notifications');
+      }
+      startThoughtStream();
+      startNotifications();
+      startCogRadar();
+      if (!attractorOn) window.toggleAttractor();
+    }
+
+    function deactivateIntrospect() {
+      if (!introspectOn) return;
+      introspectOn = false;
+      document.body.classList.remove('introspect');
+      clearTimeout(hudIdleTimer);
+      document.body.classList.remove('hud-active');
+
+      const h1 = document.getElementById('hero-h1');
+      const ey = document.getElementById('hero-eyebrow');
+      if (h1 && heroOriginalHTML)    { h1.innerHTML = heroOriginalHTML; heroOriginalHTML = null; }
+      if (ey && eyebrowOriginalText) { ey.textContent = eyebrowOriginalText; eyebrowOriginalText = null; }
+      document.querySelectorAll('[data-glitch]').forEach(el => el.removeAttribute('data-glitch'));
+
+      const notifStack = document.getElementById('notif-stack');
+      if (notifStack) {
+        notifStack.setAttribute('aria-hidden', 'true');
+        notifStack.removeAttribute('aria-live');
+        notifStack.removeAttribute('aria-label');
+      }
+      stopThoughtStream();
+      stopNotifications();
+      stopCogRadar();
+      introspectFx = true;
+      document.body.classList.remove('introspect-no-fx');
+      if (ibarToggle) { ibarToggle.textContent = 'EFFECTS ON'; ibarToggle.setAttribute('aria-pressed', 'true'); ibarToggle.classList.remove('effects-off'); }
+      if (attractorOn) window.toggleAttractor();
+    }
+
     /* ── Free-text input handler ── */
     const inputEl  = document.getElementById('panel-input');
     const sendBtn  = document.getElementById('panel-send');
@@ -2582,12 +3200,26 @@
         return;
       }
 
-      if (EXIT_TRIGGERS.test(raw)) {
-        if (!combatOn) {
-          setTimeout(() => { addMsg('ella', pick(['Already in standard mode.', 'No combat mode active.', 'Systems are already nominal.'])); showOpts('home', 400); }, 300);
+      if (INTROSPECT_TRIGGERS.test(raw)) {
+        if (introspectOn) {
+          setTimeout(() => { addMsg('ella', 'Introspection mode is already active. You\'re looking at how I think.'); showOpts('home', 400); }, 300);
         } else {
-          setTimeout(() => addMsg('ella', pick(['Standing down…', 'Disabling tactical overlay…', 'Returning to standard interface…'])), 200);
-          setTimeout(() => { deactivateCombat(); addMsg('ella', pick(['Standard mode restored.', 'Back to normal. Welcome back.', 'Combat systems offline.'])); showOpts('home', 400); }, 700);
+          setTimeout(() => addMsg('ella', pick(['Opening a window into my cognition…', 'Let me show you how I think…', 'Switching to introspection view…'])), 200);
+          setTimeout(() => { activateIntrospect(); addMsg('ella', 'Cognitive view active. This is what runs underneath every response.'); showOpts('home', 400); }, 950);
+        }
+        return;
+      }
+
+      if (EXIT_TRIGGERS.test(raw)) {
+        if (!combatOn && !introspectOn) {
+          setTimeout(() => { addMsg('ella', pick(['Already in standard mode.', 'Nothing to deactivate.', 'Systems are already nominal.'])); showOpts('home', 400); }, 300);
+        } else {
+          setTimeout(() => addMsg('ella', pick(['Returning to surface…', 'Disabling overlay…', 'Restoring standard view…'])), 200);
+          setTimeout(() => {
+            if (combatOn)    { deactivateCombat();    addMsg('ella', pick(['Standard mode restored.', 'Combat systems offline.'])); }
+            if (introspectOn){ deactivateIntrospect(); addMsg('ella', pick(['Back to surface.', 'Cognitive view closed.'])); }
+            showOpts('home', 400);
+          }, 700);
         }
         return;
       }
@@ -2610,6 +3242,33 @@
       inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleInput(); } });
     }
     if (sendBtn) sendBtn.addEventListener('click', handleInput);
+
+    /* ── Introspect bar buttons ── */
+    document.querySelectorAll('[data-iscroll]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.iscroll;
+        const target = document.getElementById(id) || document.querySelector('.' + id) || document.querySelector('[data-section="' + id + '"]');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+    let introspectFx = true;
+    const ibarToggle = document.getElementById('ibar-toggle');
+    if (ibarToggle) {
+      ibarToggle.addEventListener('click', () => {
+        introspectFx = !introspectFx;
+        document.body.classList.toggle('introspect-no-fx', !introspectFx);
+        ibarToggle.textContent = introspectFx ? 'EFFECTS ON' : 'EFFECTS OFF';
+        ibarToggle.setAttribute('aria-pressed', String(introspectFx));
+        ibarToggle.classList.toggle('effects-off', !introspectFx);
+        if (introspectFx) {
+          startNotifications(); startCogRadar();
+        } else {
+          stopNotifications(); stopCogRadar();
+        }
+      });
+    }
+    const ibarExit = document.getElementById('ibar-exit');
+    if (ibarExit) ibarExit.addEventListener('click', () => deactivateIntrospect());
 
     /* ── HUD command bar ── */
     const hudBarStatus = document.getElementById('hud-bar-status');
