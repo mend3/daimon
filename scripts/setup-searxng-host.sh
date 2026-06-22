@@ -2,7 +2,7 @@
 # Run this ON THE macOS HOST. Starts a local SearXNG for Hermes' web search,
 # reachable from the devcontainer at host.docker.internal:8888. Its cache/limiter
 # uses oracle's Redis on the external `workspace` network (DNS `redis:6379`, db 5)
-# — bring up oracle first: `cd ../oracle && make up`.
+# — bring up oracle first: `cd ../../foundation/oracle && make up`.
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."

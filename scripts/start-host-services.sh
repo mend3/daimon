@@ -2,7 +2,7 @@
 # Brings up Ella's host Docker stacks (SearXNG + TTS + telemetry sidecars). Run by
 # the com.hermes.stacks LaunchAgent at login, after waiting for Docker to be ready.
 # Shared infra (redis/qdrant/ollama/observability) is owned by oracle on the
-# external `workspace` network — bring it up first: `cd ../oracle && make up`.
+# external `workspace` network — bring it up first: `cd ../../foundation/oracle && make up`.
 set -u
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

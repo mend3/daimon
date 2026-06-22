@@ -1,6 +1,6 @@
 # Ella's host sidecars, consolidated. Shared infra (redis/qdrant/ollama/postgres +
 # observability + miniflux) is owned by oracle on the external `workspace` network —
-# bring oracle up first (`cd ../oracle && make up`). Profiles group the services so
+# bring oracle up first (`cd ../../foundation/oracle && make up`). Profiles group the services so
 # subsets can be started independently (mirrors the Makefile targets):
 #   - searxng, tts: core host sidecars (no profile / `core`); started by `make up`.
 #   - web: Ella's web canvas (profile `web`, built locally).

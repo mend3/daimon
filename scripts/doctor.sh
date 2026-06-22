@@ -37,7 +37,7 @@ reach "http://localhost:8880/health"   && PASS "TTS (voice, :8880)"             
 # --- Shared infra (owned by oracle on the `workspace` network) ----------------
 # redis/qdrant/observability come from oracle, not Ella. Probe the network and,
 # best-effort, the services from a throwaway container on `workspace`.
-ORACLE="cd ../oracle && make up"
+ORACLE="cd ../../foundation/oracle && make up"
 if docker network inspect workspace >/dev/null 2>&1; then
   PASS "Docker network 'workspace' exists (oracle infra)"
   qprobe() { docker run --rm --network workspace curlimages/curl:latest -sS -o /dev/null -m 4 "$1" >/dev/null 2>&1; }
