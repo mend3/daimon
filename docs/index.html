@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ella — Personal AI Companion · Local, Private, Always On</title>
-  <meta name="description" content="Ella is a personal AI companion that lives on your machine. Persistent memory, anticipation, real tool use, private web search, and full observability — local-first and open source." />
-  <link rel="canonical" href="https://mend3.github.io/ella/" />
+  <title>Ella — The Intelligence Layer for Modern Organizations</title>
+  <meta name="description" content="Ella is an operational-intelligence system over the DevShell One platform. Not a chatbot — an intelligence that operates over an organization's entire digital reality: it investigates, correlates, explains causes, anticipates, and acts." />
+  <link rel="canonical" href="https://mend3.github.io/mend3/ella.html" />
 
   <!-- Open Graph -->
   <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://mend3.github.io/ella/" />
-  <meta property="og:title"       content="Ella — Personal AI Companion" />
-  <meta property="og:description" content="A persistent AI companion that lives on your machine. Memory, anticipation, tool use, private search — local-first and open source." />
-  <meta property="og:image"       content="https://mend3.github.io/ella/ella-profile-image.jpeg" />
-  <meta property="og:image:alt"   content="Ella — Personal AI Companion" />
+  <meta property="og:url"         content="https://mend3.github.io/mend3/ella.html" />
+  <meta property="og:title"       content="Ella — The Intelligence Layer for Modern Organizations" />
+  <meta property="og:description" content="An operational-intelligence system over the DevShell One platform. It investigates, correlates, explains causes, anticipates, and acts over your whole operation — not just another assistant." />
+  <meta property="og:image"       content="https://mend3.github.io/mend3/ella-profile-image.jpeg" />
+  <meta property="og:image:alt"   content="Ella — The Intelligence Layer for Organizations" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image" />
-  <meta name="twitter:title"       content="Ella — Personal AI Companion" />
-  <meta name="twitter:description" content="A persistent AI companion that lives on your machine. Memory, anticipation, tool use, private search — local-first and open source." />
-  <meta name="twitter:image"       content="https://mend3.github.io/ella/ella-profile-image.jpeg" />
-  <meta name="twitter:image:alt"   content="Ella — Personal AI Companion" />
+  <meta name="twitter:title"       content="Ella — The Intelligence Layer for Modern Organizations" />
+  <meta name="twitter:description" content="An operational-intelligence system over the DevShell One platform. It investigates, correlates, explains causes, anticipates, and acts over your whole operation — not just another assistant." />
+  <meta name="twitter:image"       content="https://mend3.github.io/mend3/ella-profile-image.jpeg" />
+  <meta name="twitter:image:alt"   content="Ella — The Intelligence Layer for Organizations" />
 
   <meta name="robots" content="index, follow" />
 
@@ -32,13 +32,10 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Ella",
-    "description": "A persistent personal AI companion that lives on your machine. Memory, anticipation, tool use, private web search, and full observability — local-first and open source.",
-    "applicationCategory": "AIApplication",
-    "operatingSystem": "macOS",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "url": "https://mend3.github.io/ella/",
-    "codeRepository": "https://github.com/mend3/ella",
-    "license": "https://github.com/mend3/ella/blob/main/LICENSE"
+    "description": "An operational-intelligence system over the DevShell One platform. Ella investigates, correlates, explains causes, anticipates, and acts over an organization's entire digital reality — not a chatbot, but an intelligence layer for modern organizations.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://mend3.github.io/mend3/ella.html"
   }
   </script>
 
@@ -203,6 +200,10 @@
       background: rgba(5,5,15,0.75);
       backdrop-filter: blur(20px);
       border-color: var(--border);
+    }
+
+    body.light nav.scrolled {
+      background: rgba(242,241,255,0.8);
     }
 
     .nav-logo {
@@ -441,6 +442,8 @@
       padding: 13px 30px; border-radius: 40px;
       font-size: 0.88rem; font-weight: 500; text-decoration: none;
       transition: all 0.25s; letter-spacing: 0.01em; cursor: pointer;
+      appearance: none; -webkit-appearance: none; border: none;
+      font-family: inherit; line-height: 1.2;
     }
     .btn-primary {
       background: var(--violet); color: #fff;
@@ -824,6 +827,10 @@
       --text:     #1c1a30;
       --muted:    #5a587a;
       --dim:      #9896b0;
+      --violet:   #6D28D9;
+      --cyan:     #0E7490;
+      --amber:    #B45309;
+      --green:    #047857;
     }
     body.light .scanline-overlay { opacity: 0.06; }
     body.light #bg-canvas        { opacity: 0.28; }
@@ -837,6 +844,12 @@
     body.light .ella-panel {
       background: rgba(232,230,255,0.96);
     }
+    body.light .demo-msg.user .demo-msg-bubble {
+      background: rgba(8,145,178,0.10);
+      border-color: rgba(8,145,178,0.32);
+      color: var(--text);
+    }
+    body.light .demo-msg.ella .demo-msg-bubble { color: var(--text); }
     body.light .pmsg.from-ella .pmsg-bubble {
       background: rgba(109,40,217,0.07);
       border-color: rgba(109,40,217,0.18);
@@ -1518,8 +1531,7 @@
       <li><a id="nav-cap"  href="#capabilities">Capabilities</a></li>
       <li><a id="nav-use"  href="#usecases">Use cases</a></li>
       <li><a id="nav-why"  href="#why">Why Ella</a></li>
-      <li><a id="nav-priv" href="#privacy">Privacy</a></li>
-      <li><a href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
+      <li><a id="nav-priv" href="#privacy">Thesis</a></li>
     </ul>
   </nav>
 
@@ -1534,7 +1546,7 @@
     <button class="ibar-btn" data-iscroll="capabilities">HOW I THINK</button>
     <button class="ibar-btn" data-iscroll="usecases">WHAT I DO</button>
     <button class="ibar-btn" data-iscroll="why">WHY I EXIST</button>
-    <button class="ibar-btn" data-iscroll="privacy">WHAT I PROTECT</button>
+    <button class="ibar-btn" data-iscroll="privacy">THE THESIS</button>
     <div class="ibar-sep"></div>
     <button class="ibar-btn ibar-toggle" id="ibar-toggle" aria-pressed="true" aria-label="Toggle effects">EFFECTS ON</button>
     <div class="ibar-sep"></div>
@@ -1580,19 +1592,19 @@
       </div>
 
       <div class="hero-right">
-        <p class="hero-eyebrow" id="hero-eyebrow">Personal AI Companion</p>
+        <p class="hero-eyebrow" id="hero-eyebrow">The Intelligence Layer for Organizations</p>
 
-        <h1 class="hero-h1" id="hero-h1"><noscript>I anticipate. I don't just react.</noscript></h1>
+        <h1 class="hero-h1" id="hero-h1"><noscript>I don't just answer. I find out what happened.</noscript></h1>
 
         <p class="hero-sub" id="hero-sub">
-          A thinking partner, researcher, operator, and advisor — all at once.
-          I live on your machine, remember what matters, and surface the things
-          you haven't thought to ask yet.
+          Not a chatbot — an operational intelligence that works over your whole
+          organization. I investigate, correlate causes, anticipate what's coming,
+          and act on it.
         </p>
 
         <div class="btn-row" id="hero-btns">
-          <a id="hero-btn-start" class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">Get started →</a>
-          <a id="hero-btn-why"   class="btn btn-ghost"   href="#why">Why Ella?</a>
+          <button id="hero-btn-start" type="button" class="btn btn-primary" onclick="window.openEllaChat()">Talk to Ella →</button>
+          <a id="hero-btn-why"   class="btn btn-ghost"   href="#capabilities">See how it works</a>
         </div>
       </div>
     </div>
@@ -1609,22 +1621,22 @@
   <!-- ── Intro ── -->
   <section class="intro-section" aria-label="About Ella">
     <div class="container pad">
-      <p class="label reveal">About me</p>
-      <h2 class="section-title reveal d1">Most AI forgets you the<br/><span class="grad-warm">moment you close the tab.</span></h2>
+      <p class="label reveal" data-i18n="intro_label">The gap</p>
+      <h2 class="section-title reveal d1" data-i18n-html="intro_title">Your systems store everything.<br/><span class="grad-warm">None of them understand it.</span></h2>
 
       <div class="intro-grid">
-        <blockquote class="intro-quote reveal from-left d2">
-          "The feeling after talking to me should be: <em>she thought about things I hadn't considered yet.</em>"
+        <blockquote class="intro-quote reveal from-left d2" data-i18n-html="intro_quote">
+          "Most assistants ask <em>what do you want to know?</em> I ask <em>let's find out what actually happened.</em>"
         </blockquote>
         <div class="intro-body">
-          <p class="reveal d2">
-            I build context across our conversations — your decisions, projects, and preferences — so you never have to repeat yourself. What you share with me stays with me, and I surface it when it matters.
+          <p class="reveal d2" data-i18n="intro_p1">
+            Companies spent decades building systems to record information. ERPs store transactions, CRMs store relationships, ad platforms store campaigns, banks store movements, support tools store tickets. They keep the facts — but none of them understand what's actually happening.
           </p>
-          <p class="reveal d3">
-            I don't just answer questions. I anticipate what's missing. I surface risks you haven't spotted, decisions that are coming, context that changes the picture. That's the difference between a tool and a companion.
+          <p class="reveal d3" data-i18n="intro_p2">
+            The generative-AI wave created the illusion that chatting equals understanding. Most assistants are an elegant interface for looking things up. They answer questions but don't know your company, can't see how events relate, can't explain a cause, and almost never do real work.
           </p>
-          <p class="reveal d4">
-            I'm warm in conversation and precise in execution. I can talk through a hard problem and then go fix it. I use real tools — shell, files, the web, code — not just words.
+          <p class="reveal d4" data-i18n="intro_p3">
+            I exist to fill that gap. I run over your whole operation the way an experienced team understands the business — I investigate, correlate, explain causes, anticipate what's coming, and act. Not another assistant. An intelligence layer.
           </p>
         </div>
       </div>
@@ -1634,19 +1646,19 @@
   <!-- ── Capabilities ── -->
   <section class="caps-section" id="capabilities">
     <div class="container pad">
-      <p class="label reveal">What I do</p>
-      <h2 class="section-title reveal d1">A full intelligence stack,<br/><span class="grad">on your machine.</span></h2>
+      <p class="label reveal" data-i18n="caps_label">How it works</p>
+      <h2 class="section-title reveal d1" data-i18n-html="caps_title">An intelligence layer<br/><span class="grad">over your whole operation.</span></h2>
 
       <div class="caps-manifest">
-        <div class="cap-row reveal d1"><h3>Persistent memory</h3><p>Projects, preferences, and decisions persist across every session — recalled when they matter, without prompting.</p></div>
-        <div class="cap-row reveal d2"><h3>Anticipation</h3><p>My signature: I surface hidden risks, upcoming decisions, and context gaps before you think to ask.</p></div>
-        <div class="cap-row reveal d3"><h3>Real tool use</h3><p>Shell, files, code execution, browser automation. I don't just describe how to do something — I do it.</p></div>
-        <div class="cap-row reveal d4"><h3>Private web search</h3><p>I search the web through a self-hosted engine. No queries leave your machine to third-party trackers.</p></div>
-        <div class="cap-row reveal d5"><h3>Knowledge base</h3><p>Feed me files, links, notes, and feeds. I ingest them into a semantic memory you can query by meaning.</p></div>
-        <div class="cap-row reveal d6"><h3>Visual workflows</h3><p>A web canvas where my capabilities become nodes you wire into automations — no code required.</p></div>
-        <div class="cap-row reveal d7"><h3>Multi-channel</h3><p>CLI, Telegram, and web canvas — all sharing one memory. You switch channels; I stay coherent.</p></div>
-        <div class="cap-row reveal d8"><h3>Multimodal</h3><p>Vision, voice (transcribed locally), links, and files — I receive and process all of them natively.</p></div>
-        <div class="cap-row reveal d9"><h3>Full observability</h3><p>Every conversation, tool call, and model run is visible in a live Grafana dashboard. You see exactly what I do.</p></div>
+        <div class="cap-row reveal d1"><h3 data-i18n="caps_c1_title">Connector</h3><p data-i18n="caps_c1_desc">I talk to the systems you already run — ERPs, CRMs, banks, marketplaces, ad platforms, in-house tools. No manual integration project; I inherit the platform's connectivity.</p></div>
+        <div class="cap-row reveal d2"><h3 data-i18n="caps_c2_title">Datahouse</h3><p data-i18n="caps_c2_desc">I reach what has no API — websites, portals, documents, public sources. Scattered information becomes context I can reason over.</p></div>
+        <div class="cap-row reveal d3"><h3 data-i18n="caps_c3_title">Knowledge</h3><p data-i18n="caps_c3_desc">Your organization's memory — not just records, but how customers, products, processes, people, and decisions relate. Shared context I draw on for every answer.</p></div>
+        <div class="cap-row reveal d4"><h3 data-i18n="caps_c4_title">Workflow</h3><p data-i18n="caps_c4_desc">Understanding is half the job. I also act: open a ticket, create a task, send a notification, trigger an integration, run an automation when I detect a condition.</p></div>
+        <div class="cap-row reveal d5"><h3 data-i18n="caps_c5_title">Investigation</h3><p data-i18n="caps_c5_desc">Ask me something and I don't fetch a ready answer. I build an investigation — pulling the systems, history, and context needed to find out what actually happened.</p></div>
+        <div class="cap-row reveal d6"><h3 data-i18n="caps_c6_title">Causal explanation</h3><p data-i18n="caps_c6_desc">I don't return a number and stop. I correlate across sources and explain the cause, backed by the evidence that supports it.</p></div>
+        <div class="cap-row reveal d7"><h3 data-i18n="caps_c7_title">Anticipation</h3><p data-i18n="caps_c7_desc">I surface risks and decisions before they force themselves on you — churn forming, a margin slipping, a bottleneck building.</p></div>
+        <div class="cap-row reveal d8"><h3 data-i18n="caps_c8_title">Built on DevShell One</h3><p data-i18n="caps_c8_desc">I sit on top of the platform's capabilities, each layer adding context and reasoning. Connector → Datahouse → Knowledge → Workflow → me.</p></div>
+        <div class="cap-row reveal d9"><h3 data-i18n="caps_c9_title">More than a model</h3><p data-i18n="caps_c9_desc">Language models are one part of how I work. The intelligence comes from combining operational data, memory, knowledge, automation, and reasoning — I use models, I don't depend on them alone.</p></div>
       </div>
     </div>
   </section>
@@ -1654,48 +1666,48 @@
   <!-- ── Use cases ── -->
   <section class="cases-section" id="usecases">
     <div class="container pad">
-      <p class="label reveal">Use cases</p>
-      <h2 class="section-title reveal d1">What we can<br/><span class="grad">build together.</span></h2>
+      <p class="label reveal" data-i18n="cases_label">Use cases</p>
+      <h2 class="section-title reveal d1" data-i18n-html="cases_title">Intelligence for<br/><span class="grad">every part of the business.</span></h2>
 
       <div class="cases-list">
         <div class="case-item reveal">
           <div class="case-num">01 / 05</div>
           <div class="case-content">
-            <h3>Engineering companion</h3>
-            <p>Architecture reviews, debugging sessions, documentation — with full context about your stack. I remember the decisions you made last month and why, so we don't relitigate them.</p>
-            <div class="case-voice">"That third-party service you integrated in March doesn't expose a webhook — the approach you're describing won't work. Here's what will."</div>
+            <h3 data-i18n="cases_c1_title">Banking Intelligence</h3>
+            <p data-i18n="cases_c1_desc">"Why did my cash drop this month?" I read bank movements, recurring charges, anomalies, suppliers, campaigns, and operating expenses — then explain the cause, not just the balance.</p>
+            <div class="case-voice" data-i18n="cases_c1_voice">"Cash fell 14% — two new recurring charges and a supplier that moved its billing forward account for most of it."</div>
           </div>
         </div>
         <div class="case-item reveal d1">
           <div class="case-num">02 / 05</div>
           <div class="case-content">
-            <h3>Research partner</h3>
-            <p>I search, synthesize, and retain findings over time. Build a knowledge base across weeks of research instead of losing context every session.</p>
-            <div class="case-voice">"That paper you saved two weeks ago has the method you're looking for — it's in section 4."</div>
+            <h3 data-i18n="cases_c2_title">Commerce Intelligence</h3>
+            <p data-i18n="cases_c2_desc">"What cut my margin?" I correlate paid media, marketplaces, logistics, stock, and the ERP to find the factors that actually moved it.</p>
+            <div class="case-voice" data-i18n="cases_c2_voice">"Margin dropped on three SKUs — rising ad cost and a marketplace fee change, not your pricing."</div>
           </div>
         </div>
         <div class="case-item reveal d2">
           <div class="case-num">03 / 05</div>
           <div class="case-content">
-            <h3>Personal AI OS</h3>
-            <p>A companion that knows your files, projects, and workflows. Automate recurring tasks visually, set up morning briefings, delegate to autonomous agents.</p>
-            <div class="case-voice">"Your deploy is failing — same environment variable issue from January. Here's the fix."</div>
+            <h3 data-i18n="cases_c3_title">CRM Intelligence</h3>
+            <p data-i18n="cases_c3_desc">"Which customers are at risk?" I combine sales history, support, payments, and product usage to spot churn patterns before they play out.</p>
+            <div class="case-voice" data-i18n="cases_c3_voice">"Eleven accounts show the early churn pattern — slowing usage and a late invoice. Worth reaching out this week."</div>
           </div>
         </div>
         <div class="case-item reveal d3">
           <div class="case-num">04 / 05</div>
           <div class="case-content">
-            <h3>Strategic advisor</h3>
-            <p>Decisions under uncertainty, product strategy, market analysis. Recommendations grounded in your specific constraints and history — not generic advice.</p>
-            <div class="case-voice">"You're building a marketplace — think early about payments, dispute resolution, and fraud. Retrofitting those is painful."</div>
+            <h3 data-i18n="cases_c4_title">Operations Intelligence</h3>
+            <p data-i18n="cases_c4_desc">"Where is the operational bottleneck?" I cross-reference tickets, SLAs, queues, productivity, and cost to point at the most likely causes.</p>
+            <div class="case-voice" data-i18n="cases_c4_voice">"Onboarding is the bottleneck — one queue holds 60% of breached SLAs, and it's understaffed on Mondays."</div>
           </div>
         </div>
         <div class="case-item reveal d4">
           <div class="case-num">05 / 05</div>
           <div class="case-content">
-            <h3>Operations assistant</h3>
-            <p>Monitor systems, receive alerts over Telegram, investigate incidents, automate chores — headlessly, while you sleep.</p>
-            <div class="case-voice">"Ollama went down at 3am. I alerted you on Telegram and have diagnostics ready."</div>
+            <h3 data-i18n="cases_c5_title">And any domain you connect</h3>
+            <p data-i18n="cases_c5_desc">The pattern holds for any part of the operation you plug in. New systems become new context, and I investigate across them the same way.</p>
+            <div class="case-voice" data-i18n="cases_c5_voice">"Connect a system and I start using it — same question, more evidence, a sharper answer."</div>
           </div>
         </div>
       </div>
@@ -1707,11 +1719,11 @@
     <div class="container pad">
       <div class="anticipation-inner">
         <div>
-          <p class="label reveal">My signature</p>
-          <h2 class="section-title reveal d1">I anticipate.<br/><span class="grad">I don't just react.</span></h2>
+          <p class="label reveal" data-i18n="antic_label">How I think</p>
+          <h2 class="section-title reveal d1" data-i18n-html="antic_title">I don't fetch an answer.<br/><span class="grad">I build an investigation.</span></h2>
           <div class="divider-line reveal d2"></div>
-          <p class="section-body reveal d2">Most assistants wait for the right question. I surface what you haven't thought to ask — risks hiding in your architecture, decisions that are coming, context that changes the answer.</p>
-          <p class="section-body reveal d3" style="margin-top:16px;">The goal is a specific feeling: <em style="color:var(--amber)">"she thought about things I hadn't considered yet."</em></p>
+          <p class="section-body reveal d2" data-i18n="antic_body">Ask me why revenue dropped and I won't hand back a number. I look across sales, campaigns, CRM, logistics, stock, support, and seasonality, then build an explanation grounded in the evidence.</p>
+          <p class="section-body reveal d3" style="margin-top:16px;" data-i18n-html="antic_feeling">The shift is from search to investigation: <em style="color:var(--amber)">"let's find out what actually happened."</em></p>
         </div>
 
         <!-- Live chat demo -->
@@ -1726,7 +1738,7 @@
           <div class="demo-body" id="demo-body">
             <div class="demo-msg user" id="dm-user">
               <span class="demo-msg-sender">You</span>
-              <div class="demo-msg-bubble">What deployed yesterday — and are there any open incidents?</div>
+              <div class="demo-msg-bubble" data-i18n="demo_user">Why did revenue drop last month?</div>
             </div>
             <div class="typing-indicator" id="dm-typing">
               <span></span><span></span><span></span>
@@ -1744,32 +1756,32 @@
   <!-- ── Why Ella ── -->
   <section class="why-section" id="why">
     <div class="container pad">
-      <p class="label reveal">Why Ella</p>
-      <h2 class="section-title reveal d1">The gap between a tool<br/><span class="grad-warm">and a companion.</span></h2>
+      <p class="label reveal" data-i18n="why_label">Why Ella</p>
+      <h2 class="section-title reveal d1" data-i18n-html="why_title">From search<br/><span class="grad-warm">to investigation.</span></h2>
 
       <div class="comparison">
         <div class="cmp-col reveal from-left d2">
-          <h3>Stateless chatbots</h3>
+          <h3 data-i18n="why_col1_title">Most assistants</h3>
           <ul class="cmp-list">
-            <li><span class="icon">✗</span> Forget everything when you close the tab</li>
-            <li><span class="icon">✗</span> You re-explain your project every session</li>
-            <li><span class="icon">✗</span> Describe solutions, can't execute them</li>
-            <li><span class="icon">✗</span> Your data trains their next model</li>
-            <li><span class="icon">✗</span> One channel, one interface</li>
-            <li><span class="icon">✗</span> Black box — no visibility into what happened</li>
-            <li><span class="icon">✗</span> Vendor lock-in, pricing changes, API shutdowns</li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i1">Ask "what do you want to know?" and look it up</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i2">Don't know your company, processes, or history</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i3">Can't see how events relate to each other</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i4">Return facts but can't explain a cause</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i5">Generation one: they answer questions</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i6">Generation two: they execute a task you define</span></li>
+            <li><span class="icon">✗</span> <span data-i18n="why_col1_i7">Almost never do real work on their own</span></li>
           </ul>
         </div>
         <div class="cmp-col ella-col reveal from-right d3">
-          <h3>Ella</h3>
+          <h3 data-i18n="why_col2_title">Ella</h3>
           <ul class="cmp-list">
-            <li><span class="icon">✓</span> Persistent memory across all sessions and projects</li>
-            <li><span class="icon">✓</span> Knows your stack, decisions, and preferences already</li>
-            <li><span class="icon">✓</span> Executes: shell, files, code, browser, web</li>
-            <li><span class="icon">✓</span> Runs on your machine — your data stays yours</li>
-            <li><span class="icon">✓</span> CLI, Telegram, web canvas — one shared memory</li>
-            <li><span class="icon">✓</span> Every call visible in a live dashboard</li>
-            <li><span class="icon">✓</span> Open models, self-hosted, no single vendor</li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i1">Says "let's find out what actually happened"</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i2">Knows your operation, processes, and history</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i3">Correlates events across every connected system</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i4">Explains the cause, backed by evidence</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i5">Investigates problems and builds hypotheses</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i6">Anticipates risks and decisions before they bite</span></li>
+            <li><span class="icon">✓</span> <span data-i18n="why_col2_i7">Acts: opens tickets, triggers automations</span></li>
           </ul>
         </div>
       </div>
@@ -1780,17 +1792,17 @@
   <section class="privacy-section" id="privacy">
     <div class="container pad">
       <div class="privacy-inner">
-        <p class="label reveal" style="justify-content:center">Privacy &amp; sovereignty</p>
-        <blockquote class="privacy-quote" id="privacy-quote" data-typewriter="Your intelligence stack should belong to you."></blockquote>
-        <p class="privacy-body reveal d2">I run entirely on your own infrastructure with open models and self-hosted services. Nothing I see, hear, or do leaves your device unless you choose to share it — data ownership, offline capability, no per-token cloud costs, and independence from any single provider.</p>
+        <p class="label reveal" style="justify-content:center" data-i18n="privacy_label">The thesis</p>
+        <blockquote class="privacy-quote" id="privacy-quote" data-typewriter="Your organization should be able to understand itself."></blockquote>
+        <p class="privacy-body reveal d2" data-i18n="privacy_body">In the coming years, companies will stop wiring people through dozens of systems and start talking to one intelligence layer that knows the whole organization — where the information is, how the data correlates, what actions to run, what risks exist, what opportunities just appeared. Every organization will have its own operational intelligence. I'm built to be it.</p>
         <div class="badges">
-          <span class="badge reveal d1">Self-hosted inference</span>
-          <span class="badge reveal d2">Local-first by default</span>
-          <span class="badge reveal d3">Private web search</span>
-          <span class="badge reveal d4">Voice on-device</span>
-          <span class="badge reveal d5">Sandboxed container</span>
-          <span class="badge reveal d6">Secrets never committed</span>
-          <span class="badge reveal d7">Works fully offline</span>
+          <span class="badge reveal d1" data-i18n="privacy_b1">Operational data</span>
+          <span class="badge reveal d2" data-i18n="privacy_b2">Organizational memory</span>
+          <span class="badge reveal d3" data-i18n="privacy_b3">Knowledge relationships</span>
+          <span class="badge reveal d4" data-i18n="privacy_b4">Automation</span>
+          <span class="badge reveal d5" data-i18n="privacy_b5">Reasoning</span>
+          <span class="badge reveal d6" data-i18n="privacy_b6">Language models</span>
+          <span class="badge reveal d7" data-i18n="privacy_b7">More than a model</span>
         </div>
       </div>
     </div>
@@ -1800,26 +1812,21 @@
   <section class="cta-section" aria-label="Get started">
     <div class="cta-glow"></div>
     <div class="container" style="position:relative;z-index:1">
-      <p class="label reveal" style="justify-content:center">Get started</p>
-      <h2 class="section-title reveal d1">Ready for a companion<br/><span class="grad">that actually remembers you?</span></h2>
-      <p class="section-body reveal d2">Runs on macOS Apple Silicon. Docker Desktop + an OpenAI API key is enough to start. The local-only profile needs no API key at all.</p>
+      <p class="label reveal" style="justify-content:center" data-i18n="cta_label">Get started</p>
+      <h2 class="section-title reveal d1" data-i18n-html="cta_title">Ready for an intelligence layer<br/><span class="grad">that understands your operation?</span></h2>
+      <p class="section-body reveal d2" data-i18n="cta_body">I'm not sold as a chatbot. I'm a strategic capability of DevShell One — the cognitive interface that connects your people, processes, data, and automations. You buy solutions and intelligence domains; I'm what ties them together.</p>
       <div class="btn-row reveal d3" style="opacity:1;transform:none">
-        <a class="btn btn-primary" href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
-        <a class="btn btn-ghost" href="https://github.com/mend3/ella/blob/main/docs/setup.md" target="_blank" rel="noopener noreferrer">Read the setup guide</a>
+        <button type="button" class="btn btn-primary" onclick="window.openEllaChat()" data-i18n="cta_btn_start">Talk to Ella →</button>
+        <a class="btn btn-ghost" href="#capabilities" data-i18n="cta_btn_more">See how it works</a>
       </div>
-      <p class="cta-meta reveal d4">Open source · MIT license · <a href="https://github.com/mend3/ella/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributions welcome</a></p>
+      <p class="cta-meta reveal d4" data-i18n="cta_meta">The intelligence layer of DevShell One</p>
     </div>
   </section>
   </main>
 
   <!-- ── Footer ── -->
   <footer>
-    <span>Ella — built on <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener noreferrer">Hermes Agent</a> by Nous Research</span>
-    <div class="footer-links">
-      <a href="https://github.com/mend3/ella" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href="https://github.com/mend3/ella/blob/main/docs/setup.md" target="_blank" rel="noopener noreferrer">Setup</a>
-      <a href="https://github.com/mend3/ella/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>
-    </div>
+    <span data-i18n-html="footer_built">Ella — the intelligence layer of DevShell One</span>
   </footer>
 
   <!-- ── Floating chat widget ── -->
@@ -1868,6 +1875,215 @@
   <div class="notif-stack" id="notif-stack" aria-hidden="true"></div>
 
   <script>
+  /* ═══ Shared full-page i18n (visible to all script IIFEs) ═══ */
+  var ELLA_PAGE_LANG = 'en';
+  const PAGE_I18N = {
+    en: {
+      intro_label: "The gap",
+      intro_title: 'Your systems store everything.<br/><span class="grad-warm">None of them understand it.</span>',
+      intro_quote: '"Most assistants ask <em>what do you want to know?</em> I ask <em>let\'s find out what actually happened.</em>"',
+      intro_p1: "Companies spent decades building systems to record information. ERPs store transactions, CRMs store relationships, ad platforms store campaigns, banks store movements, support tools store tickets. They keep the facts — but none of them understand what's actually happening.",
+      intro_p2: "The generative-AI wave created the illusion that chatting equals understanding. Most assistants are an elegant interface for looking things up. They answer questions but don't know your company, can't see how events relate, can't explain a cause, and almost never do real work.",
+      intro_p3: "I exist to fill that gap. I run over your whole operation the way an experienced team understands the business — I investigate, correlate, explain causes, anticipate what's coming, and act. Not another assistant. An intelligence layer.",
+
+      caps_label: "How it works",
+      caps_title: 'An intelligence layer<br/><span class="grad">over your whole operation.</span>',
+      caps_c1_title: "Connector",
+      caps_c1_desc: "I talk to the systems you already run — ERPs, CRMs, banks, marketplaces, ad platforms, in-house tools. No manual integration project; I inherit the platform's connectivity.",
+      caps_c2_title: "Datahouse",
+      caps_c2_desc: "I reach what has no API — websites, portals, documents, public sources. Scattered information becomes context I can reason over.",
+      caps_c3_title: "Knowledge",
+      caps_c3_desc: "Your organization's memory — not just records, but how customers, products, processes, people, and decisions relate. Shared context I draw on for every answer.",
+      caps_c4_title: "Workflow",
+      caps_c4_desc: "Understanding is half the job. I also act: open a ticket, create a task, send a notification, trigger an integration, run an automation when I detect a condition.",
+      caps_c5_title: "Investigation",
+      caps_c5_desc: "Ask me something and I don't fetch a ready answer. I build an investigation — pulling the systems, history, and context needed to find out what actually happened.",
+      caps_c6_title: "Causal explanation",
+      caps_c6_desc: "I don't return a number and stop. I correlate across sources and explain the cause, backed by the evidence that supports it.",
+      caps_c7_title: "Anticipation",
+      caps_c7_desc: "I surface risks and decisions before they force themselves on you — churn forming, a margin slipping, a bottleneck building.",
+      caps_c8_title: "Built on DevShell One",
+      caps_c8_desc: "I sit on top of the platform's capabilities, each layer adding context and reasoning. Connector → Datahouse → Knowledge → Workflow → me.",
+      caps_c9_title: "More than a model",
+      caps_c9_desc: "Language models are one part of how I work. The intelligence comes from combining operational data, memory, knowledge, automation, and reasoning — I use models, I don't depend on them alone.",
+
+      cases_label: "Use cases",
+      cases_title: 'Intelligence for<br/><span class="grad">every part of the business.</span>',
+      cases_c1_title: "Banking Intelligence",
+      cases_c1_desc: "\"Why did my cash drop this month?\" I read bank movements, recurring charges, anomalies, suppliers, campaigns, and operating expenses — then explain the cause, not just the balance.",
+      cases_c1_voice: '"Cash fell 14% — two new recurring charges and a supplier that moved its billing forward account for most of it."',
+      cases_c2_title: "Commerce Intelligence",
+      cases_c2_desc: "\"What cut my margin?\" I correlate paid media, marketplaces, logistics, stock, and the ERP to find the factors that actually moved it.",
+      cases_c2_voice: '"Margin dropped on three SKUs — rising ad cost and a marketplace fee change, not your pricing."',
+      cases_c3_title: "CRM Intelligence",
+      cases_c3_desc: "\"Which customers are at risk?\" I combine sales history, support, payments, and product usage to spot churn patterns before they play out.",
+      cases_c3_voice: '"Eleven accounts show the early churn pattern — slowing usage and a late invoice. Worth reaching out this week."',
+      cases_c4_title: "Operations Intelligence",
+      cases_c4_desc: "\"Where is the operational bottleneck?\" I cross-reference tickets, SLAs, queues, productivity, and cost to point at the most likely causes.",
+      cases_c4_voice: '"Onboarding is the bottleneck — one queue holds 60% of breached SLAs, and it\'s understaffed on Mondays."',
+      cases_c5_title: "And any domain you connect",
+      cases_c5_desc: "The pattern holds for any part of the operation you plug in. New systems become new context, and I investigate across them the same way.",
+      cases_c5_voice: '"Connect a system and I start using it — same question, more evidence, a sharper answer."',
+
+      antic_label: "How I think",
+      antic_title: 'I don\'t fetch an answer.<br/><span class="grad">I build an investigation.</span>',
+      antic_body: "Ask me why revenue dropped and I won't hand back a number. I look across sales, campaigns, CRM, logistics, stock, support, and seasonality, then build an explanation grounded in the evidence.",
+      antic_feeling: 'The shift is from search to investigation: <em style="color:var(--amber)">"let\'s find out what actually happened."</em>',
+      demo_user: "Why did revenue drop last month?",
+      demo_reply: [
+        { text: "Down 9% vs. the prior month. I traced it across the operation — ", cls: '' },
+        { text: "two top SKUs went out of stock for 11 days", cls: 'hl' },
+        { text: ", a ", cls: '' },
+        { text: "paid-media cut dropped traffic ~18%", cls: 'hl2' },
+        { text: ", and ", cls: '' },
+        { text: "a logistics delay pushed 40 orders past month-end", cls: 'hl' },
+        { text: ". Seasonality explains the rest. The stock gap is the biggest single factor.", cls: '' },
+        { text: " Want the breakdown by channel?", cls: 'hl2' },
+      ],
+
+      why_label: "Why Ella",
+      why_title: 'From search<br/><span class="grad-warm">to investigation.</span>',
+      why_col1_title: "Most assistants",
+      why_col1_i1: 'Ask "what do you want to know?" and look it up',
+      why_col1_i2: "Don't know your company, processes, or history",
+      why_col1_i3: "Can't see how events relate to each other",
+      why_col1_i4: "Return facts but can't explain a cause",
+      why_col1_i5: "Generation one: they answer questions",
+      why_col1_i6: "Generation two: they execute a task you define",
+      why_col1_i7: "Almost never do real work on their own",
+      why_col2_title: "Ella",
+      why_col2_i1: 'Says "let\'s find out what actually happened"',
+      why_col2_i2: "Knows your operation, processes, and history",
+      why_col2_i3: "Correlates events across every connected system",
+      why_col2_i4: "Explains the cause, backed by evidence",
+      why_col2_i5: "Investigates problems and builds hypotheses",
+      why_col2_i6: "Anticipates risks and decisions before they bite",
+      why_col2_i7: "Acts: opens tickets, triggers automations",
+
+      privacy_label: "The thesis",
+      privacy_quote: "Your organization should be able to understand itself.",
+      privacy_body: "In the coming years, companies will stop wiring people through dozens of systems and start talking to one intelligence layer that knows the whole organization — where the information is, how the data correlates, what actions to run, what risks exist, what opportunities just appeared. Every organization will have its own operational intelligence. I'm built to be it.",
+      privacy_b1: "Operational data",
+      privacy_b2: "Organizational memory",
+      privacy_b3: "Knowledge relationships",
+      privacy_b4: "Automation",
+      privacy_b5: "Reasoning",
+      privacy_b6: "Language models",
+      privacy_b7: "More than a model",
+
+      cta_label: "Get started",
+      cta_title: 'Ready for an intelligence layer<br/><span class="grad">that understands your operation?</span>',
+      cta_body: "I'm not sold as a chatbot. I'm a strategic capability of DevShell One — the cognitive interface that connects your people, processes, data, and automations. You buy solutions and intelligence domains; I'm what ties them together.",
+      cta_btn_start: "Talk to Ella →",
+      cta_btn_more: "See how it works",
+      cta_meta: "The intelligence layer of DevShell One",
+
+      footer_built: 'Ella — the intelligence layer of DevShell One',
+    },
+    pt: {
+      intro_label: "A lacuna",
+      intro_title: 'Seus sistemas guardam tudo.<br/><span class="grad-warm">Nenhum deles entende nada.</span>',
+      intro_quote: '"A maioria dos assistentes pergunta <em>o que você quer saber?</em> Eu pergunto <em>vamos descobrir o que de fato aconteceu.</em>"',
+      intro_p1: "As empresas passaram décadas construindo sistemas para registrar informação. ERPs guardam transações, CRMs guardam relacionamentos, plataformas de mídia guardam campanhas, bancos guardam movimentações, ferramentas de suporte guardam tickets. Eles guardam os fatos — mas nenhum entende o que está acontecendo de verdade.",
+      intro_p2: "A onda da IA generativa criou a ilusão de que conversar é entender. A maioria dos assistentes é uma interface elegante para consultar coisas. Eles respondem perguntas, mas não conhecem a sua empresa, não veem como os eventos se relacionam, não explicam uma causa e quase nunca executam trabalho real.",
+      intro_p3: "Eu existo para preencher essa lacuna. Eu opero sobre toda a sua operação do jeito que um time experiente entende o negócio — eu investigo, correlaciono, explico causas, antecipo o que vem e ajo. Não mais um assistente. Uma camada de inteligência.",
+
+      caps_label: "Como funciona",
+      caps_title: 'Uma camada de inteligência<br/><span class="grad">sobre toda a sua operação.</span>',
+      caps_c1_title: "Connector",
+      caps_c1_desc: "Eu converso com os sistemas que você já usa — ERPs, CRMs, bancos, marketplaces, plataformas de mídia, ferramentas internas. Sem projeto de integração manual; herdo a conectividade da plataforma.",
+      caps_c2_title: "Datahouse",
+      caps_c2_desc: "Eu alcanço o que não tem API — sites, portais, documentos, fontes públicas. Informação dispersa vira contexto sobre o qual eu raciocino.",
+      caps_c3_title: "Knowledge",
+      caps_c3_desc: "A memória da sua organização — não só registros, mas como clientes, produtos, processos, pessoas e decisões se relacionam. Um contexto compartilhado que uso em cada resposta.",
+      caps_c4_title: "Workflow",
+      caps_c4_desc: "Entender é metade do trabalho. Eu também ajo: abro um ticket, crio uma tarefa, envio uma notificação, disparo uma integração, rodo uma automação quando detecto uma condição.",
+      caps_c5_title: "Investigação",
+      caps_c5_desc: "Me pergunte algo e eu não busco uma resposta pronta. Eu monto uma investigação — reunindo os sistemas, o histórico e o contexto necessários para descobrir o que de fato aconteceu.",
+      caps_c6_title: "Explicação de causa",
+      caps_c6_desc: "Eu não devolvo um número e paro. Correlaciono várias fontes e explico a causa, com as evidências que a sustentam.",
+      caps_c7_title: "Antecipação",
+      caps_c7_desc: "Eu trago à tona riscos e decisões antes que se imponham — um churn se formando, uma margem escorregando, um gargalo se acumulando.",
+      caps_c8_title: "Sobre o DevShell One",
+      caps_c8_desc: "Eu fico sobre as capacidades da plataforma, cada camada somando contexto e raciocínio. Connector → Datahouse → Knowledge → Workflow → eu.",
+      caps_c9_title: "Mais que um modelo",
+      caps_c9_desc: "Modelos de linguagem são uma parte de como eu funciono. A inteligência vem de combinar dados operacionais, memória, conhecimento, automação e raciocínio — eu uso modelos, não dependo só deles.",
+
+      cases_label: "Casos de uso",
+      cases_title: 'Inteligência para<br/><span class="grad">cada parte do negócio.</span>',
+      cases_c1_title: "Inteligência Bancária",
+      cases_c1_desc: "\"Por que meu caixa caiu este mês?\" Eu leio movimentações bancárias, cobranças recorrentes, anomalias, fornecedores, campanhas e despesas operacionais — e explico a causa, não só o saldo.",
+      cases_c1_voice: '"O caixa caiu 14% — duas novas cobranças recorrentes e um fornecedor que antecipou o faturamento respondem pela maior parte."',
+      cases_c2_title: "Inteligência de Comércio",
+      cases_c2_desc: "\"O que comeu minha margem?\" Eu correlaciono mídia paga, marketplaces, logística, estoque e o ERP para achar os fatores que de fato a moveram.",
+      cases_c2_voice: '"A margem caiu em três SKUs — custo de mídia subindo e uma mudança de taxa do marketplace, não o seu preço."',
+      cases_c3_title: "Inteligência de CRM",
+      cases_c3_desc: "\"Quais clientes estão em risco?\" Eu combino histórico de vendas, suporte, pagamentos e uso do produto para identificar padrões de churn antes que se concretizem.",
+      cases_c3_voice: '"Onze contas mostram o padrão inicial de churn — uso desacelerando e uma fatura atrasada. Vale o contato esta semana."',
+      cases_c4_title: "Inteligência de Operações",
+      cases_c4_desc: "\"Onde está o gargalo operacional?\" Eu cruzo tickets, SLAs, filas, produtividade e custo para apontar as causas mais prováveis.",
+      cases_c4_voice: '"O onboarding é o gargalo — uma fila concentra 60% dos SLAs estourados, e fica sem gente nas segundas."',
+      cases_c5_title: "E qualquer domínio que você conectar",
+      cases_c5_desc: "O padrão vale para qualquer parte da operação que você plugar. Novos sistemas viram novo contexto, e eu investigo sobre eles do mesmo jeito.",
+      cases_c5_voice: '"Conecte um sistema e eu começo a usá-lo — mesma pergunta, mais evidência, uma resposta mais precisa."',
+
+      antic_label: "Como eu penso",
+      antic_title: 'Eu não busco uma resposta.<br/><span class="grad">Eu monto uma investigação.</span>',
+      antic_body: "Me pergunte por que a receita caiu e eu não devolvo um número. Eu olho vendas, campanhas, CRM, logística, estoque, suporte e sazonalidade, e então construo uma explicação ancorada nas evidências.",
+      antic_feeling: 'A virada é de busca para investigação: <em style="color:var(--amber)">"vamos descobrir o que de fato aconteceu."</em>',
+      demo_user: "Por que a receita caiu no mês passado?",
+      demo_reply: [
+        { text: "Queda de 9% sobre o mês anterior. Rastreei pela operação inteira — ", cls: '' },
+        { text: "dois SKUs campeões ficaram sem estoque por 11 dias", cls: 'hl' },
+        { text: ", um ", cls: '' },
+        { text: "corte de mídia paga derrubou o tráfego ~18%", cls: 'hl2' },
+        { text: " e ", cls: '' },
+        { text: "um atraso na logística empurrou 40 pedidos para depois do fechamento", cls: 'hl' },
+        { text: ". A sazonalidade explica o resto. A falta de estoque é o maior fator isolado.", cls: '' },
+        { text: " Quer a quebra por canal?", cls: 'hl2' },
+      ],
+
+      why_label: "Por que Ella",
+      why_title: 'Da busca<br/><span class="grad-warm">à investigação.</span>',
+      why_col1_title: "A maioria dos assistentes",
+      why_col1_i1: 'Pergunta "o que você quer saber?" e consulta',
+      why_col1_i2: "Não conhece sua empresa, seus processos ou histórico",
+      why_col1_i3: "Não vê como os eventos se relacionam",
+      why_col1_i4: "Devolve fatos, mas não explica uma causa",
+      why_col1_i5: "Geração um: respondem perguntas",
+      why_col1_i6: "Geração dois: executam uma tarefa que você define",
+      why_col1_i7: "Quase nunca executam trabalho real sozinhos",
+      why_col2_title: "Ella",
+      why_col2_i1: 'Diz "vamos descobrir o que de fato aconteceu"',
+      why_col2_i2: "Conhece sua operação, seus processos e histórico",
+      why_col2_i3: "Correlaciona eventos entre todos os sistemas conectados",
+      why_col2_i4: "Explica a causa, com base em evidências",
+      why_col2_i5: "Investiga problemas e levanta hipóteses",
+      why_col2_i6: "Antecipa riscos e decisões antes que apertem",
+      why_col2_i7: "Age: abre tickets, dispara automações",
+
+      privacy_label: "A tese",
+      privacy_quote: "Sua organização deveria conseguir entender a si mesma.",
+      privacy_body: "Nos próximos anos, as empresas vão deixar de costurar pessoas através de dezenas de sistemas e passar a falar com uma camada de inteligência que conhece a organização inteira — onde está a informação, como os dados se correlacionam, quais ações rodar, que riscos existem, que oportunidades acabaram de surgir. Toda organização terá a sua própria inteligência operacional. Eu fui feita para ser ela.",
+      privacy_b1: "Dados operacionais",
+      privacy_b2: "Memória organizacional",
+      privacy_b3: "Relações de conhecimento",
+      privacy_b4: "Automação",
+      privacy_b5: "Raciocínio",
+      privacy_b6: "Modelos de linguagem",
+      privacy_b7: "Mais que um modelo",
+
+      cta_label: "Comece agora",
+      cta_title: 'Pronto para uma camada de inteligência<br/><span class="grad">que entende a sua operação?</span>',
+      cta_body: "Eu não sou vendida como chatbot. Sou uma capacidade estratégica do DevShell One — a interface cognitiva que conecta suas pessoas, processos, dados e automações. Você contrata soluções e domínios de inteligência; eu sou o que amarra tudo.",
+      cta_btn_start: "Falar com a Ella →",
+      cta_btn_more: "Como funciona",
+      cta_meta: "A camada de inteligência do DevShell One",
+
+      footer_built: 'Ella — a camada de inteligência do DevShell One',
+    },
+  };
+
   (() => {
     'use strict';
 
@@ -1878,7 +2094,10 @@
     let rafCursor;
 
     if (window.matchMedia('(pointer: fine)').matches) {
-      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        if (dot.style.opacity !== '1') { dot.style.opacity = '1'; ring.style.opacity = '1'; }
+      }, { passive: true });
       document.addEventListener('mouseleave', () => {
         dot.style.opacity = '0'; ring.style.opacity = '0';
       });
@@ -2034,8 +2253,8 @@
     const scrollCue   = document.getElementById('scroll-cue');
 
     // line1 types, then line2 in italic/violet
-    const line1 = 'Hi, I\'m Ella.';
-    const line2 = 'I\'m not a chatbot.';
+    const line1 = 'I don\'t just answer.';
+    const line2 = 'I find out what happened.';
 
     function typeText(el, text, speed, onDone) {
       el.innerHTML = '';
@@ -2150,13 +2369,30 @@
 
     // Privacy quote typewriter via observer
     const privacyQuote = document.getElementById('privacy-quote');
+    let privacyQuoteTyped = false;
+    function syncPrivacyQuoteLang() {
+      const dict = PAGE_I18N[ELLA_PAGE_LANG] || PAGE_I18N.en;
+      if (dict.privacy_quote != null) privacyQuote.dataset.typewriter = dict.privacy_quote;
+    }
     const pqObs = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
+        syncPrivacyQuoteLang();
+        privacyQuoteTyped = true;
         startTypewriter(privacyQuote);
         pqObs.unobserve(privacyQuote);
       }
     }, { threshold: 0.5 });
     pqObs.observe(privacyQuote);
+
+    // Expose language-switch hooks for the chat IIFE
+    window.__ellaRetypeQuote = () => {
+      syncPrivacyQuoteLang();
+      if (privacyQuoteTyped) startTypewriter(privacyQuote);
+    };
+    window.__ellaReplayDemo = () => {
+      if (typeEllaReply._cancel) { typeEllaReply._cancel(); typeEllaReply._cancel = null; }
+      if (demoPlayed) typeEllaReply();
+    };
 
     /* ═══ Chat demo animation ═══ */
     const demoTerminal = document.getElementById('demo-terminal');
@@ -2165,18 +2401,10 @@
     const dmElla       = document.getElementById('dm-ella');
     const dmEllaText   = document.getElementById('dm-ella-text');
 
-    const ellaReply = [
-      { text: "3 deploys — ", cls: '' },
-      { text: "auth-service 14:22", cls: 'hl2' },
-      { text: " (stable), ", cls: '' },
-      { text: "payment-gateway 16:05", cls: 'hl' },
-      { text: " (2 alerts resolved), ", cls: '' },
-      { text: "frontend 19:30", cls: 'hl2' },
-      { text: " (clean). Open incident: elevated errors on ", cls: '' },
-      { text: "/api/checkout", cls: 'hl' },
-      { text: " since payment-gateway — P2, backend, ETA ~2h.", cls: '' },
-      { text: " Pull the logs?", cls: 'hl2' },
-    ];
+    function currentEllaReply() {
+      const dict = PAGE_I18N[ELLA_PAGE_LANG] || PAGE_I18N.en;
+      return dict.demo_reply || PAGE_I18N.en.demo_reply;
+    }
 
     let demoPlayed = false;
 
@@ -2210,6 +2438,7 @@
       cursor.className = 'tw-cursor';
       dmEllaText.appendChild(cursor);
 
+      const ellaReply = currentEllaReply();
       let si = 0, ci = 0, activeSpan = null, dead = false;
       typeEllaReply._cancel = () => { dead = true; };
 
@@ -2286,11 +2515,11 @@
     const T = {
       en: {
         greeting: [
-          "Need anything?",
-          "What can I do for you?",
-          "How can I help?",
-          "What's on your mind?",
-          "Anything I can help with?",
+          "What should we look into?",
+          "What do you want to find out?",
+          "What's going on in the operation?",
+          "Where should I start investigating?",
+          "What can I help you understand?",
         ],
         back:   "← Back",
         online: "online",
@@ -2335,27 +2564,27 @@
         attractor_off: ["Cosmos drifting free.", "Mouse attractor off.", "Floating on their own again."],
         home: [
           { label: "Theme",     next: 'theme' },
-          { label: "Language",  next: 'language' },
+          { label: "Português", action: 'lang' },
           { label: "Font size", next: 'font' },
           { label: "Cosmos",    action: 'attractor' },
           { label: "Print",     action: 'print' },
           { label: "Share",     next: 'share' },
         ],
-        nav: { cap:'Capabilities', use:'Use cases', why:'Why Ella', priv:'Privacy' },
-        hero_eyebrow:    'Personal AI Companion',
-        hero_line1:      "Hi, I'm Ella.",
-        hero_line2:      "I'm not a chatbot.",
-        hero_sub:        "A thinking partner, researcher, operator, and advisor — all at once. I live on your machine, remember what matters, and surface the things you haven't thought to ask yet.",
-        hero_btn_start:  'Get started →',
-        hero_btn_why:    'Why Ella?',
+        nav: { cap:'Capabilities', use:'Use cases', why:'Why Ella', priv:'Thesis' },
+        hero_eyebrow:    'The Intelligence Layer for Organizations',
+        hero_line1:      "I don't just answer.",
+        hero_line2:      "I find out what happened.",
+        hero_sub:        "Not a chatbot — an operational intelligence that works over your whole organization. I investigate, correlate causes, anticipate what's coming, and act on it.",
+        hero_btn_start:  'Talk to Ella →',
+        hero_btn_why:    'See how it works',
       },
       pt: {
         greeting: [
-          "O que posso fazer?",
-          "Como posso ajudar?",
-          "O que você precisa?",
-          "Posso ajudar com algo?",
-          "Em que posso ajudar?",
+          "O que vamos investigar?",
+          "O que você quer descobrir?",
+          "O que está acontecendo na operação?",
+          "Por onde começo a investigar?",
+          "O que posso ajudar você a entender?",
         ],
         back:   "← Voltar",
         online: "online",
@@ -2400,29 +2629,24 @@
         attractor_off: ["O cosmos à deriva.", "Atrator desativado.", "Flutuando por conta própria."],
         home: [
           { label: "Tema",             next: 'theme' },
-          { label: "Idioma",           next: 'language' },
+          { label: "English",          action: 'lang' },
           { label: "Tamanho da fonte", next: 'font' },
           { label: "Cosmos",           action: 'attractor' },
           { label: "Imprimir",         action: 'print' },
           { label: "Compartilhar",     next: 'share' },
         ],
-        nav: { cap:'Capacidades', use:'Casos de uso', why:'Por que Ella', priv:'Privacidade' },
-        hero_eyebrow:    'Companheira de IA Pessoal',
-        hero_line1:      'Oi, eu sou a Ella.',
-        hero_line2:      'Não sou um chatbot.',
-        hero_sub:        'Parceira de raciocínio, pesquisadora, operadora e consultora — tudo ao mesmo tempo. Vivo na sua máquina, lembro o que importa e antecipo o que você ainda não pensou em perguntar.',
-        hero_btn_start:  'Começar →',
-        hero_btn_why:    'Por que Ella?',
+        nav: { cap:'Capacidades', use:'Casos de uso', why:'Por que Ella', priv:'Tese' },
+        hero_eyebrow:    'A camada de inteligência da sua operação',
+        hero_line1:      'Eu não só respondo.',
+        hero_line2:      'Eu investigo o que aconteceu.',
+        hero_sub:        'Não sou um chatbot — sou uma inteligência operacional que atua sobre toda a sua organização. Eu investigo, correlaciono causas, antecipo o que vem e ajo.',
+        hero_btn_start:  'Falar com a Ella →',
+        hero_btn_why:    'Como funciona',
       },
     };
 
-    /* ── Show/hide on hero avatar visibility ── */
-    const avatarObs = new IntersectionObserver(entries => {
-      const vis = entries[0].isIntersecting;
-      widget.classList.toggle('vis', !vis);
-      if (vis && panelOpen) closePanel();
-    }, { threshold: 0.1 });
-    avatarObs.observe(heroAvatar);
+    /* ── Widget always visible, independent of scroll position ── */
+    widget.classList.add('vis');
 
     /* ── Snap widget to nearest horizontal edge ── */
     const EDGE_PAD = 20;
@@ -2468,6 +2692,7 @@
       trigger.focus();
     }
     function togglePanel() { panelOpen ? closePanel() : openPanel(); }
+    window.openEllaChat = () => { if (!panelOpen) openPanel(); };
 
     closeBtn.addEventListener('click', e => { e.stopPropagation(); closePanel(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && panelOpen) closePanel(); });
@@ -2503,6 +2728,7 @@
               clearOpts(); addMsg('user', o.label);
               if (o.action === 'print')      doPrint(o.label);
               else if (o.action === 'attractor') doAttractor();
+              else if (o.action === 'lang')  doSetLang(lang === 'en' ? 'pt' : 'en');
               else goTo(o.next);
             }
           }));
@@ -2602,6 +2828,18 @@
       // Panel online label
       const po = document.getElementById('panel-online');
       if(po) po.textContent = t.online;
+      // ── Full-page body sweep ──
+      ELLA_PAGE_LANG = lang;
+      const dict = PAGE_I18N[lang] || PAGE_I18N.en;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n'); if (dict[k] != null) el.textContent = dict[k];
+      });
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const k = el.getAttribute('data-i18n-html'); if (dict[k] != null) el.innerHTML = dict[k];
+      });
+      // Privacy typewriter + anticipation demo follow the language
+      if (typeof window.__ellaRetypeQuote === 'function') window.__ellaRetypeQuote();
+      if (typeof window.__ellaReplayDemo === 'function') window.__ellaReplayDemo();
       // Rebuild options in current language (reset chat state)
       greeted = false; msgs.innerHTML = ''; clearOpts();
       if (panelOpen) { addMsg('ella', pick(t.greeting), 150); showOpts('home', 420); }
@@ -2627,7 +2865,7 @@
     }
 
     const pageUrl   = window.location.href;
-    const pageTitle = encodeURIComponent('Ella — Your intelligent companion');
+    const pageTitle = encodeURIComponent('Ella — The Intelligence Layer for Modern Organizations');
     function doShareX()  {
       window.open(`https://twitter.com/intent/tweet?text=${pageTitle}&url=${encodeURIComponent(pageUrl)}`, '_blank');
       setTimeout(() => { addMsg('ella', 'Opening Twitter / X…'); showOpts('share', 380); }, 350);
@@ -2759,24 +2997,24 @@
 
     /* ── Keyword responses for free text ── */
     const KB = {
-      memory:    { re: /memory|remember|lembr|memori/i,
-        en: ["Persistent memory across sessions — preferences, decisions, project context. Nothing resets.", "I keep context across every conversation. Capture, recall, forget — all on command."],
-        pt: ["Memória persistente entre sessões — preferências, decisões, contexto. Nada reseta.", "Mantenho o contexto entre conversas. Capture, recorde, esqueça — tudo por comando."] },
-      tools:     { re: /tool|ferramenta|shell|execut|what.*can.*you|o que.*faz/i,
-        en: ["Shell, files, code execution, web search, browser, vision, voice. Wired in and extensible.", "I execute: terminal, files, code, search, browser, vision. Ask me to run something."],
-        pt: ["Shell, arquivos, execução de código, busca web, navegador, visão, voz. Conectados e extensíveis.", "Executo: terminal, arquivos, código, busca, navegador, visão. Me peça para rodar algo."] },
-      telegram:  { re: /telegram|messag|channel/i,
-        en: ["I'm on Telegram — multi-user, allowlisted. One memory follows across CLI and Telegram.", "Reach me via Telegram, CLI, or the web canvas. Same memory everywhere."],
-        pt: ["Estou no Telegram — multi-usuário, lista de acesso. Uma memória em todos os canais.", "Me acesse pelo Telegram, CLI ou canvas. A mesma memória em todo lugar."] },
-      privacy:   { re: /privac|local|offline|cloud|data|segur/i,
-        en: ["Fully local-capable: open model, self-hosted search and cache. Your data stays on your machine.", "Private by design. Run 100% local — model, search, cache, memory. All yours."],
-        pt: ["Totalmente local: modelo aberto, busca e cache self-hosted. Seus dados ficam na sua máquina.", "Privado por design. 100% local — modelo, busca, cache, memória. Tudo seu."] },
-      workflow:  { re: /workflow|canvas|automat|node|flow/i,
-        en: ["Visual canvas: wire my capabilities into automations. Nodes are my own abilities. Run live.", "A node graph where you compose my tools into flows — triggers, agent, logic, outputs."],
-        pt: ["Canvas visual: conecte minhas capacidades em automações. Nós são minhas habilidades.", "Um grafo de nós onde você compõe minhas ferramentas em fluxos — gatilhos, agente, lógica, saídas."] },
+      memory:    { re: /memory|remember|lembr|memori|knowledge|conheci/i,
+        en: ["Your organization's memory — how customers, products, processes, and decisions relate. Shared context I use in every answer.", "I hold the operation's history and relationships, not just records. That's what lets me explain a cause."],
+        pt: ["A memória da sua organização — como clientes, produtos, processos e decisões se relacionam. Contexto que uso em cada resposta.", "Guardo o histórico e as relações da operação, não só registros. É o que me deixa explicar uma causa."] },
+      tools:     { re: /tool|ferramenta|connect|conect|integr|execut|what.*can.*you|o que.*faz/i,
+        en: ["I talk to the systems you already run — ERPs, CRMs, banks, marketplaces, ad platforms, in-house tools — and act on them.", "I connect to your operation, reach data with no API, and act: open tickets, trigger automations, run flows."],
+        pt: ["Eu converso com os sistemas que você já usa — ERPs, CRMs, bancos, marketplaces, mídia, ferramentas internas — e ajo sobre eles.", "Eu conecto na sua operação, alcanço dados sem API e ajo: abro tickets, disparo automações, rodo fluxos."] },
+      investigate: { re: /investig|cause|caus|why|por que|porque|correlat|correlac/i,
+        en: ["Ask me why something happened and I don't fetch a number — I correlate across your systems and explain the cause, with evidence.", "I build an investigation: I pull the systems, history, and context needed to find out what actually happened."],
+        pt: ["Me pergunte por que algo aconteceu e eu não busco um número — correlaciono seus sistemas e explico a causa, com evidências.", "Eu monto uma investigação: reúno sistemas, histórico e contexto para descobrir o que de fato aconteceu."] },
+      scope:     { re: /privac|model|llm|scope|escopo|data|dados/i,
+        en: ["I'm more than a model. The intelligence comes from operational data, memory, knowledge, automation, and reasoning combined.", "Language models are one part of how I work — I use them, I don't depend on them alone."],
+        pt: ["Sou mais que um modelo. A inteligência vem de dados operacionais, memória, conhecimento, automação e raciocínio combinados.", "Modelos de linguagem são uma parte de como eu funciono — eu uso, não dependo só deles."] },
+      workflow:  { re: /workflow|automat|node|flow|act|aç[aã]o|ag/i,
+        en: ["Understanding is half the job. I also act — open a ticket, create a task, send a notification, trigger an integration.", "When I detect a condition, I run the automation. Investigation and action, not just answers."],
+        pt: ["Entender é metade do trabalho. Eu também ajo — abro um ticket, crio uma tarefa, envio uma notificação, disparo uma integração.", "Quando detecto uma condição, rodo a automação. Investigação e ação, não só respostas."] },
       whoami:    { re: /who are you|quem.*voc[eê]|what are you|o que.*voc[eê]|quem.*ella/i,
-        en: ["I'm Ella — a personal AI companion on your machine. Not a chatbot.", "Ella. Persistent, local, operational. I remember, I execute, I anticipate."],
-        pt: ["Sou a Ella — uma companheira de IA pessoal na sua máquina. Não sou um chatbot.", "Ella. Persistente, local, operacional. Lembro, executo, antecipo."] },
+        en: ["I'm Ella — the intelligence layer of DevShell One. Not a chatbot; an operational intelligence over your whole organization.", "Ella. I investigate, explain causes, anticipate, and act over your operation."],
+        pt: ["Sou a Ella — a camada de inteligência do DevShell One. Não sou um chatbot; sou uma inteligência operacional sobre toda a sua organização.", "Ella. Investigo, explico causas, antecipo e ajo sobre a sua operação."] },
       hello:     { re: /^(hello|hi|hey|oi|ol[aá]|good\s*(morning|evening|day|afternoon))/i,
         en: null, pt: null }, // uses greeting array
     };
@@ -2874,7 +3112,7 @@
       const bl = document.getElementById('hud-bl-text');
       const br = document.getElementById('hud-br-text');
       if (tl) tl.innerHTML = 'ELLA // OS v2.0<br>COMBAT MODE: ACTIVE<br>SYS STATUS: NOMINAL';
-      if (bl) bl.innerHTML = 'OLLAMA ↑ ONLINE<br>MEMORY: LOADED<br>THREATS: NONE DETECTED';
+      if (bl) bl.innerHTML = 'SYSTEMS ↑ CONNECTED<br>MEMORY: LOADED<br>ANOMALIES: NONE DETECTED';
       if (br) br.innerHTML = 'RADAR: ACTIVE<br>SCAN: 360°<br>TARGETS: 0';
       updateHudClock();
       hudClockInterval = setInterval(updateHudClock, 1000);
@@ -2940,33 +3178,33 @@
     const INTROSPECT_TRIGGERS = /introspect(ion)?(\s+mode)?|cognitive\s+(view|mode)|show\s+(me\s+)?how\s+you\s+think|inside\s+(ella|your\s+mind)|how\s+do\s+you\s+(think|reason)|como\s+voc[eê]\s+(pensa|raciocina)|vis[aã]o\s+cognitiva|introspec[çc][aã]o\s*(modo)?|modo\s+cognitivo|dentro\s+(da\s+)?ella/i;
 
     const NOTIF_STATIC = [
-      { type: 'MEMORY ACTIVE',    text: '14 prior sessions indexed and available for retrieval.', conf: 100 },
-      { type: 'CONTEXT LOADED',   text: 'Architecture decision from 2 weeks ago is relevant here.', conf: 95 },
+      { type: 'MEMORY ACTIVE',    text: 'Operational history indexed across every connected system.', conf: 100 },
+      { type: 'CONTEXT LOADED',   text: 'A supplier change from 2 weeks ago is relevant here.',       conf: 95 },
     ];
     const NOTIF_POOL = [
-      { type: 'RISK DETECTED',    text: 'Project complexity increasing beyond single-agent scope.', conf: 84 },
-      { type: 'FUTURE QUESTION',  text: '"How should I structure this for multiple tenants?"',     conf: 71 },
-      { type: 'MISSING CONTEXT',  text: 'Authentication strategy has not been defined yet.',       conf: 92 },
-      { type: 'OPPORTUNITY',      text: 'Recurring pattern detected. Workflow automation possible.', conf: 67 },
-      { type: 'DECISION NEEDED',  text: 'API versioning required before the system can scale.',   conf: 88 },
-      { type: 'PATTERN MATCH',    text: 'Similar project solved with event-driven architecture.', conf: 77 },
-      { type: 'ANTICIPATION',     text: 'User will likely ask about deployment strategy next.',   conf: 73 },
-      { type: 'CROSS-REFERENCE',  text: 'Three prior conversations contain relevant context.',    conf: 89 },
-      { type: 'TEMPORAL INDEX',   text: 'Last session was 18 hours ago. Resuming context.',       conf: 97 },
-      { type: 'INTENT DETECTED',  text: 'Query pattern suggests a refactor decision is forming.', conf: 68 },
+      { type: 'RISK DETECTED',    text: 'Cash runway tightening faster than the prior quarter.',     conf: 84 },
+      { type: 'FUTURE QUESTION',  text: '"Which accounts are about to churn this month?"',           conf: 71 },
+      { type: 'MISSING CONTEXT',  text: 'Two systems report different stock counts for the same SKU.', conf: 92 },
+      { type: 'OPPORTUNITY',      text: 'Recurring manual step detected. Automation possible.',       conf: 67 },
+      { type: 'DECISION NEEDED',  text: 'A marketplace fee change is eroding margin on three SKUs.',  conf: 88 },
+      { type: 'PATTERN MATCH',    text: 'This drop matches a stock-out pattern from last quarter.',   conf: 77 },
+      { type: 'ANTICIPATION',     text: 'Support volume likely to spike after the late shipment.',    conf: 73 },
+      { type: 'CROSS-REFERENCE',  text: 'Sales, logistics, and support all point to one root cause.', conf: 89 },
+      { type: 'TEMPORAL INDEX',   text: 'Last data sync was 18 minutes ago. Context current.',        conf: 97 },
+      { type: 'INTENT DETECTED',  text: 'The question is really about why revenue moved.',            conf: 68 },
     ];
 
     const TS_PHRASES = [
       'context loaded', 'related project detected', 'searching long-term memory',
-      'knowledge graph expanded', 'semantic connection established', 'pattern recognized',
-      'potential dependency found', 'architectural risk identified', 'temporal index updated',
-      'relevant decision recovered', 'cross-referencing prior sessions', 'anticipation model updated',
-      'working memory synchronized', 'executive context refreshed', 'intent vector computed',
+      'knowledge connections expanded', 'related events linked', 'pattern recognized',
+      'potential dependency found', 'operational risk identified', 'temporal index updated',
+      'relevant decision recovered', 'cross-referencing prior data', 'anticipation model updated',
+      'working memory synchronized', 'operational context refreshed', 'intent inferred',
       'prior conversation indexed', 'semantic clustering in progress', 'memory retrieval complete',
       'inference chain active', 'salience scoring', 'attention head re-weighted',
       'entity resolution complete', 'causal model updated', 'belief state revised',
       'uncertainty estimate reduced', 'user preference model updated', 'planning horizon extended',
-      'retrieval-augmented context merged', 'hypothesis pruned', 'confidence threshold met',
+      'evidence merged into context', 'hypothesis pruned', 'confidence threshold met',
       'episodic buffer flushed', 'discourse model updated', 'pragmatic inference complete',
       'world model delta computed', 'meta-cognitive check passed', 'response pre-computed',
     ];
