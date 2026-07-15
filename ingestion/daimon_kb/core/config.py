@@ -15,12 +15,12 @@ _ENV_RE = re.compile(r"\$\{([^}]+)\}")
 
 
 class QdrantCfg(BaseModel):
-    url: str = "http://host.docker.internal:6333"
+    url: str = "http://qdrant:6333"
     api_key: str | None = None
 
 
 class EmbedCfg(BaseModel):
-    base_url: str = "http://host.docker.internal:11434"
+    base_url: str = "http://ollama:11434"
     model: str = "nomic-embed-text"
     tag: str = "nomic"
     dim: int = 768

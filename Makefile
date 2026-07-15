@@ -1,25 +1,38 @@
-# Hermes Agent — local setup. Host-side targets wrap scripts/; see README.md.
+# Daimon — local setup. Targets wrap scripts/; see README.md.
+#
+# The shared infra (Ollama, Qdrant, Redis, observability) comes from your own stack on an
+# external Docker network. Start it first, then bring up Daimon's own sidecars here.
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-.PHONY: help up doctor ollama searxng tts monitoring services firewall devcontainer backup down
+# Local overrides, if you keep any (gitignored). Read before the defaults below so a
+# value set here wins without being passed on every command line — a `doctor` that
+# reports a broken stack because you forgot an env var is worse than no doctor.
+-include .env
+export
+
+# Name of that external network. Daimon's sidecars, the devcontainer and `make doctor`
+# all join it, so it is exported to every child process (compose, devcontainer CLI).
+#   make up SHARED_NETWORK=my-net   (or set it once in .env)
+SHARED_NETWORK ?= shared
+export SHARED_NETWORK
+
+.PHONY: help up doctor settings searxng tts monitoring services firewall devcontainer backup down
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-13s\033[0m %s\n",$$1,$$2}'
 
-up: searxng tts ## Bring up Daimon's sidecars on the host (shared infra comes from your own stack)
-	@echo "Host ready. Start your shared infra stack first (Redis/Qdrant/Ollama + observability on a Docker network named 'shared'). Then open the devcontainer (VS Code: Reopen in Container) and run 'hermes'."
+up: searxng tts ## Bring up Daimon's sidecars (shared infra comes from your own stack)
+	@echo "Sidecars up. Start your shared infra stack (Redis/Qdrant/Ollama + observability) on the network named by SHARED_NETWORK, then open the devcontainer (VS Code: Reopen in Container, or 'make devcontainer') and run 'hermes'."
 
-doctor: ## Check host services and models are reachable (preflight)
+doctor: ## Check the services and models Daimon depends on (preflight)
 	./scripts/doctor.sh
 
-ollama: ## Install host Ollama + pull vision/embedding models (chat model served by your shared Ollama)
-	./scripts/setup-ollama-host.sh
-	ollama pull qwen2.5vl:7b
-	ollama pull nomic-embed-text
+settings: ## Generate docker/searxng/settings.yml (gitignored; needed before any compose up)
+	./scripts/setup-searxng-settings.sh
 
-searxng: ## Start SearXNG (uses the shared Redis over the `shared` network)
+searxng: settings ## Start SearXNG (uses the shared Redis over the shared network)
 	./scripts/setup-searxng-host.sh
 
 tts: ## Start the local TTS engine for voice replies (127.0.0.1:8880)
@@ -28,10 +41,10 @@ tts: ## Start the local TTS engine for voice replies (127.0.0.1:8880)
 monitoring: ## Start the app-level telemetry sidecars (chat-shipper + status-exporter)
 	docker compose --profile monitoring up -d
 
-services: ## Install launchd agents (managed Ollama, autostart, daily backup)
+services: ## Install launchd agents (autostart, daily backup) — macOS host only
 	./scripts/install-host-services.sh
 
-firewall: ## Block Ollama/SearXNG on the LAN, persisted across reboots (sudo)
+firewall: ## Block SearXNG on the LAN, persisted across reboots (macOS host only, sudo)
 	sudo ./scripts/install-firewall-daemon.sh
 
 devcontainer: ## Build and start the devcontainer (needs @devcontainers/cli)
@@ -40,8 +53,9 @@ devcontainer: ## Build and start the devcontainer (needs @devcontainers/cli)
 backup: ## Back up the hermes-data volume to ~/hermes-backups (Qdrant lives in your shared stack)
 	./scripts/backup-hermes.sh
 
-# Miniflux (optional feeds source) is expected on your shared stack, consumed at
-# host.docker.internal:8930 (or miniflux:8080 on `shared`) — no `make miniflux` here.
+# Ollama is part of your shared stack, not Daimon's to install — pull the models Daimon
+# needs (see `make doctor`) there. Miniflux (optional feeds source) likewise: point
+# MINIFLUX_URL at your own.
 
-down: ## Stop Daimon's host docker stacks (shared infra is provided by your own stack)
+down: ## Stop Daimon's sidecars (your shared stack stays up)
 	-docker compose --profile core --profile monitoring down

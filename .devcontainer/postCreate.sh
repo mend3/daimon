@@ -158,14 +158,13 @@ if grep -qE "^TELEGRAM_BOT_TOKEN=.+" "${HERMES_HOME}/.env" 2>/dev/null \
     || echo "    NOTE - could not create morning-briefing cron job"
 fi
 
-# 3. Quick reachability check against the host Ollama endpoint (non-fatal).
-echo "==> Checking Ollama at host.docker.internal:11434"
-if curl -fsS --max-time 3 http://host.docker.internal:11434/api/tags >/dev/null 2>&1; then
+# 3. Quick reachability check against the shared Ollama (non-fatal).
+echo "==> Checking Ollama at ollama:11434"
+if curl -fsS --max-time 3 http://ollama:11434/api/tags >/dev/null 2>&1; then
   echo "    OK - Ollama is reachable."
 else
-  echo "    WARN - Ollama not reachable yet. On the macOS host run:"
-  echo "           OLLAMA_HOST=0.0.0.0:11434 ollama serve   (+ ollama pull gpt-oss:20b)"
-  echo "           See scripts/setup-ollama-host.sh"
+  echo "    WARN - Ollama not reachable. It belongs to your shared infra stack —"
+  echo "           start it on the shared network, then rebuild this container."
 fi
 
 echo "==> postCreate done. Run 'hermes' to start chatting."

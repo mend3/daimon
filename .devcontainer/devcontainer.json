@@ -11,10 +11,16 @@
     "ghcr.io/devcontainers/features/node:1": { "version": "22" }
   },
 
-  // host.docker.internal lets the container reach Ollama running natively on the
-  // macOS host (Metal-accelerated). host-gateway makes the alias resolve on Linux
-  // Docker too, and is a harmless no-op on Docker Desktop for Mac.
-  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
+  // Join the shared Docker network: that is where the infra Daimon consumes lives
+  // (ollama, qdrant, redis) alongside her own sidecars (daimon-searxng, daimon-tts),
+  // all reached by DNS. Your shared infra stack owns that network, so start it first or
+  // this container has nothing to attach to. Set SHARED_NETWORK in the environment to
+  // match your stack's network name (`make devcontainer` passes it through).
+  // host.docker.internal stays resolvable for anything published on the host instead.
+  "runArgs": [
+    "--network=${localEnv:SHARED_NETWORK:shared}",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
 
   // Persist Hermes data and the installed toolchain across rebuilds via named
   // volumes. ~/.hermes holds config/memories/sessions/agent code; ~/.local holds
@@ -29,12 +35,12 @@
   // gateway under PID 1, so we let the image command run instead of the default.
   "overrideCommand": false,
 
-  // Point Hermes' OpenAI-compatible client at the host Ollama endpoint. These are
-  // also set explicitly in config.yaml; kept here so any env-driven code path agrees.
+  // Point Hermes' OpenAI-compatible client at the shared Ollama. These are also set
+  // explicitly in config.yaml; kept here so any env-driven code path agrees.
   "containerEnv": {
-    "OPENAI_BASE_URL": "http://host.docker.internal:11434/v1",
+    "OPENAI_BASE_URL": "http://ollama:11434/v1",
     "OPENAI_API_KEY": "ollama",
-    "OLLAMA_BASE_URL": "http://host.docker.internal:11434"
+    "OLLAMA_BASE_URL": "http://ollama:11434"
   },
 
   "postCreateCommand": "bash .devcontainer/postCreate.sh",

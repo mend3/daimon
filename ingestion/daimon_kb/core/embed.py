@@ -14,7 +14,7 @@ class EmbedError(RuntimeError):
 class OllamaEmbedder:
     def __init__(
         self,
-        base_url: str = "http://host.docker.internal:11434",
+        base_url: str = "http://ollama:11434",
         model: str = "nomic-embed-text",
         dim: int = 768,
         doc_prefix: str = "search_document: ",

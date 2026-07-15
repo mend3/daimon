@@ -13,6 +13,17 @@ for _ in $(seq 1 150); do
   sleep 2
 done
 
-bash /workspaces/hermes/.devcontainer/start-gateway.sh >/dev/null 2>&1 || true
+# Path DISCOVERED, not hardcoded: the CLI mounts at /workspaces/<folder-name>, so a
+# repo directory named anything but "hermes" pointed this at a file that does not
+# exist. Combined with the silencing below, the gateway never started and the
+# container stayed up, healthy and mute — with no error anywhere to find.
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Errors are LOUD: `>/dev/null 2>&1 || true` hid both "file not found" and every
+# gateway failure. A gateway problem still must not stop the container (the ||
+# true stays), but it has to leave a trace in `docker logs`.
+if ! bash "$here/start-gateway.sh"; then
+  echo "[container-boot] gateway falhou ao subir — o container segue de pé, mas NÃO responde no Telegram" >&2
+fi
 
 exec sleep infinity

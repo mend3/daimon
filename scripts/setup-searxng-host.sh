@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Run this ON THE macOS HOST. Starts a local SearXNG for Hermes' web search,
-# reachable from the devcontainer at host.docker.internal:8888. Its cache/limiter
-# uses the shared Redis on the external `shared` network (DNS `redis:6379`, db 5)
-# — start your shared infra stack on that network first.
+# Starts SearXNG for Hermes' web search, reachable on the shared network at
+# daimon-searxng:8080 (and http://localhost:8888 from the host). Its cache/limiter uses
+# the shared Redis over that network (DNS `redis:6379`, db 5) — start your shared infra
+# stack first.
+#
+# settings.yml is generated (it holds a secret) and gitignored, so it must exist before
+# any `docker compose up` of searxng, including one driven from outside this Makefile.
+# That is what `make settings` is for.
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-if [ ! -f docker/searxng/settings.yml ]; then
-  echo "==> Generating settings.yml with a fresh secret"
-  cp docker/searxng/settings.yml.example docker/searxng/settings.yml
-  sed -i '' "s/GENERATE_ME/$(openssl rand -hex 32)/" docker/searxng/settings.yml
-fi
+./scripts/setup-searxng-settings.sh
 
 echo "==> Starting SearXNG"
 docker compose up -d searxng

@@ -1,5 +1,5 @@
 # Overrides on top of SearXNG's built-in defaults. Copied to settings.yml by
-# scripts/setup-searxng-host.sh, which injects a generated secret_key.
+# scripts/setup-searxng-settings.sh, which injects a generated secret_key.
 # Keep only general engines that work reliably headless — cuts the engine error
 # noise (google parser breaks, wikidata times out, many engines CAPTCHA).
 use_default_settings:
@@ -18,7 +18,7 @@ server:
   image_proxy: true
 
 # Cache/limiter backend — the shared Redis (logical db index 5), reached over the
-# external `shared` network (passwordless).
+# external shared network (passwordless).
 valkey:
   url: redis://redis:6379/5
 

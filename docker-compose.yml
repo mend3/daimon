@@ -1,9 +1,14 @@
-# Daimon's host sidecars, consolidated. Shared infra (redis/qdrant/ollama/postgres +
-# observability + miniflux) is provided by your shared stack on the external `shared` network —
-# start your shared infra stack on that network first. Profiles group the services so
-# subsets can be started independently (mirrors the Makefile targets):
-#   - searxng, tts: core host sidecars (no profile / `core`); started by `make up`.
+# Daimon's sidecars, consolidated. Shared infra (redis/qdrant/ollama + observability) is
+# provided by your own stack on an external Docker network — set SHARED_NETWORK to its
+# name (default `shared`) and start that stack first; Daimon declares none of it.
+#
+# Profiles group the services so subsets can be started independently (mirrors the
+# Makefile targets):
+#   - searxng, tts: Daimon's own sidecars (profile `core`); started by `make up`.
 #   - chat-shipper, status-exporter: app-level telemetry (profile `monitoring`).
+#
+# Services carry a `daimon-` alias on the shared network so their generic names stay
+# collision-free next to other stacks; `container_name` keeps the `hermes-` prefix.
 name: daimon
 
 services:
@@ -19,8 +24,9 @@ services:
     environment:
       - SEARXNG_BASE_URL=http://localhost:8888/
     networks:
-      - default
-      - shared
+      default:
+      shared:
+        aliases: [daimon-searxng]
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://localhost:8080/healthz').status==200 else sys.exit(1)"]
       interval: 15s
@@ -40,7 +46,9 @@ services:
     volumes:
       - tts-models:/app/models
     networks:
-      - default
+      default:
+      shared:
+        aliases: [daimon-tts]
     healthcheck:
       test: ["CMD", "python", "-c",
              "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8880/health').status==200 else 1)"]
@@ -89,5 +97,5 @@ volumes:
 networks:
   default:
   shared:
-    name: shared
+    name: ${SHARED_NETWORK:-shared}
     external: true

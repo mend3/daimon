@@ -14,9 +14,10 @@ boundaries:
   filesystem is not mounted into it.
 - Approvals are `manual`, secrets are redacted in output, and the Tirith command
   scanner runs **fail-closed**.
-- Ollama and SearXNG bind `0.0.0.0` because the container reaches them via
-  `host.docker.internal`; `scripts/firewall-host.sh` (and the LaunchDaemon
-  installer) block them on the LAN. Grafana and Redis are loopback-only.
+- Daimon's sidecars and the devcontainer share an external Docker network with your
+  infra stack, and that network is the isolation boundary — anything else attached to
+  it can reach them. SearXNG and TTS also publish on the host; on macOS
+  `scripts/firewall-host.sh` (and the LaunchDaemon installer) block SearXNG on the LAN.
 - The Telegram gateway answers only paired users (`TELEGRAM_ALLOWED_USERS`); it
   refuses to expose the bot when a token is set without an allowlist (the gateway
   itself still runs for the kanban dispatcher and cron). Unknown DMs are ignored.

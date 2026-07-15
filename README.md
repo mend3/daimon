@@ -73,9 +73,9 @@ terminal, and browser automation — extensible with more.
 
 ### 🌐 Local-capable
 The default model is OpenAI gpt-5-mini, but a **fully-local profile** (gpt-oss,
-Qwen-VL via Ollama with Metal GPU) and an automatic local fallback are built in, and
-search, cache, and monitoring are self-hosted (cache/vector store/observability via
-a shared infra stack you provide) — so you can run with no cloud at all.
+Qwen-VL via Ollama) and an automatic local fallback are built in, and search, cache,
+and monitoring are self-hosted (models/cache/vector store/observability via a shared
+infra stack you provide) — so you can run with no cloud at all.
 
 ### 📨 Multi-channel
 Talk to Daimon from the **CLI** or **Telegram** (multi-user, allowlisted). The same
@@ -104,13 +104,14 @@ alert straight to Telegram.
    └─────────────┘    └──────────────┘    └──────────────────┘
           └───────────────────┬───────────────────┘
                               ▼
-   Daimon host sidecars:  Ollama (vision/embeddings) · SearXNG · TTS
-   Shared infra (your stack, `shared` network):  Redis · Qdrant · Miniflux · observability
+   Daimon sidecars:  SearXNG · TTS
+   Shared infra (your stack, shared network):  Ollama · Redis · Qdrant · observability
 ```
 
-Components are modular — they evolve independently. Shared infra (Redis, Qdrant,
-and the Grafana/Loki/Prometheus observability plane) is provided by a shared stack
-you run on the external `shared` Docker network, not by Daimon. Full topology in
+Components are modular — they evolve independently. Shared infra (Ollama, Redis,
+Qdrant, and the Grafana/Loki/Prometheus observability plane) is provided by a stack
+you run on an external Docker network — `SHARED_NETWORK`, default `shared` — and
+consumed by DNS, not declared by Daimon. Full topology in
 [docs/setup.md](docs/setup.md).
 
 ## Built for privacy
@@ -132,13 +133,15 @@ per-token cloud costs, and independence from any single vendor.
 
 ## Getting started
 
-macOS host with Docker Desktop + Homebrew:
+A Docker host, plus a shared infra stack (Ollama, Redis, Qdrant + observability) running
+on an external Docker network:
 
 ```bash
 git clone https://github.com/mend3/daimon.git
 cd daimon
-docker network create shared  # then start your Redis/Qdrant/Ollama/observability on it
-make up                       # Daimon's host sidecars: SearXNG + TTS (Ollama via `make ollama`)
+export SHARED_NETWORK=shared  # the network your infra stack runs on
+make doctor                   # what's reachable, what's missing
+make up                       # Daimon's sidecars: SearXNG + TTS
 
 unset NODE_OPTIONS VSCODE_INSPECTOR_OPTIONS
 ```
@@ -155,10 +158,10 @@ Daimon stands on the shoulders of excellent open projects — it does not replac
 reproduce them:
 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/docs/)** (Nous Research) — the agent framework and toolset.
-- **[Ollama](https://ollama.com)** — local model serving with Metal GPU acceleration.
-- **SearXNG** (search) runs as o Daimon host sidecar; **Redis** (cache), **Qdrant**
-  (vectors), and **Grafana / Loki / Prometheus** (observability) come from a shared
-  stack you run on the `shared` network.
+- **[Ollama](https://ollama.com)** — local model serving (fallback, vision, embeddings).
+- **SearXNG** (search) runs as a Daimon sidecar; **Ollama** (models), **Redis** (cache),
+  **Qdrant** (vectors), and **Grafana / Loki / Prometheus** (observability) come from a
+  shared stack you run on the shared network.
 
 This repo adds the persona, the deployment, multi-channel access, and
 the monitoring layer on top.

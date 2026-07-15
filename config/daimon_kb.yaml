@@ -8,11 +8,11 @@ daimon_kb:
   ledger_path: "~/.hermes/daimon_kb/ledger.db"
 
   qdrant:
-    url: "http://host.docker.internal:6333"
+    url: "http://qdrant:6333"
     api_key: "${QDRANT_API_KEY}"
 
   embeddings:
-    base_url: "http://host.docker.internal:11434"
+    base_url: "http://ollama:11434"
     model: "nomic-embed-text"
     tag: "nomic"
     dim: 768
@@ -41,7 +41,7 @@ daimon_kb:
 
     # Feeds connector (Miniflux). The web Feeds module processes items with AI and
     # ingests them here; enabling makes them part of recall and the knowledge graph.
-    # Needs Miniflux (provided by your shared stack) + MINIFLUX_* in ~/.hermes/.env.
+    # Needs a Miniflux of your own + MINIFLUX_* in ~/.hermes/.env.
     feeds:
       enabled: false
       settings:

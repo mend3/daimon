@@ -26,6 +26,10 @@ ENV PATH="/home/vscode/.local/bin:${PATH}"
 USER vscode
 
 # Container main process (with devcontainer overrideCommand=false): start the
-# gateway under PID 1 and keep the container alive. Falls back to a plain idle if
-# the boot script is missing, so the container always stays up.
-CMD ["/bin/bash", "-c", "f=/workspaces/hermes/.devcontainer/container-boot.sh; if [ -f \"$f\" ]; then exec bash \"$f\"; else exec sleep infinity; fi"]
+# gateway under PID 1 and keep the container alive.
+#
+# The workspace path is DISCOVERED, not hardcoded: the devcontainer CLI mounts at
+# /workspaces/<folder-name>, so a repo directory named anything other than
+# "hermes" silently fell through to `sleep infinity` — a container that is up,
+# healthy and does nothing, with the gateway never starting and no error anywhere.
+CMD ["/bin/bash", "-c", "f=$(ls -d /workspaces/*/.devcontainer/container-boot.sh 2>/dev/null | head -1); if [ -n \"$f\" ]; then exec bash \"$f\"; else echo 'container-boot.sh not found under /workspaces/*/.devcontainer — gateway NOT started' >&2; exec sleep infinity; fi"]

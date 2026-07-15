@@ -2,6 +2,37 @@
 
 Major decisions that remain relevant. Newest first.
 
+## ADR-0015 — Shared infra is consumed by DNS, never declared here
+
+**Status:** Accepted
+
+**Context:** Daimon was written for a single-machine macOS setup: Ollama installed natively
+on the host (Metal GPU), reached from the devcontainer at `host.docker.internal:11434`,
+with `make ollama` installing and pulling models. Deployed next to an existing infra stack
+that already runs Ollama/Qdrant/Redis and an observability plane on its own Docker network,
+that shape breaks twice over: the endpoint does not resolve, and Daimon would be installing
+a second Ollama beside the one already running.
+
+**Decision:** Everything shared is **external and consumed by DNS** on a Docker network the
+operator owns — `SHARED_NETWORK` (default `shared`), joined by both the sidecars and the
+devcontainer. Daimon reaches `ollama:11434`, `qdrant:6333`, `redis:6379`, `loki:3100` and
+`grafana:3000` by name, and declares **none** of them in its compose. `host.docker.internal`
+is gone from the config; only Daimon's own sidecars (searxng, tts) live here, aliased
+`daimon-*` on the shared network so their generic names do not collide with other stacks.
+`make ollama` is dropped: installing and tuning Ollama, pulling models and setting
+`OLLAMA_CONTEXT_LENGTH` all belong to whoever runs the shared stack. `make doctor` probes
+from *inside* the network (a throwaway container) rather than from the host, since that is
+the vantage point the devcontainer actually has.
+
+**Consequences:** Daimon no longer runs standalone — the shared stack must be up first, or
+the network does not exist and nothing attaches. Metal-accelerated inference is no longer a
+property of this repo; it depends on where the shared Ollama runs. The ≥64K context window
+Hermes requires and the model pulls become **operator obligations**: `make doctor` reports
+them as gaps instead of fixing them, because both settings affect every consumer of that
+Ollama. Daimon's sidecars are reachable by anything else on the shared network — the
+isolation boundary is the network, not a loopback port. The macOS-host scripts
+(`setup-ollama-host.sh`, launchd, pfctl) are inert off macOS and kept only for that host.
+
 ## ADR-0014 — Default to OpenAI gpt-5-mini with a local Ollama fallback; model profiles
 
 **Status:** Accepted
@@ -84,7 +115,7 @@ like the rest of Daimon's code. The Telegram bot is unchanged.
 
 ## ADR-0010 — Local voice replies via an OpenAI-compatible TTS service
 
-**Status:** Accepted
+**Status:** Accepted (the `hermes-shared` network it names is now `SHARED_NETWORK`, see ADR-0015)
 
 **Context:** Hermes supports TTS but defaults to the `edge` provider, which sends
 reply text to Microsoft — at odds with the local-first posture. Voice-out was unset.
@@ -124,7 +155,7 @@ Adding a source type is a zero-core-change adapter drop-in (in-tree or via an
 
 ## ADR-0008 — One shared Redis on the hermes-shared network
 
-**Status:** Accepted
+**Status:** Superseded by ADR-0015 — Redis is no longer Daimon's to run; it comes from the shared stack (db 5)
 
 **Context:** SearXNG ran its own Valkey purely for cache/limiter, and there was no
 reusable cache for other containers.
@@ -175,7 +206,7 @@ is not used. First-ever install on an empty volume still runs the full installer
 
 ## ADR-0005 — Local-only integrations (vision, web search)
 
-**Status:** Accepted
+**Status:** Accepted (endpoints since moved to shared-network DNS, see ADR-0015)
 
 **Context:** The primary model `gpt-oss:20b` is text-only, and web search defaulted
 to no backend. Both gaps should close without external API keys.
@@ -204,7 +235,7 @@ exceeds VRAM and offloads partially to CPU).
 
 ## ADR-0003 — Ollama installed via the `ollama-app` cask
 
-**Status:** Accepted
+**Status:** Superseded by ADR-0015 — Daimon no longer installs Ollama
 
 **Context:** The Homebrew `ollama` CLI formula lacks the Metal runner and falls
 back to CPU on Apple Silicon.
@@ -215,7 +246,7 @@ back to CPU on Apple Silicon.
 
 ## ADR-0002 — Ollama runs natively on the host, not in Docker
 
-**Status:** Accepted
+**Status:** Superseded by ADR-0015 — Ollama comes from the shared stack, reached at `ollama:11434`
 
 **Context:** Docker on macOS has no Metal access; a containerized Ollama is
 CPU-only.

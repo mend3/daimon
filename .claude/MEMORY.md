@@ -2,17 +2,24 @@
 
 **Daimon** — an AI companion built on **Hermes Agent** (Nous Research CLI agent).
 Hermes runs in a devcontainer; the default model is **OpenAI gpt-5-mini** with a
-local **Ollama** (`gpt-oss:20b`, native on the macOS host) profile + automatic
-fallback. The repo is the deployment (config + host services + scripts) plus Daimon's
-application code: a RAG knowledge base and a headless workflow engine.
+local **Ollama** (`gpt-oss:20b`) profile + automatic fallback. The repo is the
+deployment (config + sidecars + scripts) plus Daimon's application code: a RAG
+knowledge base and a headless workflow engine.
+
+Daimon runs on a **shared infra stack the operator provides**, not one it declares.
+See ADR-0015.
 
 # Architecture
 
-- Ollama runs **natively on the macOS host** (Metal GPU); Hermes runs **in the
-  devcontainer**. The container reaches Ollama at
-  `host.docker.internal:11434/v1` (OpenAI-compatible API).
-- Rationale: Ollama inside Docker on macOS is CPU-only; native host keeps
-  inference Metal-accelerated while Hermes stays sandboxed.
+- **Shared infra is external and not Daimon's to declare** (Ollama, Qdrant, Redis,
+  observability). It lives on an external Docker network — `SHARED_NETWORK`, default
+  `shared` — and Daimon reaches it by DNS: `ollama:11434`, `qdrant:6333`, `redis:6379`,
+  `loki:3100`, `grafana:3000`. That stack must be up first, or the network does not exist.
+- Daimon adds only her **own sidecars** (`searxng`, `tts`) plus telemetry, all on that
+  network with a **`daimon-`** alias (`daimon-searxng:8080`, `daimon-tts:8880`) so generic
+  names stay collision-free next to other stacks. Profile `core`, via `make up`.
+- The **devcontainer** joins the same network (`runArgs`, `${localEnv:SHARED_NETWORK}`),
+  which is how Hermes reaches both the shared services and the sidecars.
 - Two named volumes persist across rebuilds: **`hermes-data`** (`~/.hermes`: config,
   memories, sessions, agent code) and **`hermes-local`** (`~/.local`: uv Python
   runtime + launcher). With both warm, `postCreate.sh` skips the Hermes install.
@@ -28,8 +35,9 @@ application code: a RAG knowledge base and a headless workflow engine.
   local **`gpt-oss:20b`** as automatic fallback (`fallback_providers`). Alternate
   profiles: `ollama` (local) and `claude-max` (Claude subscription). Vision stays
   local `qwen2.5vl:7b`; embeddings `nomic-embed-text` (768-dim). See ADR-0014.
-- **Ollama install:** official `ollama-app` Homebrew cask (Metal runner), bound to
-  `0.0.0.0`, with `OLLAMA_CONTEXT_LENGTH=65536`, flash attention, `q8_0` KV cache.
+- **Ollama:** part of the shared stack, not Daimon's to install or tune. The models
+  Daimon needs (`gpt-oss:20b`, `qwen2.5vl:7b`, `nomic-embed-text`) and the served window
+  (`OLLAMA_CONTEXT_LENGTH`) are the operator's call; `make doctor` reports what is missing.
 - **Devcontainer:** Debian base; Hermes installed via the official installer into
   the persisted volume. `~/.local/bin` on PATH via Dockerfile `ENV`.
 - Documentation follows the `documentation-minimalism` skill: intent over
@@ -37,32 +45,34 @@ application code: a RAG knowledge base and a headless workflow engine.
 
 # Integrations
 
-- **Ollama** (`/v1`) serves chat (`gpt-oss:20b`) and vision (`qwen2.5vl:7b`); the
-  `vision` toolset points at the latter.
-- **Web search** uses a local **SearXNG** on the host (`host.docker.internal:8888`,
-  `SEARXNG_URL`), started by `scripts/setup-searxng-host.sh`.
+- **Ollama** (`ollama:11434/v1`) serves chat (`gpt-oss:20b`) and vision (`qwen2.5vl:7b`);
+  the `vision` toolset points at the latter.
+- **Web search** uses Daimon's **SearXNG** sidecar (`daimon-searxng:8080`, `SEARXNG_URL`),
+  whose cache/limiter is the shared Redis (db 5). Its `docker/searxng/settings.yml` is
+  generated and gitignored — `make settings` creates it, and it must exist before any
+  compose up.
 - **Telegram** via the messaging gateway (`hermes gateway run`); `TELEGRAM_BOT_TOKEN`
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
 - **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Daimon speaks
   in the **first person**; the framework is infrastructure, never identity.
-- **Voice:** local both ways. TTS = Kokoro-FastAPI (`docker-compose.yml` `tts` service, `host.docker.internal:8880`)
-  via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
+- **Voice:** local both ways. TTS = Kokoro-FastAPI (`docker-compose.yml` `tts` service,
+  `daimon-tts:8880`) via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
   audio on voice input (the gateway gate fires only on `message_type == VOICE`, so
   text-in stays text-out — left as-is). Web: `/api/tts` (🔊/auto-speak) and `/api/stt`
   (🎙 record→transcribe, model cached in the volume). See ADR-0010.
 - **Telegram sessions:** one session per DM, reset after 30 min idle via
   `config/gateway.json` (`reset_by_platform.telegram.idle_minutes`); seeded by
   postCreate if absent. `/new` resets on demand. Durable memory is separate.
-- **Knowledge base (RAG):** `ingestion/daimon_kb` package + **Qdrant** host service
-  (`host.docker.internal:6333`, API key in `~/.hermes/.env`). One collection per
+- **Knowledge base (RAG):** `ingestion/daimon_kb` package + the shared **Qdrant**
+  (`qdrant:6333`, API key in `~/.hermes/.env`). One collection per
   enabled source type (`kb_<type>__nomic768`); pluggable **adapters** (`files`,
   `urls`, `chat` on; `feeds`/`webhook` example connectors off). SQLite **ledger** in
   hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Daimon via the
   `daimon-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
-  skill; installed into the Hermes venv by `postCreate.sh`. **Feeds** use a host
-  **Miniflux** provided by your shared stack (`miniflux:8080` / `host.docker.internal:8930`,
-  optional). See ADR-0009 and `ingestion/README.md`.
+  skill; installed into the Hermes venv by `postCreate.sh`. **Feeds** need a **Miniflux**
+  of your own, so the connector stays off unless `MINIFLUX_URL` is set. See ADR-0009 and
+  `ingestion/README.md`.
 - **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
   `status`, `knowledge-base`, `feeds-digest`.
 - **Kanban / profiles:** the dispatcher runs inside the gateway, which now starts
@@ -97,34 +107,35 @@ application code: a RAG knowledge base and a headless workflow engine.
   the Hermes venv by `postCreate` extras `[mcp,feeds]`. New node types drop in via the
   registry or a `daimon_flow.nodes` entry point. Telegram bot unchanged. See ADR-0011.
   gRPC deferred.
-- **Monitoring:** the observability plane (Grafana/Loki/Prometheus/blackbox) is
-  centralized on your shared infra stack (on the `shared` network). Daimon keeps only two app-level telemetry
-  sidecars in the root `docker-compose.yml` (`monitoring` profile): `chat-shipper`
-  reads Hermes' `state.db` (conversation `messages`) and ships the real text to
-  the shared Loki for the chat panel; `status-exporter` exposes `hermes_gateway_up`
-  (from `agent.log`) at `daimon-status-exporter:9101/metrics` for the shared Prometheus.
-- **Redis** (`redis/`): single shared, password-protected, loopback-only
-  (`127.0.0.1:6379`) instance on the external `hermes-shared` Docker network.
-  Backs SearXNG's cache/limiter (db 1) and is open for current/future containers
-  (db 0). Valkey was consolidated into it. Password in `redis/.env` (gitignored);
-  start Redis before SearXNG.
+- **Monitoring:** the observability plane (Grafana/Loki/Prometheus) belongs to the shared
+  stack. Daimon keeps only two app-level telemetry sidecars in the root
+  `docker-compose.yml` (`monitoring` profile): `chat-shipper` reads Hermes' `state.db`
+  (conversation `messages`) and ships the real text to `loki:3100` for the chat panel;
+  `status-exporter` exposes `hermes_gateway_up` (from `agent.log`) at
+  `daimon-status-exporter:9101/metrics` for the shared Prometheus.
+- **Redis:** shared (`redis:6379`, passwordless). SearXNG's cache/limiter uses **db 5** —
+  one index out of whatever map the operator's stack keeps.
 - **Host services** are optional user-installed launchd agents
-  (`scripts/install-host-services.sh`): Ollama as a managed service, stacks
-  autostart, daily backup. Run by the user (persistence needs explicit consent).
+  (`scripts/install-host-services.sh`): autostart and daily backup. macOS-only, and
+  run by the user (persistence needs explicit consent).
 - **Security posture:** approvals **manual** across profiles (the kanban dispatcher
   runs tasks headless and bypasses approvals on its own), `redact_secrets`, Tirith
-  **fail-closed**.
-  Ollama/SearXNG must bind `0.0.0.0` (container reaches them via
-  host.docker.internal); LAN exposure is mitigated by `scripts/firewall-host.sh`
-  (user-run, sudo).
+  **fail-closed**. Daimon's sidecars sit on a shared network, so anything else on it can
+  reach them — the isolation boundary is the network, not the port.
 
 # Known Constraints
 
 - Hermes **requires a model with ≥64K context**. Models capping below that are
   rejected at startup (`qwen3:8b` maxes at 40,960 on Ollama and cannot extend
   without re-converting the GGUF with YaRN).
-- Ollama must bind **`0.0.0.0`** (not `127.0.0.1`) for the container to reach it.
-- Model must fit the host's ~17.8 GiB Metal VRAM budget to stay 100% on GPU.
-- macOS-host-specific: Homebrew cask, `launchctl setenv`, `host.docker.internal`.
+- A shared Ollama serves **one `OLLAMA_CONTEXT_LENGTH` to all its consumers**. If it is
+  set below 64K, or Daimon's models are not pulled there, the local paths (fallback,
+  vision, `ollama` profile) fail while the OpenAI default still works. Changing either
+  affects every consumer, so it is the operator's call, not Daimon's — `make doctor`
+  reports the gap rather than papering over it.
+- The **shared network must exist** before anything here starts, devcontainer included.
+- Legacy macOS-host assumptions still live in `scripts/` (Homebrew cask, `launchctl`,
+  `pfctl`): `setup-ollama-host.sh`, `install-host-services.sh`, `firewall-host.sh`,
+  `install-firewall-daemon.sh`. Inert on a Linux host.
 
 Major decisions are recorded in `DECISIONS.md`.

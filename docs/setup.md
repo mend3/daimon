@@ -1,38 +1,42 @@
 # Setup & operations
 
-Detailed installation and infrastructure for running Hermes locally on macOS
-(Apple Silicon) with Docker Desktop and Homebrew. For the overview, see the
-[README](../README.md).
+Detailed installation and infrastructure for running Daimon next to a shared infra
+stack. For the overview, see the [README](../README.md).
 
 ## Architecture
 
-Hermes runs isolated in a **devcontainer**, driven by **OpenAI gpt-5-mini** by
-default with **gpt-oss:20b** on host **Ollama** as the local profile and automatic
-fallback — Ollama runs natively on the macOS host so its inference uses the Apple
-Silicon GPU via Metal (and also serves vision + embeddings).
+Hermes runs isolated in a **devcontainer**, driven by **OpenAI gpt-5-mini** by default
+with **gpt-oss:20b** on Ollama as the local profile and automatic fallback (Ollama also
+serves vision + embeddings).
+
+Everything shared is **external**: you run Ollama, Redis, Qdrant and the observability
+plane on a Docker network Daimon joins — `SHARED_NETWORK`, default `shared` — and Daimon
+reaches them **by DNS**. Daimon declares none of them; it adds only its own sidecars.
 
 ```
-┌─────────────── macOS host ───────────────┐
-│  Ollama (native, Metal GPU)               │
-│    gpt-oss:20b → http://0.0.0.0:11434     │
-│                       ▲                   │
-│         host.docker.internal:11434        │
-│                       │                   │
-│  ┌──────────── devcontainer ───────────┐  │
-│  │  Hermes Agent (CLI, isolated)        │ │
-│  │    config: ~/.hermes/config.yaml     │ │
-│  └──────────────────────────────────────┘ │
-└───────────────────────────────────────────┘
+┌──────────── shared network (SHARED_NETWORK) ─────────────┐
+│                                                           │
+│  your infra stack        Daimon's sidecars                │
+│    ollama:11434            daimon-searxng:8080            │
+│    qdrant:6333             daimon-tts:8880                │
+│    redis:6379 (db 5)                                      │
+│    loki:3100 · grafana:3000                               │
+│                       ▲                                   │
+│  ┌──────────── devcontainer ─────────────┐                │
+│  │  Hermes Agent (CLI, isolated)          │               │
+│  │    config: ~/.hermes/config.yaml       │               │
+│  └────────────────────────────────────────┘               │
+└───────────────────────────────────────────────────────────┘
 ```
 
-Why this split: on a Mac, Ollama **inside** Docker is CPU-only (no Metal), which
-makes inference painfully slow. Running Ollama natively keeps it fast while Hermes
-stays sandboxed in the container.
+Why this split: the shared services are shared. Running a second Ollama beside the one
+your stack already serves wastes the VRAM it is holding and splits the model cache in
+two. Daimon consumes; the stack provides.
 
-Hermes requires a model with at least a **64K context window**. gpt-oss:20b serves
-128K natively; the host script pins the runtime window to 64K to fit unified
-memory. A model that maxes below 64K (e.g. `qwen3:8b` at 40K) is rejected at
-startup.
+Hermes requires a model with at least a **64K context window** — a model that maxes
+below it (e.g. `qwen3:8b` at 40K) is rejected at startup. The window is served by *your*
+Ollama (`OLLAMA_CONTEXT_LENGTH`) for all of its consumers at once, so it is your call,
+not Daimon's; `make doctor` reports the models it needs rather than pulling them.
 
 ## Repo layout
 
@@ -47,83 +51,66 @@ startup.
 config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
                       # daimon_kb.yaml, gateway.json, skills/, .env.example
 ingestion/            # daimon_kb (RAG), daimon_flow (headless workflow engine)
-docker-compose.yml    # all host sidecars (searxng, tts, telemetry) with profiles
+docker-compose.yml    # Daimon's sidecars (searxng, tts, telemetry) with profiles
 docker/               # container configs for the sidecars:
-  searxng/settings.yml.example  # web-search engine; cache/limiter on the shared Redis (shared)
+  searxng/settings.yml.example  # web-search engine; cache/limiter on the shared Redis
   chat-shipper/ status-exporter/  # app-level telemetry sidecars (see Monitoring)
-scripts/              # HOST setup + lifecycle: Ollama, SearXNG, TTS,
-                      # launchd services, backup, firewall
+scripts/              # setup + lifecycle: SearXNG, TTS, backup, doctor
+                      # (launchd/firewall ones are macOS-only)
 
-Redis, Qdrant, Miniflux, and the observability plane (Grafana/Loki/Prometheus/blackbox)
-are **not** run by Daimon — a shared infra stack you provide serves them on the
-external `shared` Docker network. Start that stack first. Daimon's services reach them
-by DNS: Redis at `redis:6379` (logical db index 5), Qdrant at `qdrant:6333`, Loki at
-`loki:3100`, Miniflux at `miniflux:8080`.
+Ollama, Redis, Qdrant, Miniflux and the observability plane (Grafana/Loki/Prometheus)
+are **not** run by Daimon — your shared infra stack serves them on the external network.
+Start it first. Daimon reaches them by DNS: Ollama at `ollama:11434`, Redis at
+`redis:6379` (logical db index 5), Qdrant at `qdrant:6333`, Loki at `loki:3100`.
 ```
 
 ## Quick start
 
-macOS host with Docker Desktop + Homebrew:
-
 ```bash
-docker network create shared   # then start your Redis/Qdrant/Ollama/observability on it
-make up                        # Daimon's host sidecars: SearXNG + TTS
+export SHARED_NETWORK=shared   # the network your infra stack runs on
+make doctor                    # what's reachable, what's missing
+make up                        # Daimon's sidecars: SearXNG + TTS
 # then open the folder in VS Code → "Reopen in Container" and run `hermes`
 ```
 
-Start your **shared infra stack first** — it owns the `shared` Docker network and the
-Redis/Qdrant/observability plane Daimon consumes. `make help` lists every target. The
-steps below explain each one.
+Start your **shared infra stack first** — it owns the network and the
+Ollama/Redis/Qdrant/observability plane Daimon consumes. `make help` lists every target.
+The steps below explain each one.
 
-### 1. On the macOS host — start Ollama and pull the model
+### 1. On your shared stack — the models Daimon needs
 
-```bash
-./scripts/setup-ollama-host.sh          # defaults to gpt-oss:20b
-# or pass another tag with a >=64K context window:
-# ./scripts/setup-ollama-host.sh llama3.1:8b
-```
+Daimon pulls nothing: the models live on your Ollama, served at a **≥64K** window
+(`OLLAMA_CONTEXT_LENGTH`).
 
-This installs Ollama (via the official **`ollama-app` Homebrew cask** if needed),
-binds it to `0.0.0.0:11434` so the container can reach it, and pulls the model.
-Keep it running.
+| Model | Used for | Missing means |
+|---|---|---|
+| `gpt-oss:20b` | local profile + automatic fallback | no local fallback; `ollama` profile unusable |
+| `qwen2.5vl:7b` | the `vision` toolset | vision degraded |
+| `nomic-embed-text` | knowledge-base embeddings (768-dim) | knowledge base degraded |
 
-For image analysis, also pull the vision model used by the `vision` toolset:
+`make doctor` reports which are present. The OpenAI default profile answers without any
+of them.
 
-```bash
-ollama pull qwen2.5vl:7b
-```
-
-> The `ollama-app` cask provides Metal GPU acceleration on Apple Silicon. Confirm
-> it is active with `grep -i metal /tmp/ollama.log` — expect `library=Metal`.
-
-> Using the Ollama **menubar app** instead of the script? Make it listen on all
-> interfaces once: `launchctl setenv OLLAMA_HOST 0.0.0.0:11434`, then quit and
-> reopen the app.
-
-### 2. Start the host services
-
-Shared Redis and Qdrant come from your shared stack — start it first on the `shared`
-network. Then start Daimon's own host sidecars:
+### 2. Start Daimon's sidecars
 
 ```bash
+make settings                        # generate docker/searxng/settings.yml (once)
 ./scripts/setup-searxng-host.sh      # web search on localhost:8888
 ./scripts/setup-tts-host.sh          # local voice replies on localhost:8880
 ```
 
-SearXNG's cache/limiter uses the shared Redis on the `shared` network
-(`redis:6379`, logical db index 5). The container reaches SearXNG at
-`host.docker.internal:8888` (`SEARXNG_URL`) and the TTS engine at
-`host.docker.internal:8880`; first TTS start downloads the voice model (a few
-minutes). `make searxng` / `make tts` run the same scripts. The knowledge base
-points at the shared Qdrant (`qdrant:6333`) over `shared` via
-`config/daimon_kb.yaml` — no per-host Qdrant setup.
+SearXNG's cache/limiter uses the shared Redis (`redis:6379`, logical db index 5). The
+container reaches SearXNG at `daimon-searxng:8080` (`SEARXNG_URL`) and the TTS engine at
+`daimon-tts:8880`; both also publish on the host (`localhost:8888` / `localhost:8880`).
+First TTS start downloads the voice model (a few minutes). `make searxng` / `make tts`
+run the same scripts. The knowledge base points at the shared Qdrant (`qdrant:6333`) via
+`config/daimon_kb.yaml` — no Qdrant setup of your own.
 
-To make all of this (plus Ollama and the telemetry sidecars) start at login and
-survive reboots, install the launchd agents instead:
+On a macOS host, launchd agents can start the sidecars at login and survive reboots:
 
 ```bash
-./scripts/install-host-services.sh                 # managed Ollama + stacks + daily backup
-sudo ./scripts/install-firewall-daemon.sh          # block Ollama/SearXNG on the LAN
+./scripts/install-host-services.sh                 # stacks + daily backup
+sudo ./scripts/install-firewall-daemon.sh          # block SearXNG on the LAN
 ```
 
 ### 3. Open the devcontainer
@@ -133,8 +120,10 @@ In VS Code (with the **Dev Containers** extension) or the `devcontainer` CLI:
 - **VS Code:** open this folder → "Reopen in Container".
 - **CLI:** `devcontainer up --workspace-folder .`
 
-On first create, `postCreate.sh` installs Hermes, copies `config/config.yaml` and
-`config/SOUL.md` into `~/.hermes/`, and verifies Ollama is reachable.
+The container joins the shared network (`SHARED_NETWORK` from your environment), so
+start your stack first. On first create, `postCreate.sh` installs Hermes, copies
+`config/config.yaml` and `config/SOUL.md` into `~/.hermes/`, and verifies Ollama is
+reachable.
 
 ### 4. Run
 
@@ -151,12 +140,12 @@ hermes doctor     # diagnostics
 | Capability | Backend | Setup |
 |------------|---------|-------|
 | Chat / tools | OpenAI `gpt-5-mini` (`openai-api`) | default; `gpt-oss:20b` on Ollama = `ollama` profile + fallback |
-| Vision | `qwen2.5vl:7b` on host Ollama | `ollama pull qwen2.5vl:7b` |
+| Vision | `qwen2.5vl:7b` on the shared Ollama | pulled on your stack |
 | Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
 | Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
 | Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
-| Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack on `shared` |
-| Feeds (optional) | Miniflux (provided by your shared stack) | enable in your shared stack; `MINIFLUX_*` in `~/.hermes/.env` |
+| Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack |
+| Feeds (optional) | a Miniflux of your own | `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
 | Identity / voice | `config/SOUL.md` | edit + rebuild |
 
@@ -164,7 +153,7 @@ hermes doctor     # diagnostics
 
 Daimon keeps a personal RAG memory: she captures links, files, and notes and recalls
 them by meaning. It runs as an MCP server (`daimon-kb`, registered in `config.yaml`)
-backed by the shared Qdrant (`qdrant:6333` on the `shared` network); the `daimon_kb`
+backed by the shared Qdrant (`qdrant:6333`); the `daimon_kb`
 package is installed into the Hermes venv by `postCreate.sh`. Source types are
 pluggable adapters — `files`, `urls`, and `chat` ship enabled; `feeds` and `webhook`
 are wired but off by default. Toggle them in `config/daimon_kb.yaml` under
@@ -176,9 +165,9 @@ any required `QDRANT_API_KEY` in `~/.hermes/.env` to match the shared config. Qu
 check from the container: `daimon-kb init` then
 `daimon-kb capture --text "remember this" && daimon-kb recall "this"`.
 
-**Feeds (example connector).** Miniflux runs on your shared stack — bring it up there.
-Add the `MINIFLUX_*` lines to `~/.hermes/.env` (API at `host.docker.internal:8930`, or `miniflux:8080` on
-`shared`), subscribe to feeds in its UI at `localhost:8930`, and set
+**Feeds (example connector).** Miniflux is not part of Daimon — run your own.
+Add the `MINIFLUX_*` lines to `~/.hermes/.env` pointing at it, subscribe to feeds in its
+UI, and set
 `feeds.enabled: true` in `config/daimon_kb.yaml`
 (optionally `include`/`exclude` keywords). `daimon-kb poll feeds` ingests new relevant
 items. For a proactive digest, create a cron job once:
@@ -251,12 +240,12 @@ Negative prompt: `robot, android, helmet, armor, weapon, fantasy, anime, over-st
 ## Monitoring
 
 The observability plane (Grafana/Loki/Prometheus/Promtail/blackbox) lives on your
-shared infra stack on the `shared` network — Daimon does not run its own. The
+shared infra stack — Daimon does not run its own. The
 dashboards, alert rules, and scrape configs of record live with that stack, and you
 open Grafana from there.
 
 Daimon keeps two app-level telemetry **sidecars** (`docker-compose.yml`, `monitoring`
-profile, started by `make monitoring` or the login agent), both attached to `shared`:
+profile, started by `make monitoring` or the login agent), both on the shared network:
 
 - **chat-shipper** — pushes real conversation text per Telegram user (name + masked
   id) from Hermes' `state.db` to the shared Loki (`loki:3100`) for the Grafana chat panel.
@@ -290,14 +279,16 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
 
 - **Secrets:** real secrets go in `~/.hermes/.env` inside the container (seeded
   from `config/.env.example`). `config/.env` is git-ignored.
-- **Web search** runs against the local SearXNG (`web.backend: searxng`,
-  `SEARXNG_URL=http://host.docker.internal:8888`). Swap in a hosted backend by
+- **Web search** runs against Daimon's SearXNG sidecar (`web.backend: searxng`,
+  `SEARXNG_URL=http://daimon-searxng:8080`). Swap in a hosted backend by
   setting its key in `.env` and `web.backend` in `config.yaml`.
 - **No host filesystem access:** the agent's terminal backend is `local`, scoped
   to the container only.
-- **Network:** Ollama and SearXNG bind `0.0.0.0` (the container reaches them via
-  `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN. Shared
-  Redis/Qdrant/observability live on the `shared` network, provided by your shared stack.
+- **Network:** everything Daimon talks to is reached by DNS on the shared network,
+  which the devcontainer joins. That network is the isolation boundary: anything else on
+  it can reach Daimon's sidecars. SearXNG and TTS also publish on the host
+  (`localhost:8888` / `localhost:8880`) for convenience; on macOS
+  `scripts/firewall-host.sh` blocks SearXNG on the LAN.
 - **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
   daily, archiving the `hermes-data` volume to `~/hermes-backups`. Qdrant is a
   rebuildable index provided by your shared stack, so it is backed up there, not by Daimon.

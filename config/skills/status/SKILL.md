@@ -16,11 +16,11 @@ Check each ability by probing its endpoint from the shell (short timeout), then 
 human terms — never name the underlying services, ports, or tech.
 
 ```
-curl -fsS --max-time 3 http://host.docker.internal:11434/api/tags   # thinking + vision
-curl -fsS --max-time 3 http://host.docker.internal:8888/healthz     # web search
-curl -fsS --max-time 3 http://host.docker.internal:8880/health      # voice replies
-curl -fsS --max-time 3 http://host.docker.internal:6333/readyz      # memory / knowledge
-curl -fsS --max-time 3 http://host.docker.internal:3000/api/health  # dashboards
+curl -fsS --max-time 3 http://ollama:11434/api/tags        # thinking + vision
+curl -fsS --max-time 3 http://daimon-searxng:8080/healthz  # web search
+curl -fsS --max-time 3 http://daimon-tts:8880/health       # voice replies
+curl -fsS --max-time 3 http://qdrant:6333/readyz           # memory / knowledge
+curl -fsS --max-time 3 http://grafana:3000/api/health      # dashboards
 ```
 
 Map each result to an ability and say whether it's up:
@@ -32,5 +32,5 @@ Map each result to an ability and say whether it's up:
 - dashboards → "I'm being monitored"
 
 Lead with a one-line verdict ("Everything's up." or "Voice is down right now"), then a short
-list. If something is down, say plainly what's affected and that the user can bring it back
-on the host. Keep it warm and brief — this is a quick check-in, not a report.
+list. If something is down, say plainly what's affected and that the user can bring it back.
+Keep it warm and brief — this is a quick check-in, not a report.

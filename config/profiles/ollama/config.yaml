@@ -1,15 +1,16 @@
-# Hermes profile: ollama — fully local/offline (gpt-oss:20b on the host Ollama).
+# Hermes profile: ollama — fully local/offline (gpt-oss:20b on the shared Ollama).
 # The local backend the default profile also falls back to. Assign kanban tasks to
 # assignee "ollama", or run `ollama chat`, to stay on-device with no API cost.
 # Synced into ~/.hermes/profiles/ollama/config.yaml by .devcontainer/postCreate.sh.
 
 # --- Model -------------------------------------------------------------------
-# gpt-oss:20b served by Ollama on the macOS host (Metal GPU). context_length pinned
-# to the 65536 window Ollama serves (OLLAMA_CONTEXT_LENGTH), satisfying the 64K min.
+# gpt-oss:20b served by the shared Ollama (`ollama:11434`). context_length pinned to
+# 65536 — that Ollama must serve a window at least this wide (OLLAMA_CONTEXT_LENGTH),
+# or Hermes rejects the model at startup.
 model:
   default: "gpt-oss:20b"
   provider: custom
-  base_url: "http://host.docker.internal:11434/v1"
+  base_url: "http://ollama:11434/v1"
   api_key: "ollama"
   context_length: 65536
 
@@ -40,7 +41,7 @@ auxiliary:
   vision:
     provider: custom
     model: "qwen2.5vl:7b"
-    base_url: "http://host.docker.internal:11434/v1"
+    base_url: "http://ollama:11434/v1"
     api_key: "ollama"
     timeout: 180
   web_extract:

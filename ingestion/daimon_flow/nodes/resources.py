@@ -54,7 +54,7 @@ class WebSearchResource(NodeHandler):
 
     def run(self, ctx: ExecContext) -> NodeResult:
         query = _text(ctx.payload)
-        url = ctx.services.env.get("SEARXNG_URL", "http://host.docker.internal:8888")
+        url = ctx.services.env.get("SEARXNG_URL", "http://daimon-searxng:8080")
         results = []
         if ctx.services.http and query:
             try:

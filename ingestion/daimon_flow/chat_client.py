@@ -16,7 +16,7 @@ def soul_prompt() -> str:
 
 class OllamaChat:
     def __init__(self, base_url: str | None = None, model: str = "gpt-oss:20b", timeout: float = 600):
-        self.base_url = (base_url or os.environ.get("OLLAMA_URL", "http://host.docker.internal:11434")).rstrip("/")
+        self.base_url = (base_url or os.environ.get("OLLAMA_URL", "http://ollama:11434")).rstrip("/")
         self.model = model
         self._client = httpx.Client(timeout=timeout)
 

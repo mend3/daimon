@@ -12,8 +12,8 @@
 # writes the real values into ~/.hermes/.env from OPENAI_PROFILE_API_KEY. Ollama
 # stays the vision/embedding backend (see auxiliary + daimon_kb). Switch the main
 # model via `hermes model` or by editing this block:
-#   - Local/offline: provider custom, model gpt-oss:20b, base_url the host Ollama
-#     (http://host.docker.internal:11434/v1), api_key "ollama", context_length 65536.
+#   - Local/offline: provider custom, model gpt-oss:20b, base_url the shared Ollama
+#     (http://ollama:11434/v1), api_key "ollama", context_length 65536.
 #   - Your Claude subscription: provider anthropic, model claude-sonnet-4-5 — needs a
 #     Claude Max plan with extra usage credits (the credential is in `hermes auth`).
 model:
@@ -29,7 +29,7 @@ model:
 fallback_providers:
   - provider: custom
     model: gpt-oss:20b
-    base_url: "http://host.docker.internal:11434/v1"
+    base_url: "http://ollama:11434/v1"
     api_key: "ollama"
 
 # `custom` here is the local Ollama (fallback + the qwen vision aux). Generous
@@ -71,7 +71,7 @@ auxiliary:
   vision:
     provider: custom
     model: "qwen2.5vl:7b"
-    base_url: "http://host.docker.internal:11434/v1"
+    base_url: "http://ollama:11434/v1"
     api_key: "ollama"
     timeout: 180
   web_extract:
@@ -124,8 +124,8 @@ security:
                             # action rather than run it unscanned (agent has shell)
 
 # --- Web search --------------------------------------------------------------
-# Local SearXNG (private, keyless). Started on the host by
-# scripts/setup-searxng-host.sh; SEARXNG_URL is set in .env.
+# Local SearXNG (private, keyless) — a Daimon sidecar on the shared network, started by
+# `make searxng`; SEARXNG_URL is set in .env.
 web:
   backend: searxng
 
@@ -139,14 +139,14 @@ mcp_servers:
     args: []
 
 # --- Voice (text-to-speech) --------------------------------------------------
-# Local, OpenAI-compatible TTS (Kokoro-FastAPI) on the host, started by
-# scripts/setup-tts-host.sh. Using the `openai` provider with a base_url override
-# keeps voice replies fully local (the default `edge` provider would send text to
-# Microsoft). The api_key is required by the client but ignored by the local server.
+# Local, OpenAI-compatible TTS (Kokoro-FastAPI), a Daimon sidecar on the shared network.
+# Using the `openai` provider with a base_url override keeps voice replies fully local
+# (the default `edge` provider would send text to Microsoft). The api_key is required
+# by the client but ignored by the local server.
 tts:
   provider: openai
   openai:
-    base_url: "http://host.docker.internal:8880/v1"
+    base_url: "http://daimon-tts:8880/v1"
     api_key: "local"
     model: "kokoro"
     voice: "af_sky"
@@ -169,11 +169,12 @@ unauthorized_dm_behavior: ignore
 human_delay:
   mode: natural
 
-# Zero-token chat shortcuts (no LLM). /health pings the host services Daimon relies on.
+# Zero-token chat shortcuts (no LLM). /health pings the services Daimon relies on,
+# by DNS on the shared network.
 quick_commands:
   health:
     type: exec
-    command: 'for hp in "Ollama 11434" "Qdrant 6333" "SearXNG 8888" "TTS 8880"; do set -- $hp; c=$(curl -s -o /dev/null -m3 -w "%{http_code}" "http://host.docker.internal:$2" 2>/dev/null); [ "$c" != "000" ] && echo "OK  $1" || echo "DOWN $1"; done'
+    command: 'for hp in "Ollama ollama:11434" "Qdrant qdrant:6333" "SearXNG daimon-searxng:8080" "TTS daimon-tts:8880"; do set -- $hp; c=$(curl -s -o /dev/null -m3 -w "%{http_code}" "http://$2" 2>/dev/null); [ "$c" != "000" ] && echo "OK  $1" || echo "DOWN $1"; done'
 
 # --- Display -----------------------------------------------------------------
 display:
