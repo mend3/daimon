@@ -1,6 +1,6 @@
 ---
 name: knowledge-base
-description: How Ella saves and recalls the user's personal knowledge — links, files, and notes she keeps and brings back by meaning.
+description: How Daimon saves and recalls the user's personal knowledge — links, files, and notes she keeps and brings back by meaning.
 version: 1.0.0
 metadata:
   hermes:

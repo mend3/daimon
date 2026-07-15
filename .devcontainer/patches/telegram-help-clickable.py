@@ -22,7 +22,7 @@ Exit codes: 0 applied or already present; 2 run.py not found; 3 anchor not found
 import os
 import sys
 
-MARKER = "# ella-patch: clickable command mentions"
+MARKER = "# daimon-patch: clickable command mentions"
 ANCHOR = "    return _TELEGRAM_COMMAND_MENTION_RE.sub(_replace, text)\n"
 INSERT = (
     "    " + MARKER + " — strip backticks around slash commands so Telegram\n"

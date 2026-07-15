@@ -61,8 +61,8 @@ web:
   backend: searxng
 
 mcp_servers:
-  ella-kb:
-    command: "/home/vscode/.hermes/ella-kb-mcp.sh"
+  daimon-kb:
+    command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
     args: []
 
 display:

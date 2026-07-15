@@ -17,8 +17,8 @@ server:
   limiter: false          # programmatic access from Hermes, no rate limiter
   image_proxy: true
 
-# Cache/limiter backend — oracle's Redis (logical db index 5), reached over the
-# external `workspace` network (passwordless).
+# Cache/limiter backend — the shared Redis (logical db index 5), reached over the
+# external `shared` network (passwordless).
 valkey:
   url: redis://redis:6379/5
 

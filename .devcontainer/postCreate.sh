@@ -45,12 +45,12 @@ echo "==> Ensuring web dashboard extras"
 echo "==> Ensuring faster-whisper (voice)"
 "${VENV_PIP}" install -q faster-whisper 2>/dev/null || true
 
-# Ella's knowledge base + workflow engine + web backend — install into the Hermes
-# venv so the ella-kb MCP server, the CLI, and the ella-web server are available.
-# Editable so repo edits take effect; extras pull MCP, feed parsing, and FastAPI.
-echo "==> Installing ella_kb / ella_flow / ella_web"
-"${VENV_PIP}" install -q -e "${REPO_ROOT}/ingestion[mcp,feeds,web]" 2>/dev/null \
-  || echo "    WARN - ella package install failed; check ${REPO_ROOT}/ingestion"
+# Daimon's knowledge base + workflow engine — install into the Hermes venv so the
+# daimon-kb MCP server and the CLI are available. Editable so repo edits take effect;
+# extras pull the MCP server and feed parsing.
+echo "==> Installing daimon_kb / daimon_flow"
+"${VENV_PIP}" install -q -e "${REPO_ROOT}/ingestion[mcp,feeds]" 2>/dev/null \
+  || echo "    WARN - daimon package install failed; check ${REPO_ROOT}/ingestion"
 
 # Make /help command listings tappable in Telegram (idempotent). Non-fatal, but a
 # non-zero exit means the patch couldn't apply (Hermes layout changed) — surface it
@@ -69,8 +69,8 @@ fi
 echo "==> Syncing configuration"
 cp "${REPO_CONFIG_DIR}/config.yaml" "${HERMES_HOME}/config.yaml"
 cp "${REPO_CONFIG_DIR}/SOUL.md" "${HERMES_HOME}/SOUL.md"
-cp "${REPO_CONFIG_DIR}/ella_kb.yaml" "${HERMES_HOME}/ella_kb.yaml"
-install -m 0755 "$(dirname "${BASH_SOURCE[0]}")/ella-kb-mcp.sh" "${HERMES_HOME}/ella-kb-mcp.sh"
+cp "${REPO_CONFIG_DIR}/daimon_kb.yaml" "${HERMES_HOME}/daimon_kb.yaml"
+install -m 0755 "$(dirname "${BASH_SOURCE[0]}")/daimon-kb-mcp.sh" "${HERMES_HOME}/daimon-kb-mcp.sh"
 if [ ! -f "${HERMES_HOME}/.env" ]; then
   cp "${REPO_CONFIG_DIR}/.env.example" "${HERMES_HOME}/.env"
 fi
@@ -82,7 +82,7 @@ if [ ! -f "${HERMES_HOME}/gateway.json" ]; then
   cp "${REPO_CONFIG_DIR}/gateway.json" "${HERMES_HOME}/gateway.json"
 fi
 
-# Ella's skills (each becomes a /command). Mirror the repo copies, which are the
+# Daimon's skills (each becomes a /command). Mirror the repo copies, which are the
 # source of truth, into the runtime skills dir.
 if [ -d "${REPO_CONFIG_DIR}/skills" ]; then
   echo "==> Syncing skills"
@@ -134,11 +134,11 @@ fi
 # so export it from ~/.hermes/.env for interactive shells and the dashboard launched
 # from one. Hermes' launcher sanitizes its own env, so this does not affect it.
 BASHRC="${HOME}/.bashrc"
-if [ -f "${BASHRC}" ] && ! grep -qF "# ella: Claude Code OAuth token" "${BASHRC}"; then
+if [ -f "${BASHRC}" ] && ! grep -qF "# daimon: Claude Code OAuth token" "${BASHRC}"; then
   echo "==> Adding Claude Code token export to ~/.bashrc"
   cat >> "${BASHRC}" <<'EOF'
 
-# ella: Claude Code OAuth token — export from ~/.hermes/.env for the claude CLI.
+# daimon: Claude Code OAuth token — export from ~/.hermes/.env for the claude CLI.
 if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -f "$HOME/.hermes/.env" ]; then
   _cct=$(sed -n 's/^CLAUDE_CODE_OAUTH_TOKEN=//p' "$HOME/.hermes/.env" | head -1)
   [ -n "$_cct" ] && export CLAUDE_CODE_OAUTH_TOKEN="$_cct"; unset _cct
@@ -146,7 +146,7 @@ fi
 EOF
 fi
 
-# Proactivity: a daily morning briefing (Ella's signature is anticipation). Created
+# Proactivity: a daily morning briefing (Daimon's signature is anticipation). Created
 # only when Telegram is configured and the job is absent (idempotent). Schedule is in
 # the config timezone (UTC by default). Pause/remove with `hermes cron pause|remove`.
 if grep -qE "^TELEGRAM_BOT_TOKEN=.+" "${HERMES_HOME}/.env" 2>/dev/null \

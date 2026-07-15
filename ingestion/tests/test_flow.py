@@ -2,37 +2,37 @@ import os
 
 import pytest
 
-from ella_flow.model import Edge, Node, PortKind, Workflow
-from ella_flow.executor import execute
-from ella_flow.spec import Services
-from ella_flow.registry import catalog
+from daimon_flow.model import Edge, Node, PortKind, Workflow
+from daimon_flow.executor import execute
+from daimon_flow.spec import Services
+from daimon_flow.registry import catalog
 
 
 def test_catalog_has_core_nodes():
     types = {nt.type for nt in catalog()}
-    assert {"trigger.manual", "agent.ella", "logic.if", "output.return"} <= types
-    agent = next(nt for nt in catalog() if nt.type == "agent.ella")
+    assert {"trigger.manual", "agent.daimon", "logic.if", "output.return"} <= types
+    agent = next(nt for nt in catalog() if nt.type == "agent.daimon")
     assert {s.name for s in agent.resource_slots} == {"model", "knowledge", "tools"}
     # output schema is what downstream nodes offer as variables
     assert {f.key for f in agent.output_fields} == {"text", "citations"}
 
 
 def test_interpolate_helper():
-    from ella_flow.executor import _interpolate
+    from daimon_flow.executor import _interpolate
     cfg = {"value": "{{ input.text }}", "url": "{{ n1.link }}/x", "plain": "no vars"}
     out = _interpolate(cfg, {"text": "hello"}, {"n1": {"link": "http://a"}})
     assert out == {"value": "hello", "url": "http://a/x", "plain": "no vars"}
 
 
 def test_interpolate_nested_paths():
-    from ella_flow.executor import _interpolate
+    from daimon_flow.executor import _interpolate
     out = _interpolate({"to": "{{ tg.from.id }}", "cap": "{{ tg.media.url }}"}, {},
                        {"tg": {"from": {"id": 42}, "media": {"url": "http://m/x.jpg"}}})
     assert out == {"to": "42", "cap": "http://m/x.jpg"}
 
 
 def test_interpolate_array_index():
-    from ella_flow.executor import _interpolate
+    from daimon_flow.executor import _interpolate
     outputs = {"a": {"citations": [{"title": "First"}, {"title": "Second"}], "tags": ["x", "y"]}}
     out = _interpolate({"t": "{{ a.citations[1].title }}", "g": "{{ a.tags[0] }}",
                         "miss": "{{ a.citations[9].title }}"}, {}, outputs)
@@ -87,13 +87,13 @@ def test_executor_branching_no_llm():
     assert ex.runs["no"].state.value == "idle"  # false branch not taken
 
 
-@pytest.mark.skipif(os.environ.get("ELLA_KB_IT") != "1", reason="needs live Ollama")
+@pytest.mark.skipif(os.environ.get("DAIMON_KB_IT") != "1", reason="needs live Ollama")
 def test_agent_flow_live():
     wf = Workflow(
         id="wf2", name="agent",
         nodes=[
             Node(id="t", type="trigger.manual"),
-            Node(id="a", type="agent.ella", config={"instruction": "Reply with one short sentence."}),
+            Node(id="a", type="agent.daimon", config={"instruction": "Reply with one short sentence."}),
             Node(id="r", type="output.return"),
         ],
         edges=[

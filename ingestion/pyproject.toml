@@ -1,7 +1,7 @@
 [project]
-name = "ella_kb"
+name = "daimon_kb"
 version = "0.1.0"
-description = "Ella's personal RAG knowledge base: pluggable source adapters over a Qdrant vector store."
+description = "Daimon's personal RAG knowledge base: pluggable source adapters over a Qdrant vector store."
 requires-python = ">=3.11"
 dependencies = [
     "qdrant-client>=1.12,<1.13",
@@ -15,19 +15,16 @@ dependencies = [
 [project.optional-dependencies]
 feeds = ["feedparser>=6.0"]
 mcp = ["mcp>=1.2"]
-web = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9",
-       "faster-whisper>=1.0"]
 dev = ["pytest>=8"]
 
 [project.scripts]
-ella-kb = "ella_kb.cli:main"
-ella-web = "ella_web.app:main"
+daimon-kb = "daimon_kb.cli:main"
 
 # Out-of-tree adapters register here; `pip install <pkg>` then enable in config.
-[project.entry-points."ella_kb.adapters"]
+[project.entry-points."daimon_kb.adapters"]
 
 # Out-of-tree workflow node types register here.
-[project.entry-points."ella_flow.nodes"]
+[project.entry-points."daimon_flow.nodes"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -35,4 +32,4 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["ella_kb*", "ella_flow*", "ella_web*"]
+include = ["daimon_kb*", "daimon_flow*"]

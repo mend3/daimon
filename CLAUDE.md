@@ -1,11 +1,11 @@
 # Hermes Agent — Local Setup
 
-This repo runs **Ella** — an AI companion built on **Hermes Agent** — in a
+This repo runs **Daimon** — an AI companion built on **Hermes Agent** — in a
 devcontainer. It defaults to **OpenAI gpt-5-mini** with a fully-local **Ollama**
 (`gpt-oss:20b`, Metal GPU) profile + automatic fallback, so it can run cloud-default
-or fully local. It is the deployment (config + host services + scripts) plus Ella's
-own application code: a RAG knowledge base, a workflow engine, and a web canvas
-(`ingestion/`, `web/`).
+or fully local. It is the deployment (config + host services + scripts) plus Daimon's
+own application code: a RAG knowledge base and a headless workflow engine
+(`ingestion/`).
 
 ## What Hermes is, and when to use it
 
@@ -26,10 +26,9 @@ profile. Start it inside the devcontainer with `hermes`.
 | `.claude/SESSION.md` | Ephemeral session context (gitignored) |
 | `.claude/skills/documentation-minimalism/` | Writing standard for all docs and comments |
 | `.devcontainer/` | Container definition, Dockerfile, `postCreate.sh` |
-| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `SOUL.md` (persona), `ella_kb.yaml`, `gateway.json`, `skills/`, `.env.example` |
-| `ingestion/` | Ella's Python: `ella_kb` (RAG), `ella_flow` (workflow engine), `ella_web` (FastAPI) |
-| `web/` | React Flow web canvas — frontend + Dockerized backend (`make web`) |
-| `docker-compose.yml` | All host sidecars (searxng, tts, web, telemetry) with profiles |
+| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `SOUL.md` (persona), `daimon_kb.yaml`, `gateway.json`, `skills/`, `.env.example` |
+| `ingestion/` | Daimon's Python: `daimon_kb` (RAG), `daimon_flow` (headless workflow engine) |
+| `docker-compose.yml` | All host sidecars (searxng, tts, telemetry) with profiles |
 | `docker/` | Container configs: `searxng/`, `chat-shipper/`, `status-exporter/` |
 | `scripts/` | Host setup + lifecycle (Ollama, services, backup, firewall) |
 | `README.md` / `docs/setup.md` | Product overview / setup & operations guide |
@@ -80,6 +79,7 @@ profile. Start it inside the devcontainer with `hermes`.
   `~/.local/` (toolchain) across rebuilds.
 - **`~/.hermes/`** — Hermes' runtime home: `config.yaml`, `.env`, `SOUL.md`
   (agent identity), `memories/`, `sessions/`, `logs/`, and `state.db` (conversations).
-- **`hermes-shared`** — Docker network linking host containers to the shared Redis.
+- **`shared`** — external Docker network linking host containers to the shared infra
+  stack (Redis, Qdrant, observability) you provide.
 - **chat-shipper** — sidecar that ships `state.db` conversation text to Loki for the
   Grafana chat panel.

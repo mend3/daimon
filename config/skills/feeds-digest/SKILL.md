@@ -12,7 +12,7 @@ metadata:
 Run this on a schedule (a cron job delivering to the user) to surface new reading
 that's actually worth their time.
 
-1. Run `ella-kb poll feeds` from the shell. It pulls new feed items, keeps the
+1. Run `daimon-kb poll feeds` from the shell. It pulls new feed items, keeps the
    relevant ones (by the user's interests), saves them to memory, and prints the
    titles it saved.
 2. If nothing new was saved, send a single short line ("Nothing new worth flagging

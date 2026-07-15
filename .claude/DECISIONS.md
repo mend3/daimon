@@ -62,51 +62,25 @@ profile stays fully local; only tasks assigned to `openai` reach the cloud. Othe
 per-purpose profiles follow the same pattern. The web dashboard needs Node (devcontainer
 feature) + the `[web,pty]` extras, both wired into the container build.
 
-## ADR-0012 — Plug-and-play web modules; Knowledge 3D graph
+## ADR-0011 — Headless workflow engine (typed node graph, not gRPC)
 
 **Status:** Accepted
 
-**Context:** The web app needed to grow beyond Workflows into separate features that
-can be enabled/disabled (future: per plan tier / user). The first new one visualizes
-the knowledge base.
+**Context:** Daimon needs a way to compose her capabilities into automations
+(n8n-style) that runs unattended, defined in config/code rather than a UI. A gRPC node
+mesh was considered.
 
-**Decision:** The web frontend is a **module shell**: `GET /api/modules` returns the
-enabled modules (from `ELLA_MODULES`, default `workflows,knowledge`; future
-per-tier/user), and a left rail switches between them while the Chat panel stays
-persistent. Each module is a self-contained React component registered by id. The
-**Knowledge** module renders a 3D force graph (`react-force-graph-3d`) from
-`GET /api/knowledge/graph`: a node per source (colored by type), edges to each
-source's nearest semantic neighbours via Qdrant — including cross-type links (a url
-relating to a feed item), drawn distinctly. The representative vector per source is
-its first chunk's vector.
-
-**Consequences:** New modules are a drop-in (a component + a registry entry + the
-`ELLA_MODULES` gate); tier/user gating slots into `/api/modules` later. The graph is
-built on demand (capped node count); large KBs may need precomputation/caching.
-
-## ADR-0011 — Web canvas + workflow engine (typed node graph, not gRPC)
-
-**Status:** Accepted
-
-**Context:** Ella needed a browser/mobile experience beyond Telegram, and a way for
-the user to compose her capabilities into automations (n8n-style). A gRPC node mesh
-was considered.
-
-**Decision:** A typed **node-graph engine** (`ingestion/ella_flow`) where nodes are
-Ella's capabilities and two port kinds keep the canvas clean — solid **flow** edges
-carry execution, dotted **resource** edges attach dependencies (model, knowledge,
-tools) to the agent. Same Registry/Factory/Strategy/Observer patterns as `ella_kb`;
-new node types are a drop-in (in-tree or via an `ella_flow.nodes` entry point). A
-FastAPI backend (`ingestion/ella_web`, `ella-web` on :8099) serves the node catalog,
-workflow CRUD, run (REST + WebSocket live states), executions, and a knowledge-
-grounded chat. The frontend (`web/frontend`) is React + React Flow. **gRPC was
+**Decision:** A typed, headless **node-graph engine** (`ingestion/daimon_flow`) where
+nodes are Daimon's capabilities and two port kinds keep graphs clean — solid **flow**
+edges carry execution, dotted **resource** edges attach dependencies (model, knowledge,
+tools) to the agent. Same Registry/Factory/Strategy/Observer patterns as `daimon_kb`;
+new node types are a drop-in (in-tree or via a `daimon_flow.nodes` entry point).
+Workflows are defined and run programmatically, with no server or UI. **gRPC was
 deferred**: the components are local/in-process and already expose JSON Schemas, so a
 typed JSON contract is lighter; gRPC stays an option only if nodes become distributed.
 
-**Consequences:** A web toolchain (Node/Vite) enters the repo. The backend installs
-into the Hermes venv (`postCreate` extras `[mcp,feeds,web]`) and reaches Ollama/Qdrant
-like the rest. Run `ella-web` + the Vite dev server, or build once and serve together
-via `ELLA_WEB_STATIC`. The Telegram bot is unchanged.
+**Consequences:** The engine installs into the Hermes venv and reaches Ollama/Qdrant
+like the rest of Daimon's code. The Telegram bot is unchanged.
 
 ## ADR-0010 — Local voice replies via an OpenAI-compatible TTS service
 
@@ -127,26 +101,26 @@ if a separate service is unwanted.
 
 **Status:** Accepted
 
-**Context:** Ella needed a personal knowledge base that concentrates the user's
+**Context:** Daimon needed a personal knowledge base that concentrates the user's
 links, files, notes, and other sources, recalled by meaning — without the local
 model doing vector math, and with new source types easy to add.
 
-**Decision:** A Python package (`ingestion/ella_kb`) with a deterministic core
+**Decision:** A Python package (`ingestion/daimon_kb`) with a deterministic core
 (chunk, embed via Ollama `nomic-embed-text`, store, ledger, security) and pluggable
 **source adapters** (Adapter + Factory/Registry + Template Method patterns). Each
 **enabled source type is a capability with its own Qdrant collection**
 (`kb_<type>__nomic768`); `files`/`urls`/`chat` ship on, `feeds` (Miniflux) and
 `webhook` are example connectors off by default. A **SQLite ledger is the source of
 truth**; Qdrant is a rebuildable index. Idempotent point IDs + content-hash dedup;
-SSRF guard + secret redaction + score-thresholded fan-out retrieval. Exposed to Ella
-as a custom MCP server (`ella-kb`: capture/recall/forget/list_recent) — not the
+SSRF guard + secret redaction + score-thresholded fan-out retrieval. Exposed to Daimon
+as a custom MCP server (`daimon-kb`: capture/recall/forget/list_recent) — not the
 official `mcp-server-qdrant`, which only embeds via FastEmbed (a different vector
 space) and lacks the payload/dedup/chunking we need.
 
 **Consequences:** New host service (Qdrant, loopback + API key) and an embedding
 model pull. Store and query must share the embedding model + nomic task prefixes.
 Adding a source type is a zero-core-change adapter drop-in (in-tree or via an
-`ella_kb.adapters` entry point). Google Calendar/Sheets deferred.
+`daimon_kb.adapters` entry point). Google Calendar/Sheets deferred.
 
 ## ADR-0008 — One shared Redis on the hermes-shared network
 

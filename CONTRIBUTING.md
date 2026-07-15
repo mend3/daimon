@@ -1,8 +1,8 @@
 # Contributing
 
 This repo is the deployment for running Hermes Agent (macOS host + devcontainer)
-**plus Ella's own application code** — the RAG knowledge base, workflow engine, and
-web canvas under `ingestion/` (Python) and `web/` (React).
+**plus Daimon's own application code** — the RAG knowledge base and the headless
+workflow engine under `ingestion/` (Python).
 
 ## Setup
 
@@ -14,8 +14,8 @@ services; see [README.md](README.md). `make help` lists every target.
 1. Branch from `main`.
 2. Make your change and **test it**: run the relevant `make` target or
    `scripts/setup-*.sh` and confirm the affected service is healthy (`docker ps`).
-   Shared infra (Redis/Qdrant/observability) is owned by oracle — bring it up with
-   `cd ../oracle && make up`.
+   Shared infra (Redis/Qdrant/observability) comes from a shared stack you provide on
+   the external `shared` Docker network — start it first.
 3. Open a pull request describing what changed and why.
 
 ## Conventions
@@ -23,7 +23,7 @@ services; see [README.md](README.md). `make help` lists every target.
 - **Secrets never enter git.** Real values live in gitignored files (`config/.env`,
   `docker/searxng/settings.yml`); commit only the `*.example` templates. The setup scripts
   generate secrets on first run. Shared-infra credentials (Redis/Qdrant) belong to
-  oracle.
+  your shared stack.
 - **Docs and comments follow the `documentation-minimalism` skill**
   (`.claude/skills/documentation-minimalism/SKILL.md`): explain intent, not
   mechanics; cut redundancy; keep operational content in markdown, not source.

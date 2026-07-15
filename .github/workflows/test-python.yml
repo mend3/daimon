@@ -21,9 +21,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install package + test deps
-        run: pip install -e './ingestion[dev,mcp,web,feeds]'
+        run: pip install -e './ingestion[dev,mcp,feeds]'
 
-      # Integration tests gate on ELLA_KB_IT=1 (live Ollama/Qdrant), so this runs
+      # Integration tests gate on DAIMON_KB_IT=1 (live Ollama/Qdrant), so this runs
       # the unit suite and skips them.
       - name: pytest
         run: pytest ingestion/tests

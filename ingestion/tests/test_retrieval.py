@@ -1,7 +1,7 @@
 """Recall ranking (merge_hits): a document contributes up to max_per_source chunks,
 exact duplicate chunks are dropped, and near-duplicates from other sources are too."""
-from ella_kb.core.store import SearchHit
-from ella_kb.service import merge_hits
+from daimon_kb.core.store import SearchHit
+from daimon_kb.service import merge_hits
 
 
 def _hit(sid, ci, score, ch):

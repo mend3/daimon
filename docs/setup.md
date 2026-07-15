@@ -45,21 +45,20 @@ startup.
   start-gateway.sh    # idempotent gateway launcher (no-op without a token)
   patches/            # idempotent post-install patches applied to Hermes (e.g. clickable /help)
 config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
-                      # ella_kb.yaml, gateway.json, skills/, .env.example
-ingestion/            # ella_kb (RAG), ella_flow (workflow engine), ella_web (FastAPI)
-web/                  # React Flow canvas: frontend/ + Dockerfile (served by `make web`)
-docker-compose.yml    # all host sidecars (searxng, tts, web, telemetry) with profiles
+                      # daimon_kb.yaml, gateway.json, skills/, .env.example
+ingestion/            # daimon_kb (RAG), daimon_flow (headless workflow engine)
+docker-compose.yml    # all host sidecars (searxng, tts, telemetry) with profiles
 docker/               # container configs for the sidecars:
-  searxng/settings.yml.example  # web-search engine; cache/limiter on oracle's Redis (workspace)
+  searxng/settings.yml.example  # web-search engine; cache/limiter on the shared Redis (shared)
   chat-shipper/ status-exporter/  # app-level telemetry sidecars (see Monitoring)
 scripts/              # HOST setup + lifecycle: Ollama, SearXNG, TTS,
-                      # web, launchd services, backup, firewall
+                      # launchd services, backup, firewall
 
 Redis, Qdrant, Miniflux, and the observability plane (Grafana/Loki/Prometheus/blackbox)
-are **not** run by Ella — the **oracle** orchestrator provides them on the shared
-`workspace` Docker network. Bring up oracle first (`cd ../oracle && make up`). Ella's
-services reach them by DNS: Redis at `redis:6379` (logical db index 5), Qdrant at
-`qdrant:6333`, Loki at `loki:3100`, Miniflux at `miniflux:8080`.
+are **not** run by Daimon — a shared infra stack you provide serves them on the
+external `shared` Docker network. Start that stack first. Daimon's services reach them
+by DNS: Redis at `redis:6379` (logical db index 5), Qdrant at `qdrant:6333`, Loki at
+`loki:3100`, Miniflux at `miniflux:8080`.
 ```
 
 ## Quick start
@@ -67,13 +66,13 @@ services reach them by DNS: Redis at `redis:6379` (logical db index 5), Qdrant a
 macOS host with Docker Desktop + Homebrew:
 
 ```bash
-cd ../oracle && make up   # shared infra: workspace network + Redis/Qdrant/observability
-cd ../ella && make up      # Ella's host sidecars: SearXNG + TTS
+docker network create shared   # then start your Redis/Qdrant/Ollama/observability on it
+make up                        # Daimon's host sidecars: SearXNG + TTS
 # then open the folder in VS Code → "Reopen in Container" and run `hermes`
 ```
 
-Bring up **oracle first** — it owns the `workspace` Docker network and the shared
-Redis/Qdrant/observability plane Ella consumes. `make help` lists every target. The
+Start your **shared infra stack first** — it owns the `shared` Docker network and the
+Redis/Qdrant/observability plane Daimon consumes. `make help` lists every target. The
 steps below explain each one.
 
 ### 1. On the macOS host — start Ollama and pull the model
@@ -103,21 +102,21 @@ ollama pull qwen2.5vl:7b
 
 ### 2. Start the host services
 
-Shared Redis and Qdrant come from oracle — bring it up first (`cd ../oracle &&
-make up`). Then start Ella's own host sidecars:
+Shared Redis and Qdrant come from your shared stack — start it first on the `shared`
+network. Then start Daimon's own host sidecars:
 
 ```bash
 ./scripts/setup-searxng-host.sh      # web search on localhost:8888
 ./scripts/setup-tts-host.sh          # local voice replies on localhost:8880
 ```
 
-SearXNG's cache/limiter uses oracle's Redis on the `workspace` network
+SearXNG's cache/limiter uses the shared Redis on the `shared` network
 (`redis:6379`, logical db index 5). The container reaches SearXNG at
 `host.docker.internal:8888` (`SEARXNG_URL`) and the TTS engine at
 `host.docker.internal:8880`; first TTS start downloads the voice model (a few
 minutes). `make searxng` / `make tts` run the same scripts. The knowledge base
-points at oracle's Qdrant (`qdrant:6333`) over `workspace` via
-`config/ella_kb.yaml` — no per-host Qdrant setup.
+points at the shared Qdrant (`qdrant:6333`) over `shared` via
+`config/daimon_kb.yaml` — no per-host Qdrant setup.
 
 To make all of this (plus Ollama and the telemetry sidecars) start at login and
 survive reboots, install the launchd agents instead:
@@ -156,51 +155,47 @@ hermes doctor     # diagnostics
 | Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
 | Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
 | Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
-| Knowledge base | oracle's Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by oracle on `workspace` |
-| Feeds (optional) | Miniflux (provided by oracle) | enable in oracle; `MINIFLUX_*` in `~/.hermes/.env` |
+| Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack on `shared` |
+| Feeds (optional) | Miniflux (provided by your shared stack) | enable in your shared stack; `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
 | Identity / voice | `config/SOUL.md` | edit + rebuild |
 
 ### Knowledge base
 
-Ella keeps a personal RAG memory: she captures links, files, and notes and recalls
-them by meaning. It runs as an MCP server (`ella-kb`, registered in `config.yaml`)
-backed by oracle's Qdrant (`qdrant:6333` on the `workspace` network); the `ella_kb`
+Daimon keeps a personal RAG memory: she captures links, files, and notes and recalls
+them by meaning. It runs as an MCP server (`daimon-kb`, registered in `config.yaml`)
+backed by the shared Qdrant (`qdrant:6333` on the `shared` network); the `daimon_kb`
 package is installed into the Hermes venv by `postCreate.sh`. Source types are
 pluggable adapters — `files`, `urls`, and `chat` ship enabled; `feeds` and `webhook`
-are wired but off by default. Toggle them in `config/ella_kb.yaml` under
+are wired but off by default. Toggle them in `config/daimon_kb.yaml` under
 `capabilities`. Each enabled type gets its own Qdrant collection
 (`kb_<type>__nomic768`).
 
-Qdrant is provided by oracle — point `config/ella_kb.yaml` at `qdrant:6333` and set
-any required `QDRANT_API_KEY` in `~/.hermes/.env` to match oracle's config. Quick
-check from the container: `ella-kb init` then
-`ella-kb capture --text "remember this" && ella-kb recall "this"`.
+Qdrant is provided by your shared stack — point `config/daimon_kb.yaml` at `qdrant:6333` and set
+any required `QDRANT_API_KEY` in `~/.hermes/.env` to match the shared config. Quick
+check from the container: `daimon-kb init` then
+`daimon-kb capture --text "remember this" && daimon-kb recall "this"`.
 
-**Feeds (example connector).** Miniflux runs in oracle
-(`oracle/vendors/miniflux.compose.yml`) — bring it up there. Add the `MINIFLUX_*`
-lines to `~/.hermes/.env` (API at `host.docker.internal:8930`, or `miniflux:8080` on
-`workspace`), subscribe to feeds in its UI at `localhost:8930`, and set
-`feeds.enabled: true` in `config/ella_kb.yaml`
-(optionally `include`/`exclude` keywords). `ella-kb poll feeds` ingests new relevant
+**Feeds (example connector).** Miniflux runs on your shared stack — bring it up there.
+Add the `MINIFLUX_*` lines to `~/.hermes/.env` (API at `host.docker.internal:8930`, or `miniflux:8080` on
+`shared`), subscribe to feeds in its UI at `localhost:8930`, and set
+`feeds.enabled: true` in `config/daimon_kb.yaml`
+(optionally `include`/`exclude` keywords). `daimon-kb poll feeds` ingests new relevant
 items. For a proactive digest, create a cron job once:
 `hermes cron create "every 1d at 08:30" "Send me my feeds digest" --skill feeds-digest --deliver telegram --name feeds-digest`.
 
 **Webhook (example connector).** Set `KB_WEBHOOK_SECRET` in `~/.hermes/.env`, set
-`webhook.enabled: true`, and run `ella-kb webhook-serve`. External services POST
+`webhook.enabled: true`, and run `daimon-kb webhook-serve`. External services POST
 `{"text": "...", "title": "...", "url": "..."}` to `/ingest` with an
 `X-Signature: sha256=<hmac>` header.
 
-### Web canvas
+### Workflows
 
-A browser/mobile UI to chat with Ella and build workflows visually — nodes are her
-capabilities, wired on a canvas (solid edges = execution, dotted = the agent's
-dependencies). Backend `ella-web` (FastAPI, installed into the Hermes venv); frontend
-React + React Flow in `web/frontend`. Easiest: `make web` builds the frontend inside
-Docker and serves the canvas at **http://localhost:8099** — no local Node/npm needed
-(run the devcontainer once first so Ella's config is in the shared `hermes-data`
-volume). For hot-reload dev with Node on the host, run `ella-web` plus
-`cd web/frontend && npm run dev`. See [../web/README.md](../web/README.md).
+Daimon's workflow engine (`daimon_flow`) is headless: workflows are node graphs —
+triggers, the agent, tools, logic, and outputs — defined in config/code and run with
+live state, no UI. Nodes are Daimon's own capabilities; new node types drop into
+`ingestion/daimon_flow/nodes/` (or ship out-of-tree via a `daimon_flow.nodes` entry
+point).
 
 ### Telegram
 
@@ -231,7 +226,7 @@ the listed commands stay tappable.
 
 ### Branding & avatar
 
-`scripts/setup-telegram-branding.sh` (run in the container) sets Ella's bot name,
+`scripts/setup-telegram-branding.sh` (run in the container) sets Daimon's bot name,
 descriptions, and menu button via the Bot API. The command menu itself is managed
 by Hermes.
 
@@ -255,18 +250,18 @@ Negative prompt: `robot, android, helmet, armor, weapon, fantasy, anime, over-st
 
 ## Monitoring
 
-The observability plane (Grafana/Loki/Prometheus/Promtail/blackbox) is centralized
-in **oracle** on the `workspace` network — Ella no longer runs its own. The dashboards
-and alert/scrape configs of record live in oracle (`oracle/.docker/{prometheus,grafana,
-loki,blackbox}/`). Open Grafana from oracle.
+The observability plane (Grafana/Loki/Prometheus/Promtail/blackbox) lives on your
+shared infra stack on the `shared` network — Daimon does not run its own. The
+dashboards, alert rules, and scrape configs of record live with that stack, and you
+open Grafana from there.
 
-Ella keeps two app-level telemetry **sidecars** (`docker-compose.yml`, `monitoring`
-profile, started by `make monitoring` or the login agent), both attached to `workspace`:
+Daimon keeps two app-level telemetry **sidecars** (`docker-compose.yml`, `monitoring`
+profile, started by `make monitoring` or the login agent), both attached to `shared`:
 
 - **chat-shipper** — pushes real conversation text per Telegram user (name + masked
-  id) from Hermes' `state.db` to oracle's Loki (`loki:3100`) for the Grafana chat panel.
+  id) from Hermes' `state.db` to the shared Loki (`loki:3100`) for the Grafana chat panel.
 - **status-exporter** — exposes `hermes_gateway_up` (read from `agent.log`) at
-  `ella-status-exporter:9101/metrics`, scraped by oracle's Prometheus, since the
+  `daimon-status-exporter:9101/metrics`, scraped by the shared Prometheus, since the
   agent runs inside the devcontainer where blackbox can't probe it.
 
 Stop the sidecars with `docker compose --profile monitoring down`.
@@ -302,10 +297,10 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
   to the container only.
 - **Network:** Ollama and SearXNG bind `0.0.0.0` (the container reaches them via
   `host.docker.internal`); `scripts/firewall-host.sh` blocks them on the LAN. Shared
-  Redis/Qdrant/observability live on the `workspace` network, owned by oracle.
+  Redis/Qdrant/observability live on the `shared` network, provided by your shared stack.
 - **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
   daily, archiving the `hermes-data` volume to `~/hermes-backups`. Qdrant is a
-  rebuildable index owned by oracle, so it is backed up there, not by Ella.
+  rebuildable index provided by your shared stack, so it is backed up there, not by Daimon.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) and [SECURITY.md](../SECURITY.md) for
 conventions and the security posture.

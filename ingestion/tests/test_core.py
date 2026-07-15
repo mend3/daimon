@@ -1,6 +1,6 @@
-from ella_kb.core.chunk import chunk_text
-from ella_kb.core.ids import canonical_url, content_hash, point_id, source_id_for_url
-from ella_kb.core.security import SSRFGuard, SSRFError, SecretRedactor
+from daimon_kb.core.chunk import chunk_text
+from daimon_kb.core.ids import canonical_url, content_hash, point_id, source_id_for_url
+from daimon_kb.core.security import SSRFGuard, SSRFError, SecretRedactor
 
 
 def test_canonical_url_strips_tracking_and_fragment():

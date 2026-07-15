@@ -1,10 +1,10 @@
 # Project Overview
 
-**Ella** — an AI companion built on **Hermes Agent** (Nous Research CLI agent).
+**Daimon** — an AI companion built on **Hermes Agent** (Nous Research CLI agent).
 Hermes runs in a devcontainer; the default model is **OpenAI gpt-5-mini** with a
 local **Ollama** (`gpt-oss:20b`, native on the macOS host) profile + automatic
-fallback. The repo is the deployment (config + host services + scripts) plus Ella's
-application code: a RAG knowledge base, a workflow engine, and a web canvas.
+fallback. The repo is the deployment (config + host services + scripts) plus Daimon's
+application code: a RAG knowledge base and a headless workflow engine.
 
 # Architecture
 
@@ -44,7 +44,7 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
 - **Telegram** via the messaging gateway (`hermes gateway run`); `TELEGRAM_BOT_TOKEN`
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
-- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Ella speaks
+- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Daimon speaks
   in the **first person**; the framework is infrastructure, never identity.
 - **Voice:** local both ways. TTS = Kokoro-FastAPI (`docker-compose.yml` `tts` service, `host.docker.internal:8880`)
   via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
@@ -54,14 +54,14 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
 - **Telegram sessions:** one session per DM, reset after 30 min idle via
   `config/gateway.json` (`reset_by_platform.telegram.idle_minutes`); seeded by
   postCreate if absent. `/new` resets on demand. Durable memory is separate.
-- **Knowledge base (RAG):** `ingestion/ella_kb` package + **Qdrant** host service
+- **Knowledge base (RAG):** `ingestion/daimon_kb` package + **Qdrant** host service
   (`host.docker.internal:6333`, API key in `~/.hermes/.env`). One collection per
   enabled source type (`kb_<type>__nomic768`); pluggable **adapters** (`files`,
   `urls`, `chat` on; `feeds`/`webhook` example connectors off). SQLite **ledger** in
-  hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Ella via the
-  `ella-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
+  hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Daimon via the
+  `daimon-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
   skill; installed into the Hermes venv by `postCreate.sh`. **Feeds** use a host
-  **Miniflux** provided by oracle (`miniflux:8080` / `host.docker.internal:8930`,
+  **Miniflux** provided by your shared stack (`miniflux:8080` / `host.docker.internal:8930`,
   optional). See ADR-0009 and `ingestion/README.md`.
 - **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
   `status`, `knowledge-base`, `feeds-digest`.
@@ -81,7 +81,7 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
     extra usage"); the base allowance isn't usable via Hermes.
   Telegram creds are propagated to each profile's `.env` so task agents can
   `hermes send` results. See ADR-0013 and ADR-0014.
-- **Proactivity & UX** (config.yaml): a daily **`morning-briefing`** cron (Ella's
+- **Proactivity & UX** (config.yaml): a daily **`morning-briefing`** cron (Daimon's
   anticipation) runs on the `default` profile and delivers to the Telegram home channel
   (postCreate creates it when Telegram is set; the gateway's scheduler fires it). The
   **memory `curator`** runs weekly to archive stale memories (backups kept). `stt` local
@@ -91,19 +91,18 @@ application code: a RAG knowledge base, a workflow engine, and a web canvas.
   wired into the container build — `postCreate` + the `node` devcontainer feature). The
   frontend builds on first launch into the hermes-data volume. Loopback bind has no
   auth gate; `--host 0.0.0.0` requires `--insecure` or an auth provider.
-- **Web layer + workflows:** `ingestion/ella_flow` (typed node-graph engine — nodes
-  are Ella's capabilities; solid flow edges vs dotted resource edges) + `ingestion/
-  ella_web` (FastAPI `ella-web` on :8099: catalog, workflow CRUD, run via REST/WS,
-  chat) + `web/frontend` (React + React Flow canvas). Installed into the Hermes venv
-  by `postCreate` extras `[mcp,feeds,web]`. New node types drop in via the registry
-  or an `ella_flow.nodes` entry point. Telegram bot unchanged. See ADR-0011 and
-  `web/README.md`. gRPC deferred.
+- **Workflows (headless):** `ingestion/daimon_flow` (typed node-graph engine — nodes
+  are Daimon's capabilities; solid flow edges vs dotted resource edges). Workflows are
+  defined in config/code and run programmatically, with no server or UI. Installed into
+  the Hermes venv by `postCreate` extras `[mcp,feeds]`. New node types drop in via the
+  registry or a `daimon_flow.nodes` entry point. Telegram bot unchanged. See ADR-0011.
+  gRPC deferred.
 - **Monitoring:** the observability plane (Grafana/Loki/Prometheus/blackbox) is
-  centralized in **oracle** on `workspace`. Ella keeps only two app-level telemetry
+  centralized on your shared infra stack (on the `shared` network). Daimon keeps only two app-level telemetry
   sidecars in the root `docker-compose.yml` (`monitoring` profile): `chat-shipper`
   reads Hermes' `state.db` (conversation `messages`) and ships the real text to
-  oracle's Loki for the chat panel; `status-exporter` exposes `hermes_gateway_up`
-  (from `agent.log`) at `ella-status-exporter:9101/metrics` for oracle's Prometheus.
+  the shared Loki for the chat panel; `status-exporter` exposes `hermes_gateway_up`
+  (from `agent.log`) at `daimon-status-exporter:9101/metrics` for the shared Prometheus.
 - **Redis** (`redis/`): single shared, password-protected, loopback-only
   (`127.0.0.1:6379`) instance on the external `hermes-shared` Docker network.
   Backs SearXNG's cache/limiter (db 1) and is open for current/future containers

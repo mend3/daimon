@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ella — The Intelligence Layer for Modern Organizations</title>
-  <meta name="description" content="Ella is an operational-intelligence system over the DevShell Tech platform. Not a chatbot — an intelligence that operates over an organization's entire digital reality: it investigates, correlates, explains causes, anticipates, and acts." />
-  <link rel="canonical" href="https://mend3.github.io/mend3/ella.html" />
+  <title>Daimon — The Intelligence Layer for Modern Organizations</title>
+  <meta name="description" content="Daimon is an operational-intelligence system over the DevShell Tech platform. Not a chatbot — an intelligence that operates over an organization's entire digital reality: it investigates, correlates, explains causes, anticipates, and acts." />
+  <link rel="canonical" href="https://mend3.github.io/daimon/index.html" />
 
   <!-- Open Graph -->
   <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://mend3.github.io/mend3/ella.html" />
-  <meta property="og:title"       content="Ella — The Intelligence Layer for Modern Organizations" />
+  <meta property="og:url"         content="https://mend3.github.io/daimon/index.html" />
+  <meta property="og:title"       content="Daimon — The Intelligence Layer for Modern Organizations" />
   <meta property="og:description" content="An operational-intelligence system over the DevShell Tech platform. It investigates, correlates, explains causes, anticipates, and acts over your whole operation — not just another assistant." />
-  <meta property="og:image"       content="https://mend3.github.io/mend3/ella-profile-image.jpeg" />
-  <meta property="og:image:alt"   content="Ella — The Intelligence Layer for Organizations" />
+  <meta property="og:image"       content="https://mend3.github.io/daimon/index-profile-image.jpeg" />
+  <meta property="og:image:alt"   content="Daimon — The Intelligence Layer for Organizations" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image" />
-  <meta name="twitter:title"       content="Ella — The Intelligence Layer for Modern Organizations" />
+  <meta name="twitter:title"       content="Daimon — The Intelligence Layer for Modern Organizations" />
   <meta name="twitter:description" content="An operational-intelligence system over the DevShell Tech platform. It investigates, correlates, explains causes, anticipates, and acts over your whole operation — not just another assistant." />
-  <meta name="twitter:image"       content="https://mend3.github.io/mend3/ella-profile-image.jpeg" />
-  <meta name="twitter:image:alt"   content="Ella — The Intelligence Layer for Organizations" />
+  <meta name="twitter:image"       content="https://mend3.github.io/daimon/index-profile-image.jpeg" />
+  <meta name="twitter:image:alt"   content="Daimon — The Intelligence Layer for Organizations" />
 
   <meta name="robots" content="index, follow" />
 
@@ -31,11 +31,11 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Ella",
-    "description": "An operational-intelligence system over the DevShell Tech platform. Ella investigates, correlates, explains causes, anticipates, and acts over an organization's entire digital reality — not a chatbot, but an intelligence layer for modern organizations.",
+    "name": "Daimon",
+    "description": "An operational-intelligence system over the DevShell Tech platform. Daimon investigates, correlates, explains causes, anticipates, and acts over an organization's entire digital reality — not a chatbot, but an intelligence layer for modern organizations.",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web",
-    "url": "https://mend3.github.io/mend3/ella.html"
+    "url": "https://mend3.github.io/daimon/index.html"
   }
   </script>
 
@@ -50,7 +50,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     /* Limit user-select to interactive chrome only — content must remain selectable */
-    nav, .hud, .hud-bar, .introspect-bar, .ella-widget,
+    nav, .hud, .hud-bar, .introspect-bar, .Daimon-widget,
     .cursor-dot, .cursor-ring { user-select: none; -webkit-user-select: none; }
     .skip-link {
       position: fixed; top: -100%; left: 16px; z-index: 99999;
@@ -617,7 +617,7 @@
       font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
     }
     .demo-msg.user .demo-msg-sender { color: var(--cyan); text-align: right; }
-    .demo-msg.ella .demo-msg-sender { color: var(--violet); }
+    .demo-msg.Daimon .demo-msg-sender { color: var(--violet); }
 
     .demo-msg-bubble {
       font-family: var(--font-mono);
@@ -632,7 +632,7 @@
       color: rgba(255,255,255,0.82); border-bottom-right-radius: 3px;
       align-self: flex-end;
     }
-    .demo-msg.ella .demo-msg-bubble {
+    .demo-msg.Daimon .demo-msg-bubble {
       background: rgba(139,92,246,0.06);
       border: 1px solid rgba(139,92,246,0.22);
       border-left: 2px solid rgba(139,92,246,0.5);
@@ -660,7 +660,7 @@
       30%          { transform: translateY(-5px); opacity: 1; }
     }
 
-    /* ────────────── Why Ella ────────────── */
+    /* ────────────── Why Daimon ────────────── */
     .why-section { border-top: 1px solid var(--border); }
 
     .comparison {
@@ -672,12 +672,12 @@
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--r); padding: 32px;
     }
-    .cmp-col.ella-col {
+    .cmp-col.Daimon-col {
       border-color: rgba(139,92,246,0.3);
       background: linear-gradient(160deg, rgba(139,92,246,0.06), var(--card));
       position: relative; overflow: hidden;
     }
-    .cmp-col.ella-col::before {
+    .cmp-col.Daimon-col::before {
       content: ''; position: absolute; inset: 0;
       background: radial-gradient(ellipse at top left, rgba(139,92,246,0.08) 0%, transparent 60%);
     }
@@ -686,8 +686,8 @@
       font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
       margin-bottom: 24px;
     }
-    .cmp-col:not(.ella-col) h3 { color: var(--dim); }
-    .cmp-col.ella-col h3 { color: var(--violet); }
+    .cmp-col:not(.Daimon-col) h3 { color: var(--dim); }
+    .cmp-col.Daimon-col h3 { color: var(--violet); }
 
     .cmp-list { list-style: none; display: flex; flex-direction: column; gap: 13px; }
     .cmp-list li {
@@ -699,10 +699,10 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.7rem; margin-top: 2px;
     }
-    .cmp-col:not(.ella-col) .icon { background: rgba(239,68,68,0.1); color: #EF4444; }
-    .cmp-col.ella-col .icon { background: rgba(16,185,129,0.1); color: var(--green); }
-    .cmp-col:not(.ella-col) .cmp-list li { color: var(--muted); }
-    .cmp-col.ella-col .cmp-list li { color: var(--text); }
+    .cmp-col:not(.Daimon-col) .icon { background: rgba(239,68,68,0.1); color: #EF4444; }
+    .cmp-col.Daimon-col .icon { background: rgba(16,185,129,0.1); color: var(--green); }
+    .cmp-col:not(.Daimon-col) .cmp-list li { color: var(--muted); }
+    .cmp-col.Daimon-col .cmp-list li { color: var(--text); }
 
     /* ────────────── Privacy ────────────── */
     .privacy-section {
@@ -841,7 +841,7 @@
       background: radial-gradient(circle, rgba(109,40,217,0.1) 0%, transparent 70%);
     }
     body.light .demo-terminal,
-    body.light .ella-panel {
+    body.light .Daimon-panel {
       background: rgba(232,230,255,0.96);
     }
     body.light .demo-msg.user .demo-msg-bubble {
@@ -849,8 +849,8 @@
       border-color: rgba(8,145,178,0.32);
       color: var(--text);
     }
-    body.light .demo-msg.ella .demo-msg-bubble { color: var(--text); }
-    body.light .pmsg.from-ella .pmsg-bubble {
+    body.light .demo-msg.Daimon .demo-msg-bubble { color: var(--text); }
+    body.light .pmsg.from-Daimon .pmsg-bubble {
       background: rgba(109,40,217,0.07);
       border-color: rgba(109,40,217,0.18);
     }
@@ -867,7 +867,7 @@
     }
 
     /* ────────────── Floating widget ────────────── */
-    .ella-widget {
+    .Daimon-widget {
       position: fixed;
       right: 24px; bottom: 24px;
       z-index: 800;
@@ -878,17 +878,17 @@
                   transform 0.45s cubic-bezier(0.16,1,0.3,1);
       pointer-events: none;
     }
-    .ella-widget.vis {
+    .Daimon-widget.vis {
       opacity: 1; transform: none;
       pointer-events: all;
     }
-    .ella-widget.snap-anim {
+    .Daimon-widget.snap-anim {
       transition: opacity 0.45s cubic-bezier(0.16,1,0.3,1),
                   transform 0.45s cubic-bezier(0.16,1,0.3,1),
                   left 0.32s cubic-bezier(0.34,1.56,0.64,1) !important;
     }
 
-    .ella-trigger {
+    .Daimon-trigger {
       width: 72px; height: 72px; border-radius: 50%;
       background: none; border: 2px solid rgba(139,92,246,0.55);
       padding: 0; overflow: hidden; cursor: pointer;
@@ -897,14 +897,14 @@
       transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
       touch-action: none;
     }
-    .ella-trigger:hover {
+    .Daimon-trigger:hover {
       border-color: var(--violet);
       box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 24px rgba(139,92,246,0.4);
       transform: scale(1.07);
     }
-    .ella-trigger img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .Daimon-trigger img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .ella-trigger-dot {
+    .Daimon-trigger-dot {
       position: absolute; bottom: 3px; right: 3px;
       width: 13px; height: 13px; border-radius: 50%;
       background: var(--green); border: 2px solid var(--bg);
@@ -912,7 +912,7 @@
     }
 
     /* ── Chat panel ── */
-    .ella-panel {
+    .Daimon-panel {
       width: min(304px, calc(100vw - 32px));
       max-height: calc(100vh - 34px);
       background: rgba(9,9,22,0.94);
@@ -923,7 +923,7 @@
       box-shadow: 0 12px 56px rgba(0,0,0,0.65), 0 0 0 1px rgba(139,92,246,0.06);
       transform-origin: right bottom;
     }
-    .ella-panel.open {
+    .Daimon-panel.open {
       display: flex;
       animation: panel-in 0.34s cubic-bezier(0.16,1,0.3,1);
     }
@@ -986,7 +986,7 @@
       border-radius: 12px; font-size: 0.81rem;
       line-height: 1.55; color: var(--text);
     }
-    .pmsg.from-ella .pmsg-bubble {
+    .pmsg.from-Daimon .pmsg-bubble {
       background: rgba(139,92,246,0.1);
       border: 1px solid rgba(139,92,246,0.2);
       border-bottom-left-radius: 3px;
@@ -1155,7 +1155,7 @@
         0 0 92px #00f3ff,
         0 0 110px #00f3ff;
     }
-    body.combat .ella-trigger {
+    body.combat .Daimon-trigger {
       box-shadow:
         0 0 0 2px rgba(0,243,255,0.5),
         0 0 18px rgba(0,243,255,0.4),
@@ -1184,7 +1184,7 @@
     body.combat .why-table th { color: #00f3ff; border-bottom-color: rgba(0,243,255,0.2); }
     body.combat .why-table td { border-bottom-color: rgba(0,243,255,0.07); }
     body.combat .check { color: #00ff88; }
-    body.combat .ella-panel {
+    body.combat .Daimon-panel {
       background: rgba(1,10,19,0.97);
       border-color: rgba(0,243,255,0.32);
     }
@@ -1195,10 +1195,10 @@
     body.combat .panel-send { color: #00f3ff; border-color: rgba(0,243,255,0.3); background: rgba(0,243,255,0.07); }
     body.combat .popt { color: rgba(0,243,255,0.75); border-color: rgba(0,243,255,0.2); background: rgba(0,243,255,0.03); }
     body.combat .popt:hover { color: #00f3ff; border-color: rgba(0,243,255,0.5); background: rgba(0,243,255,0.1); }
-    body.combat .pmsg.from-ella .pmsg-bubble { background: rgba(0,243,255,0.07); border-color: rgba(0,243,255,0.2); }
+    body.combat .pmsg.from-Daimon .pmsg-bubble { background: rgba(0,243,255,0.07); border-color: rgba(0,243,255,0.2); }
     body.combat .pmsg.from-user .pmsg-bubble { background: rgba(0,255,136,0.06); border-color: rgba(0,255,136,0.2); }
-    body.combat .ella-trigger { box-shadow: 0 0 0 2px rgba(0,243,255,0.4), 0 0 24px rgba(0,243,255,0.25) !important; }
-    body.combat .ella-trigger-dot { background: #00ff88 !important; box-shadow: 0 0 6px #00ff88 !important; }
+    body.combat .Daimon-trigger { box-shadow: 0 0 0 2px rgba(0,243,255,0.4), 0 0 24px rgba(0,243,255,0.25) !important; }
+    body.combat .Daimon-trigger-dot { background: #00ff88 !important; box-shadow: 0 0 6px #00ff88 !important; }
     body.combat .panel-online { color: #00ff88 !important; }
     body.combat .panel-online::before { background: #00ff88 !important; }
 
@@ -1239,7 +1239,7 @@
       white-space: nowrap;
     }
     body.combat .hud-bar { display: flex; }
-    body.combat .ella-widget { opacity: 0 !important; pointer-events: none !important; }
+    body.combat .Daimon-widget { opacity: 0 !important; pointer-events: none !important; }
 
     .hud-bar-sig {
       display: flex; align-items: center; gap: 6px;
@@ -1347,7 +1347,7 @@
       box-shadow: 0 12px 40px rgba(200,160,74,0.08), inset 0 -1px 0 rgba(200,160,74,0.06);
     }
     body.introspect .introspect-bar { display: flex; }
-    body.introspect .ella-widget     { opacity: 0 !important; pointer-events: none !important; }
+    body.introspect .Daimon-widget     { opacity: 0 !important; pointer-events: none !important; }
     .ibar-sig {
       display: flex; align-items: center; gap: 6px; margin-right: 6px;
       font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
@@ -1525,12 +1525,12 @@
   <nav id="nav" aria-label="Main navigation">
     <a class="nav-logo" href="#">
       <span class="nav-status"></span>
-      Ella
+      Daimon
     </a>
     <ul class="nav-links">
       <li><a id="nav-cap"  href="#capabilities">Capabilities</a></li>
       <li><a id="nav-use"  href="#usecases">Use cases</a></li>
-      <li><a id="nav-why"  href="#why">Why Ella</a></li>
+      <li><a id="nav-why"  href="#why">Why Daimon</a></li>
       <li><a id="nav-priv" href="#privacy">Thesis</a></li>
     </ul>
   </nav>
@@ -1586,7 +1586,7 @@
           <div class="avatar-ring-outer2"></div>
           <div class="avatar-ring-outer"></div>
           <div class="avatar-ring"></div>
-          <img class="avatar-img" src="ella-profile-image.jpeg" alt="Ella" />
+          <img class="avatar-img" src="Daimon-profile-image.jpeg" alt="Daimon" />
           <span class="avatar-status"></span>
         </div>
       </div>
@@ -1603,7 +1603,7 @@
         </p>
 
         <div class="btn-row" id="hero-btns">
-          <button id="hero-btn-start" type="button" class="btn btn-primary" onclick="window.openEllaChat()">Talk to Ella →</button>
+          <button id="hero-btn-start" type="button" class="btn btn-primary" onclick="window.openDaimonChat()">Talk to Daimon →</button>
           <a id="hero-btn-why"   class="btn btn-ghost"   href="#capabilities">See how it works</a>
         </div>
       </div>
@@ -1619,7 +1619,7 @@
   </section>
 
   <!-- ── Intro ── -->
-  <section class="intro-section" aria-label="About Ella">
+  <section class="intro-section" aria-label="About Daimon">
     <div class="container pad">
       <p class="label reveal" data-i18n="intro_label">The gap</p>
       <h2 class="section-title reveal d1" data-i18n-html="intro_title">Your systems store everything.<br/><span class="grad-warm">None of them understand it.</span></h2>
@@ -1732,7 +1732,7 @@
             <span class="t-dot r"></span>
             <span class="t-dot y"></span>
             <span class="t-dot g"></span>
-            <span class="t-title">Ella · Terminal</span>
+            <span class="t-title">Daimon · Terminal</span>
             <span class="t-badge">ONLINE</span>
           </div>
           <div class="demo-body" id="demo-body">
@@ -1743,9 +1743,9 @@
             <div class="typing-indicator" id="dm-typing">
               <span></span><span></span><span></span>
             </div>
-            <div class="demo-msg ella" id="dm-ella">
-              <span class="demo-msg-sender">Ella</span>
-              <div class="demo-msg-bubble" id="dm-ella-text"></div>
+            <div class="demo-msg Daimon" id="dm-Daimon">
+              <span class="demo-msg-sender">Daimon</span>
+              <div class="demo-msg-bubble" id="dm-Daimon-text"></div>
             </div>
           </div>
         </div>
@@ -1753,10 +1753,10 @@
     </div>
   </section>
 
-  <!-- ── Why Ella ── -->
+  <!-- ── Why Daimon ── -->
   <section class="why-section" id="why">
     <div class="container pad">
-      <p class="label reveal" data-i18n="why_label">Why Ella</p>
+      <p class="label reveal" data-i18n="why_label">Why Daimon</p>
       <h2 class="section-title reveal d1" data-i18n-html="why_title">From search<br/><span class="grad-warm">to investigation.</span></h2>
 
       <div class="comparison">
@@ -1772,8 +1772,8 @@
             <li><span class="icon">✗</span> <span data-i18n="why_col1_i7">Almost never do real work on their own</span></li>
           </ul>
         </div>
-        <div class="cmp-col ella-col reveal from-right d3">
-          <h3 data-i18n="why_col2_title">Ella</h3>
+        <div class="cmp-col Daimon-col reveal from-right d3">
+          <h3 data-i18n="why_col2_title">Daimon</h3>
           <ul class="cmp-list">
             <li><span class="icon">✓</span> <span data-i18n="why_col2_i1">Says "let's find out what actually happened"</span></li>
             <li><span class="icon">✓</span> <span data-i18n="why_col2_i2">Knows your operation, processes, and history</span></li>
@@ -1816,7 +1816,7 @@
       <h2 class="section-title reveal d1" data-i18n-html="cta_title">Ready for an intelligence layer<br/><span class="grad">that understands your operation?</span></h2>
       <p class="section-body reveal d2" data-i18n="cta_body">I'm not sold as a chatbot. I'm a strategic capability of DevShell Tech — the cognitive interface that connects your people, processes, data, and automations. You buy solutions and intelligence domains; I'm what ties them together.</p>
       <div class="btn-row reveal d3" style="opacity:1;transform:none">
-        <button type="button" class="btn btn-primary" onclick="window.openEllaChat()" data-i18n="cta_btn_start">Talk to Ella →</button>
+        <button type="button" class="btn btn-primary" onclick="window.openDaimonChat()" data-i18n="cta_btn_start">Talk to Daimon →</button>
         <a class="btn btn-ghost" href="#capabilities" data-i18n="cta_btn_more">See how it works</a>
       </div>
       <p class="cta-meta reveal d4" data-i18n="cta_meta">The intelligence layer of DevShell Tech</p>
@@ -1826,16 +1826,16 @@
 
   <!-- ── Footer ── -->
   <footer>
-    <span data-i18n-html="footer_built">Ella — the intelligence layer of DevShell Tech</span>
+    <span data-i18n-html="footer_built">Daimon — the intelligence layer of DevShell Tech</span>
   </footer>
 
   <!-- ── Floating chat widget ── -->
-  <div class="ella-widget" id="ella-widget">
-    <div class="ella-panel" id="ella-panel" role="dialog" aria-modal="true" aria-label="Chat with Ella">
+  <div class="Daimon-widget" id="Daimon-widget">
+    <div class="Daimon-panel" id="Daimon-panel" role="dialog" aria-modal="true" aria-label="Chat with Daimon">
       <div class="panel-header" id="panel-header">
-        <img class="panel-avatar" src="ella-profile-image.jpeg" alt="Ella" loading="lazy" />
+        <img class="panel-avatar" src="Daimon-profile-image.jpeg" alt="Daimon" loading="lazy" />
         <div>
-          <div class="panel-name">Ella</div>
+          <div class="panel-name">Daimon</div>
           <div class="panel-online" id="panel-online">online</div>
         </div>
         <button class="panel-close" id="panel-close" aria-label="Close chat panel">✕</button>
@@ -1845,13 +1845,13 @@
       <div class="panel-input-row" id="panel-input-row">
         <input type="text" id="panel-input" class="panel-input"
                placeholder="Type a message… or ask what I can do" autocomplete="off" spellcheck="false"
-               aria-label="Message Ella" />
+               aria-label="Message Daimon" />
         <button id="panel-send" class="panel-send" aria-label="Send">↵</button>
       </div>
     </div>
-    <button class="ella-trigger" id="ella-trigger" aria-label="Chat with Ella" aria-expanded="false">
-      <img src="ella-profile-image.jpeg" alt="Ella" loading="lazy" />
-      <span class="ella-trigger-dot"></span>
+    <button class="Daimon-trigger" id="Daimon-trigger" aria-label="Chat with Daimon" aria-expanded="false">
+      <img src="Daimon-profile-image.jpeg" alt="Daimon" loading="lazy" />
+      <span class="Daimon-trigger-dot"></span>
     </button>
   </div>
 
@@ -1876,7 +1876,7 @@
 
   <script>
   /* ═══ Shared full-page i18n (visible to all script IIFEs) ═══ */
-  var ELLA_PAGE_LANG = 'en';
+  var Daimon_PAGE_LANG = 'en';
   const PAGE_I18N = {
     en: {
       intro_label: "The gap",
@@ -1941,7 +1941,7 @@
         { text: " Want the breakdown by channel?", cls: 'hl2' },
       ],
 
-      why_label: "Why Ella",
+      why_label: "Why Daimon",
       why_title: 'From search<br/><span class="grad-warm">to investigation.</span>',
       why_col1_title: "Most assistants",
       why_col1_i1: 'Ask "what do you want to know?" and look it up',
@@ -1951,7 +1951,7 @@
       why_col1_i5: "Generation one: they answer questions",
       why_col1_i6: "Generation two: they execute a task you define",
       why_col1_i7: "Almost never do real work on their own",
-      why_col2_title: "Ella",
+      why_col2_title: "Daimon",
       why_col2_i1: 'Says "let\'s find out what actually happened"',
       why_col2_i2: "Knows your operation, processes, and history",
       why_col2_i3: "Correlates events across every connected system",
@@ -1974,11 +1974,11 @@
       cta_label: "Get started",
       cta_title: 'Ready for an intelligence layer<br/><span class="grad">that understands your operation?</span>',
       cta_body: "I'm not sold as a chatbot. I'm a strategic capability of DevShell Tech — the cognitive interface that connects your people, processes, data, and automations. You buy solutions and intelligence domains; I'm what ties them together.",
-      cta_btn_start: "Talk to Ella →",
+      cta_btn_start: "Talk to Daimon →",
       cta_btn_more: "See how it works",
       cta_meta: "The intelligence layer of DevShell Tech",
 
-      footer_built: 'Ella — the intelligence layer of DevShell Tech',
+      footer_built: 'Daimon — the intelligence layer of DevShell Tech',
     },
     pt: {
       intro_label: "A lacuna",
@@ -2043,7 +2043,7 @@
         { text: " Quer a quebra por canal?", cls: 'hl2' },
       ],
 
-      why_label: "Por que Ella",
+      why_label: "Por que Daimon",
       why_title: 'Da busca<br/><span class="grad-warm">à investigação.</span>',
       why_col1_title: "A maioria dos assistentes",
       why_col1_i1: 'Pergunta "o que você quer saber?" e consulta',
@@ -2053,7 +2053,7 @@
       why_col1_i5: "Geração um: respondem perguntas",
       why_col1_i6: "Geração dois: executam uma tarefa que você define",
       why_col1_i7: "Quase nunca executam trabalho real sozinhos",
-      why_col2_title: "Ella",
+      why_col2_title: "Daimon",
       why_col2_i1: 'Diz "vamos descobrir o que de fato aconteceu"',
       why_col2_i2: "Conhece sua operação, seus processos e histórico",
       why_col2_i3: "Correlaciona eventos entre todos os sistemas conectados",
@@ -2076,11 +2076,11 @@
       cta_label: "Comece agora",
       cta_title: 'Pronto para uma camada de inteligência<br/><span class="grad">que entende a sua operação?</span>',
       cta_body: "Eu não sou vendida como chatbot. Sou uma capacidade estratégica do DevShell Tech — a interface cognitiva que conecta suas pessoas, processos, dados e automações. Você contrata soluções e domínios de inteligência; eu sou o que amarra tudo.",
-      cta_btn_start: "Falar com a Ella →",
+      cta_btn_start: "Falar com o Daimon →",
       cta_btn_more: "Como funciona",
       cta_meta: "A camada de inteligência do DevShell Tech",
 
-      footer_built: 'Ella — a camada de inteligência do DevShell Tech',
+      footer_built: 'Daimon — a camada de inteligência do DevShell Tech',
     },
   };
 
@@ -2371,7 +2371,7 @@
     const privacyQuote = document.getElementById('privacy-quote');
     let privacyQuoteTyped = false;
     function syncPrivacyQuoteLang() {
-      const dict = PAGE_I18N[ELLA_PAGE_LANG] || PAGE_I18N.en;
+      const dict = PAGE_I18N[Daimon_PAGE_LANG] || PAGE_I18N.en;
       if (dict.privacy_quote != null) privacyQuote.dataset.typewriter = dict.privacy_quote;
     }
     const pqObs = new IntersectionObserver((entries) => {
@@ -2385,24 +2385,24 @@
     pqObs.observe(privacyQuote);
 
     // Expose language-switch hooks for the chat IIFE
-    window.__ellaRetypeQuote = () => {
+    window.__DaimonRetypeQuote = () => {
       syncPrivacyQuoteLang();
       if (privacyQuoteTyped) startTypewriter(privacyQuote);
     };
-    window.__ellaReplayDemo = () => {
-      if (typeEllaReply._cancel) { typeEllaReply._cancel(); typeEllaReply._cancel = null; }
-      if (demoPlayed) typeEllaReply();
+    window.__DaimonReplayDemo = () => {
+      if (typeDaimonReply._cancel) { typeDaimonReply._cancel(); typeDaimonReply._cancel = null; }
+      if (demoPlayed) typeDaimonReply();
     };
 
     /* ═══ Chat demo animation ═══ */
     const demoTerminal = document.getElementById('demo-terminal');
     const dmUser       = document.getElementById('dm-user');
     const dmTyping     = document.getElementById('dm-typing');
-    const dmElla       = document.getElementById('dm-ella');
-    const dmEllaText   = document.getElementById('dm-ella-text');
+    const dmDaimon       = document.getElementById('dm-Daimon');
+    const dmDaimonText   = document.getElementById('dm-Daimon-text');
 
-    function currentEllaReply() {
-      const dict = PAGE_I18N[ELLA_PAGE_LANG] || PAGE_I18N.en;
+    function currentDaimonReply() {
+      const dict = PAGE_I18N[Daimon_PAGE_LANG] || PAGE_I18N.en;
       return dict.demo_reply || PAGE_I18N.en.demo_reply;
     }
 
@@ -2422,33 +2422,33 @@
       setTimeout(() => { dmUser.classList.add('show'); }, t); t += 700;
       // Typing indicator
       setTimeout(() => { dmTyping.classList.add('show'); }, t); t += 1800;
-      // Hide typing, show Ella's reply
+      // Hide typing, show Daimon's reply
       setTimeout(() => {
         dmTyping.classList.remove('show');
-        dmElla.classList.add('show');
-        typeEllaReply();
+        dmDaimon.classList.add('show');
+        typeDaimonReply();
       }, t);
     }
 
-    function typeEllaReply() {
-      if (typeEllaReply._cancel) typeEllaReply._cancel();
-      dmEllaText.innerHTML = '';
+    function typeDaimonReply() {
+      if (typeDaimonReply._cancel) typeDaimonReply._cancel();
+      dmDaimonText.innerHTML = '';
 
       const cursor = document.createElement('span');
       cursor.className = 'tw-cursor';
-      dmEllaText.appendChild(cursor);
+      dmDaimonText.appendChild(cursor);
 
-      const ellaReply = currentEllaReply();
+      const DaimonReply = currentDaimonReply();
       let si = 0, ci = 0, activeSpan = null, dead = false;
-      typeEllaReply._cancel = () => { dead = true; };
+      typeDaimonReply._cancel = () => { dead = true; };
 
       function tick() {
         if (dead) return;
-        if (si >= ellaReply.length) {
+        if (si >= DaimonReply.length) {
           setTimeout(() => { if (!dead) cursor.remove(); }, 700);
           return;
         }
-        const seg = ellaReply[si];
+        const seg = DaimonReply[si];
         if (ci === 0 && seg.cls) {
           activeSpan = document.createElement('span');
           activeSpan.className = seg.cls;
@@ -2479,11 +2479,11 @@
     const replayObs = new IntersectionObserver((entries) => {
       if (!entries[0].isIntersecting && demoPlayed) {
         demoPlayed = false;
-        if (typeEllaReply._cancel) { typeEllaReply._cancel(); typeEllaReply._cancel = null; }
+        if (typeDaimonReply._cancel) { typeDaimonReply._cancel(); typeDaimonReply._cancel = null; }
         dmUser.classList.remove('show');
         dmTyping.classList.remove('show');
-        dmElla.classList.remove('show');
-        dmEllaText.innerHTML = '';
+        dmDaimon.classList.remove('show');
+        dmDaimonText.innerHTML = '';
       }
     }, { threshold: 0 });
     replayObs.observe(demoTerminal);
@@ -2494,9 +2494,9 @@
      Floating chat widget
   ═══════════════════════════════════════════ */
   (() => {
-    const widget  = document.getElementById('ella-widget');
-    const panel   = document.getElementById('ella-panel');
-    const trigger = document.getElementById('ella-trigger');
+    const widget  = document.getElementById('Daimon-widget');
+    const panel   = document.getElementById('Daimon-panel');
+    const trigger = document.getElementById('Daimon-trigger');
     const closeBtn= document.getElementById('panel-close');
     const msgs    = document.getElementById('panel-messages');
     const optsEl  = document.getElementById('panel-options');
@@ -2551,7 +2551,7 @@
         share_msg: [
           "Where to?",
           "How would you like to share?",
-          "Share Ella:",
+          "Share Daimon:",
         ],
         copied: [
           "Link copied!",
@@ -2570,12 +2570,12 @@
           { label: "Print",     action: 'print' },
           { label: "Share",     next: 'share' },
         ],
-        nav: { cap:'Capabilities', use:'Use cases', why:'Why Ella', priv:'Thesis' },
+        nav: { cap:'Capabilities', use:'Use cases', why:'Why Daimon', priv:'Thesis' },
         hero_eyebrow:    'The Intelligence Layer for Organizations',
         hero_line1:      "I don't just answer.",
         hero_line2:      "I find out what happened.",
         hero_sub:        "Not a chatbot — an operational intelligence that works over your whole organization. I investigate, correlate causes, anticipate what's coming, and act on it.",
-        hero_btn_start:  'Talk to Ella →',
+        hero_btn_start:  'Talk to Daimon →',
         hero_btn_why:    'See how it works',
       },
       pt: {
@@ -2616,7 +2616,7 @@
         share_msg: [
           "Onde quer compartilhar?",
           "Como prefere compartilhar?",
-          "Compartilhe a Ella:",
+          "Compartilhe o Daimon:",
         ],
         copied: [
           "Link copiado!",
@@ -2635,12 +2635,12 @@
           { label: "Imprimir",         action: 'print' },
           { label: "Compartilhar",     next: 'share' },
         ],
-        nav: { cap:'Capacidades', use:'Casos de uso', why:'Por que Ella', priv:'Tese' },
+        nav: { cap:'Capacidades', use:'Casos de uso', why:'Por que Daimon', priv:'Tese' },
         hero_eyebrow:    'A camada de inteligência da sua operação',
         hero_line1:      'Eu não só respondo.',
         hero_line2:      'Eu investigo o que aconteceu.',
         hero_sub:        'Não sou um chatbot — sou uma inteligência operacional que atua sobre toda a sua organização. Eu investigo, correlaciono causas, antecipo o que vem e ajo.',
-        hero_btn_start:  'Falar com a Ella →',
+        hero_btn_start:  'Falar com o Daimon →',
         hero_btn_why:    'Como funciona',
       },
     };
@@ -2676,7 +2676,7 @@
       clampWidget();
       if (!greeted) {
         greeted = true;
-        addMsg('ella', pick(T[lang].greeting), 200);
+        addMsg('Daimon', pick(T[lang].greeting), 200);
         showOpts('home', 500);
       }
       const inputEl = document.getElementById('panel-input');
@@ -2692,7 +2692,7 @@
       trigger.focus();
     }
     function togglePanel() { panelOpen ? closePanel() : openPanel(); }
-    window.openEllaChat = () => { if (!panelOpen) openPanel(); };
+    window.openDaimonChat = () => { if (!panelOpen) openPanel(); };
 
     closeBtn.addEventListener('click', e => { e.stopPropagation(); closePanel(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && panelOpen) closePanel(); });
@@ -2771,16 +2771,16 @@
     function goTo(screen) {
       const t = T[lang];
       if (screen === 'home') {
-        setTimeout(() => { addMsg('ella', pick(t.greeting)); showOpts('home', 300); }, 250);
+        setTimeout(() => { addMsg('Daimon', pick(t.greeting)); showOpts('home', 300); }, 250);
       } else if (screen === 'theme') {
         const msg = pick(theme === 'dark' ? t.theme_light : t.theme_dark);
-        setTimeout(() => { doTheme(); addMsg('ella', msg); showOpts('home', 500); }, 300);
+        setTimeout(() => { doTheme(); addMsg('Daimon', msg); showOpts('home', 500); }, 300);
       } else if (screen === 'language') {
-        setTimeout(() => { addMsg('ella', pick(t.lang_prompt)); showOpts('language', 380); }, 300);
+        setTimeout(() => { addMsg('Daimon', pick(t.lang_prompt)); showOpts('language', 380); }, 300);
       } else if (screen === 'font') {
-        setTimeout(() => { addMsg('ella', pick(t.font_prompt)); showOpts('font', 380); }, 300);
+        setTimeout(() => { addMsg('Daimon', pick(t.font_prompt)); showOpts('font', 380); }, 300);
       } else if (screen === 'share') {
-        setTimeout(() => { addMsg('ella', pick(t.share_msg)); showOpts('share', 380); }, 300);
+        setTimeout(() => { addMsg('Daimon', pick(t.share_msg)); showOpts('share', 380); }, 300);
       }
     }
 
@@ -2788,14 +2788,14 @@
     function doAttractor() {
       const on = window.toggleAttractor();
       const msg = pick(on ? T[lang].attractor_on : T[lang].attractor_off);
-      setTimeout(() => { addMsg('ella', msg); showOpts('home', 400); }, 300);
+      setTimeout(() => { addMsg('Daimon', msg); showOpts('home', 400); }, 300);
     }
 
     function doTheme() {
       theme = theme === 'dark' ? 'light' : 'dark';
       document.body.classList.toggle('light', theme === 'light');
       // Update trigger dot border color
-      document.querySelector('.ella-trigger-dot').style.borderColor =
+      document.querySelector('.Daimon-trigger-dot').style.borderColor =
         theme === 'light' ? 'var(--surface)' : 'var(--bg)';
     }
 
@@ -2804,7 +2804,7 @@
       document.documentElement.lang = newLang;
       applyTranslations();
       const ack = newLang === 'en' ? 'Switched to English.' : 'Idioma alterado para Português.';
-      setTimeout(() => { addMsg('ella', ack); showOpts('home', 380); }, 400);
+      setTimeout(() => { addMsg('Daimon', ack); showOpts('home', 380); }, 400);
     }
 
     function applyTranslations() {
@@ -2829,7 +2829,7 @@
       const po = document.getElementById('panel-online');
       if(po) po.textContent = t.online;
       // ── Full-page body sweep ──
-      ELLA_PAGE_LANG = lang;
+      Daimon_PAGE_LANG = lang;
       const dict = PAGE_I18N[lang] || PAGE_I18N.en;
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const k = el.getAttribute('data-i18n'); if (dict[k] != null) el.textContent = dict[k];
@@ -2838,45 +2838,45 @@
         const k = el.getAttribute('data-i18n-html'); if (dict[k] != null) el.innerHTML = dict[k];
       });
       // Privacy typewriter + anticipation demo follow the language
-      if (typeof window.__ellaRetypeQuote === 'function') window.__ellaRetypeQuote();
-      if (typeof window.__ellaReplayDemo === 'function') window.__ellaReplayDemo();
+      if (typeof window.__DaimonRetypeQuote === 'function') window.__DaimonRetypeQuote();
+      if (typeof window.__DaimonReplayDemo === 'function') window.__DaimonReplayDemo();
       // Rebuild options in current language (reset chat state)
       greeted = false; msgs.innerHTML = ''; clearOpts();
-      if (panelOpen) { addMsg('ella', pick(t.greeting), 150); showOpts('home', 420); }
+      if (panelOpen) { addMsg('Daimon', pick(t.greeting), 150); showOpts('home', 420); }
     }
 
     function doFont(delta) {
       fontSize = Math.max(12, Math.min(22, fontSize + delta));
       document.documentElement.style.fontSize = fontSize + 'px';
-      setTimeout(() => { addMsg('ella', T[lang].font_ack(fontSize)); showOpts('font', 350); }, 350); // font_ack already calls pick() internally
+      setTimeout(() => { addMsg('Daimon', T[lang].font_ack(fontSize)); showOpts('font', 350); }, 350); // font_ack already calls pick() internally
     }
     function doFontReset() {
       fontSize = 16;
       document.documentElement.style.fontSize = '';
-      setTimeout(() => { addMsg('ella', pick(T[lang].font_reset)); showOpts('font', 350); }, 350);
+      setTimeout(() => { addMsg('Daimon', pick(T[lang].font_reset)); showOpts('font', 350); }, 350);
     }
 
     function doPrint(label) {
       setTimeout(() => {
-        addMsg('ella', pick(T[lang].print_msg));
+        addMsg('Daimon', pick(T[lang].print_msg));
         showOpts('home', 800);
         setTimeout(() => window.print(), 600);
       }, 350);
     }
 
     const pageUrl   = window.location.href;
-    const pageTitle = encodeURIComponent('Ella — The Intelligence Layer for Modern Organizations');
+    const pageTitle = encodeURIComponent('Daimon — The Intelligence Layer for Modern Organizations');
     function doShareX()  {
       window.open(`https://twitter.com/intent/tweet?text=${pageTitle}&url=${encodeURIComponent(pageUrl)}`, '_blank');
-      setTimeout(() => { addMsg('ella', 'Opening Twitter / X…'); showOpts('share', 380); }, 350);
+      setTimeout(() => { addMsg('Daimon', 'Opening Twitter / X…'); showOpts('share', 380); }, 350);
     }
     function doShareLI() {
       window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(pageUrl)}&title=${pageTitle}`, '_blank');
-      setTimeout(() => { addMsg('ella', 'Opening LinkedIn…'); showOpts('share', 380); }, 350);
+      setTimeout(() => { addMsg('Daimon', 'Opening LinkedIn…'); showOpts('share', 380); }, 350);
     }
     function doCopy() {
       navigator.clipboard.writeText(pageUrl).catch(() => {});
-      setTimeout(() => { addMsg('ella', pick(T[lang].copied)); showOpts('share', 380); }, 350);
+      setTimeout(() => { addMsg('Daimon', pick(T[lang].copied)); showOpts('share', 380); }, 350);
     }
 
     /* ── Positioning: always left + bottom (widget grows upward from anchor) ── */
@@ -2992,7 +2992,7 @@
       hudIdleTimer = setTimeout(() => document.body.classList.remove('hud-active'), 1800);
     }, { passive: true });
 
-    const COMBAT_TRIGGERS = /tech\s*mode|combat\s*mode|jarvis|j\.a\.r\.v\.i\.s|override|hackmode|matrix\s*mode|modo\s*tech|modo\s*combate|modo\s*jarvis|modo\s*hacker|activate\s*systems|go\s*ella|ella\s*go|suit\s*up|systems\s*online|what can you (really )?do|show me (everything|what you.ve got)|me mostre tudo|o que voc[eê] consegue/i;
+    const COMBAT_TRIGGERS = /tech\s*mode|combat\s*mode|jarvis|j\.a\.r\.v\.i\.s|override|hackmode|matrix\s*mode|modo\s*tech|modo\s*combate|modo\s*jarvis|modo\s*hacker|activate\s*systems|go\s*Daimon|Daimon\s*go|suit\s*up|systems\s*online|what can you (really )?do|show me (everything|what you.ve got)|me mostre tudo|o que voc[eê] consegue/i;
     const EXIT_TRIGGERS   = /stand\s*down|exit\s*combat|disable|deactivate|normal\s*mode|modo\s*normal|desativar|modo\s*padr[aã]o|power\s*down|sair/i;
 
     /* ── Keyword responses for free text ── */
@@ -3012,9 +3012,9 @@
       workflow:  { re: /workflow|automat|node|flow|act|aç[aã]o|ag/i,
         en: ["Understanding is half the job. I also act — open a ticket, create a task, send a notification, trigger an integration.", "When I detect a condition, I run the automation. Investigation and action, not just answers."],
         pt: ["Entender é metade do trabalho. Eu também ajo — abro um ticket, crio uma tarefa, envio uma notificação, disparo uma integração.", "Quando detecto uma condição, rodo a automação. Investigação e ação, não só respostas."] },
-      whoami:    { re: /who are you|quem.*voc[eê]|what are you|o que.*voc[eê]|quem.*ella/i,
-        en: ["I'm Ella — the intelligence layer of DevShell Tech. Not a chatbot; an operational intelligence over your whole organization.", "Ella. I investigate, explain causes, anticipate, and act over your operation."],
-        pt: ["Sou a Ella — a camada de inteligência do DevShell Tech. Não sou um chatbot; sou uma inteligência operacional sobre toda a sua organização.", "Ella. Investigo, explico causas, antecipo e ajo sobre a sua operação."] },
+      whoami:    { re: /who are you|quem.*voc[eê]|what are you|o que.*voc[eê]|quem.*Daimon/i,
+        en: ["I'm Daimon — the intelligence layer of DevShell Tech. Not a chatbot; an operational intelligence over your whole organization.", "Daimon. I investigate, explain causes, anticipate, and act over your operation."],
+        pt: ["Sou o Daimon — a camada de inteligência do DevShell Tech. Não sou um chatbot; sou uma inteligência operacional sobre toda a sua organização.", "Daimon. Investigo, explico causas, antecipo e ajo sobre a sua operação."] },
       hello:     { re: /^(hello|hi|hey|oi|ol[aá]|good\s*(morning|evening|day|afternoon))/i,
         en: null, pt: null }, // uses greeting array
     };
@@ -3111,7 +3111,7 @@
       const tl = document.getElementById('hud-tl-text');
       const bl = document.getElementById('hud-bl-text');
       const br = document.getElementById('hud-br-text');
-      if (tl) tl.innerHTML = 'ELLA // OS v2.0<br>COMBAT MODE: ACTIVE<br>SYS STATUS: NOMINAL';
+      if (tl) tl.innerHTML = 'Daimon // OS v2.0<br>COMBAT MODE: ACTIVE<br>SYS STATUS: NOMINAL';
       if (bl) bl.innerHTML = 'SYSTEMS ↑ CONNECTED<br>MEMORY: LOADED<br>ANOMALIES: NONE DETECTED';
       if (br) br.innerHTML = 'RADAR: ACTIVE<br>SCAN: 360°<br>TARGETS: 0';
       updateHudClock();
@@ -3175,7 +3175,7 @@
     }
 
     /* ══ Introspection Mode ══ */
-    const INTROSPECT_TRIGGERS = /introspect(ion)?(\s+mode)?|cognitive\s+(view|mode)|show\s+(me\s+)?how\s+you\s+think|inside\s+(ella|your\s+mind)|how\s+do\s+you\s+(think|reason)|como\s+voc[eê]\s+(pensa|raciocina)|vis[aã]o\s+cognitiva|introspec[çc][aã]o\s*(modo)?|modo\s+cognitivo|dentro\s+(da\s+)?ella/i;
+    const INTROSPECT_TRIGGERS = /introspect(ion)?(\s+mode)?|cognitive\s+(view|mode)|show\s+(me\s+)?how\s+you\s+think|inside\s+(Daimon|your\s+mind)|how\s+do\s+you\s+(think|reason)|como\s+voc[eê]\s+(pensa|raciocina)|vis[aã]o\s+cognitiva|introspec[çc][aã]o\s*(modo)?|modo\s+cognitivo|dentro\s+(da\s+)?Daimon/i;
 
     const NOTIF_STATIC = [
       { type: 'MEMORY ACTIVE',    text: 'Operational history indexed across every connected system.', conf: 100 },
@@ -3367,7 +3367,7 @@
 
       const h1 = document.getElementById('hero-h1');
       const ey = document.getElementById('hero-eyebrow');
-      if (h1) { heroOriginalHTML = h1.innerHTML; h1.innerHTML = '<span class="intro-confirm">IDENTITY CONFIRMED</span>I am Ella.<br><em class="grad">A persistent intelligence,<br>not a chat interface.</em>'; }
+      if (h1) { heroOriginalHTML = h1.innerHTML; h1.innerHTML = '<span class="intro-confirm">IDENTITY CONFIRMED</span>I am Daimon.<br><em class="grad">A persistent intelligence,<br>not a chat interface.</em>'; }
       if (ey) { eyebrowOriginalText = ey.textContent; ey.textContent = 'INTROSPECTION MODE'; }
 
       document.querySelectorAll('h2.section-title').forEach(el => {
@@ -3430,32 +3430,32 @@
 
       if (COMBAT_TRIGGERS.test(raw)) {
         if (combatOn) {
-          setTimeout(() => { addMsg('ella', pick(['Combat systems already active.', 'Already in combat mode.', 'Systems are online.'])); showOpts('home', 400); }, 300);
+          setTimeout(() => { addMsg('Daimon', pick(['Combat systems already active.', 'Already in combat mode.', 'Systems are online.'])); showOpts('home', 400); }, 300);
         } else {
-          setTimeout(() => addMsg('ella', pick(['Initializing combat interface…', 'Switching to Jarvis mode…', 'Activating tactical overlay…'])), 200);
-          setTimeout(() => { activateCombat(); addMsg('ella', pick(['All systems nominal. Combat mode active.', 'Tactical HUD online. Standing by.', 'Interface locked and loaded.'])); showOpts('home', 400); }, 900);
+          setTimeout(() => addMsg('Daimon', pick(['Initializing combat interface…', 'Switching to Jarvis mode…', 'Activating tactical overlay…'])), 200);
+          setTimeout(() => { activateCombat(); addMsg('Daimon', pick(['All systems nominal. Combat mode active.', 'Tactical HUD online. Standing by.', 'Interface locked and loaded.'])); showOpts('home', 400); }, 900);
         }
         return;
       }
 
       if (INTROSPECT_TRIGGERS.test(raw)) {
         if (introspectOn) {
-          setTimeout(() => { addMsg('ella', 'Introspection mode is already active. You\'re looking at how I think.'); showOpts('home', 400); }, 300);
+          setTimeout(() => { addMsg('Daimon', 'Introspection mode is already active. You\'re looking at how I think.'); showOpts('home', 400); }, 300);
         } else {
-          setTimeout(() => addMsg('ella', pick(['Opening a window into my cognition…', 'Let me show you how I think…', 'Switching to introspection view…'])), 200);
-          setTimeout(() => { activateIntrospect(); addMsg('ella', 'Cognitive view active. This is what runs underneath every response.'); showOpts('home', 400); }, 950);
+          setTimeout(() => addMsg('Daimon', pick(['Opening a window into my cognition…', 'Let me show you how I think…', 'Switching to introspection view…'])), 200);
+          setTimeout(() => { activateIntrospect(); addMsg('Daimon', 'Cognitive view active. This is what runs underneath every response.'); showOpts('home', 400); }, 950);
         }
         return;
       }
 
       if (EXIT_TRIGGERS.test(raw)) {
         if (!combatOn && !introspectOn) {
-          setTimeout(() => { addMsg('ella', pick(['Already in standard mode.', 'Nothing to deactivate.', 'Systems are already nominal.'])); showOpts('home', 400); }, 300);
+          setTimeout(() => { addMsg('Daimon', pick(['Already in standard mode.', 'Nothing to deactivate.', 'Systems are already nominal.'])); showOpts('home', 400); }, 300);
         } else {
-          setTimeout(() => addMsg('ella', pick(['Returning to surface…', 'Disabling overlay…', 'Restoring standard view…'])), 200);
+          setTimeout(() => addMsg('Daimon', pick(['Returning to surface…', 'Disabling overlay…', 'Restoring standard view…'])), 200);
           setTimeout(() => {
-            if (combatOn)    { deactivateCombat();    addMsg('ella', pick(['Standard mode restored.', 'Combat systems offline.'])); }
-            if (introspectOn){ deactivateIntrospect(); addMsg('ella', pick(['Back to surface.', 'Cognitive view closed.'])); }
+            if (combatOn)    { deactivateCombat();    addMsg('Daimon', pick(['Standard mode restored.', 'Combat systems offline.'])); }
+            if (introspectOn){ deactivateIntrospect(); addMsg('Daimon', pick(['Back to surface.', 'Cognitive view closed.'])); }
             showOpts('home', 400);
           }, 700);
         }
@@ -3464,7 +3464,7 @@
 
       const kwReply = getKeywordResponse(raw);
       if (kwReply) {
-        setTimeout(() => { addMsg('ella', kwReply); showOpts('home', 400); }, 300);
+        setTimeout(() => { addMsg('Daimon', kwReply); showOpts('home', 400); }, 300);
         return;
       }
 
@@ -3473,7 +3473,7 @@
         en: ["Try the options above, or ask about memory, tools, workflows, or privacy.", "I didn't catch that. Keywords: 'memory', 'tools', 'workflow', 'privacy'.", "Not sure how to answer that — try one of the options, or type a keyword."],
         pt: ["Tente as opções acima, ou pergunte sobre memória, ferramentas, workflows ou privacidade.", "Não entendi. Palavras-chave: 'memória', 'ferramentas', 'workflow', 'privacidade'.", "Sem certeza como responder — tente uma opção ou uma palavra-chave."],
       };
-      setTimeout(() => { addMsg('ella', pick(fallback[lang])); showOpts('home', 400); }, 300);
+      setTimeout(() => { addMsg('Daimon', pick(fallback[lang])); showOpts('home', 400); }, 300);
     }
 
     if (inputEl) {

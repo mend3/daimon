@@ -2,7 +2,7 @@
 so the same URL ingested through two capabilities keeps both rows."""
 import sqlite3
 
-from ella_kb.core.ledger import SqliteLedger
+from daimon_kb.core.ledger import SqliteLedger
 
 
 def test_rows_scoped_by_source_and_capability(tmp_path):

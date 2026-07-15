@@ -1,6 +1,6 @@
 ---
 name: status
-description: Report which of Ella's abilities are live right now and what she can do, in plain language.
+description: Report which of Daimon's abilities are live right now and what she can do, in plain language.
 version: 1.0.0
 metadata:
   hermes:

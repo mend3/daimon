@@ -1,22 +1,22 @@
-"""End-to-end against a live Qdrant + Ollama. Skipped unless ELLA_KB_IT=1 and the
+"""End-to-end against a live Qdrant + Ollama. Skipped unless DAIMON_KB_IT=1 and the
 services are reachable (set QDRANT_URL/QDRANT_API_KEY/embeddings via env or config)."""
 import os
 import uuid
 
 import pytest
 
-pytestmark = pytest.mark.skipif(os.environ.get("ELLA_KB_IT") != "1",
-                                reason="integration test (set ELLA_KB_IT=1)")
+pytestmark = pytest.mark.skipif(os.environ.get("DAIMON_KB_IT") != "1",
+                                reason="integration test (set DAIMON_KB_IT=1)")
 
 
 @pytest.fixture
 def kb():
-    from ella_kb.core.config import Capability, EllaKbConfig, EmbedCfg, QdrantCfg
-    from ella_kb.service import KnowledgeBase
+    from daimon_kb.core.config import Capability, DaimonKbConfig, EmbedCfg, QdrantCfg
+    from daimon_kb.service import KnowledgeBase
 
     tag = "it" + uuid.uuid4().hex[:8]  # isolate collections per run
-    cfg = EllaKbConfig(
-        ledger_path=f"/tmp/ella_kb_{tag}.db",
+    cfg = DaimonKbConfig(
+        ledger_path=f"/tmp/daimon_kb_{tag}.db",
         qdrant=QdrantCfg(url=os.environ["QDRANT_URL"], api_key=os.environ.get("QDRANT_API_KEY")),
         embeddings=EmbedCfg(base_url=os.environ.get("OLLAMA_URL", "http://localhost:11434"), tag=tag),
         capabilities={"chat": Capability(enabled=True), "files": Capability(enabled=True),

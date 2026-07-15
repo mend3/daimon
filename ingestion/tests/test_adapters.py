@@ -5,12 +5,12 @@ import httpx
 
 import pytest
 
-from ella_kb.adapters.base import AdapterContext
-from ella_kb.adapters.feeds import FeedAdapter, _passes_triage, _strip_html
-from ella_kb.adapters.urls import UrlAdapter
-from ella_kb.adapters.webhook import WebhookAdapter
-from ella_kb.core.document import RawItem
-from ella_kb.core.security import SSRFError, SSRFGuard
+from daimon_kb.adapters.base import AdapterContext
+from daimon_kb.adapters.feeds import FeedAdapter, _passes_triage, _strip_html
+from daimon_kb.adapters.urls import UrlAdapter
+from daimon_kb.adapters.webhook import WebhookAdapter
+from daimon_kb.core.document import RawItem
+from daimon_kb.core.security import SSRFError, SSRFGuard
 
 
 def _ctx():
@@ -88,7 +88,7 @@ def test_webhook_normalize_and_signature():
     secret = b"s3cret"
     body = b'{"text":"x"}'
     sig = "sha256=" + hmac.new(secret, body, hashlib.sha256).hexdigest()
-    from ella_kb.apps import webhook_receiver as wr
+    from daimon_kb.apps import webhook_receiver as wr
     wr._secret = secret
     assert wr._valid(sig, body)
     assert not wr._valid("sha256=deadbeef", body)

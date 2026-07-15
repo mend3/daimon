@@ -10,7 +10,7 @@
 # provider reads the key and endpoint from the
 # OPENAI_API_KEY / OPENAI_BASE_URL *environment*, not the fields below; postCreate
 # writes the real values into ~/.hermes/.env from OPENAI_PROFILE_API_KEY. Ollama
-# stays the vision/embedding backend (see auxiliary + ella_kb). Switch the main
+# stays the vision/embedding backend (see auxiliary + daimon_kb). Switch the main
 # model via `hermes model` or by editing this block:
 #   - Local/offline: provider custom, model gpt-oss:20b, base_url the host Ollama
 #     (http://host.docker.internal:11434/v1), api_key "ollama", context_length 65536.
@@ -98,7 +98,7 @@ memory:
   memory_enabled: true
   user_profile_enabled: true
 
-# Automatic memory hygiene — Ella's SOUL says "save what's durable, not passing
+# Automatic memory hygiene — Daimon's SOUL says "save what's durable, not passing
 # chatter", and the curator enforces it: weekly, when idle, it archives stale
 # memories and prunes noise (backups kept, so it's reversible).
 curator:
@@ -130,12 +130,12 @@ web:
   backend: searxng
 
 # --- Knowledge base (MCP) ----------------------------------------------------
-# Ella's personal RAG store: capture/recall/forget over a local Qdrant. The
+# Daimon's personal RAG store: capture/recall/forget over a local Qdrant. The
 # launcher loads ~/.hermes/.env (for QDRANT_API_KEY) then runs the server in the
-# Hermes venv where the ella_kb package is installed (see postCreate.sh).
+# Hermes venv where the daimon_kb package is installed (see postCreate.sh).
 mcp_servers:
-  ella-kb:
-    command: "/home/vscode/.hermes/ella-kb-mcp.sh"
+  daimon-kb:
+    command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
     args: []
 
 # --- Voice (text-to-speech) --------------------------------------------------
@@ -164,12 +164,12 @@ stt:
 # the agent has shell/file tools, so unknown senders get nothing.
 unauthorized_dm_behavior: ignore
 
-# Natural pacing on messaging platforms — Ella reads as "genuinely human" rather than
+# Natural pacing on messaging platforms — Daimon reads as "genuinely human" rather than
 # firing replies back instantly.
 human_delay:
   mode: natural
 
-# Zero-token chat shortcuts (no LLM). /health pings the host services Ella relies on.
+# Zero-token chat shortcuts (no LLM). /health pings the host services Daimon relies on.
 quick_commands:
   health:
     type: exec

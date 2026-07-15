@@ -3,7 +3,7 @@
 #   com.hermes.ollama  — Ollama as a managed service (RunAtLoad + KeepAlive)
 #   com.hermes.stacks  — bring up SearXNG + TTS + telemetry sidecars at login
 #   com.hermes.backup  — daily backup of the hermes-data volume
-# Shared infra (redis/qdrant/observability) is owned by oracle, not Ella.
+# Shared infra (redis/qdrant/observability) is provided by your shared stack, not Daimon.
 # Idempotent; re-run to update. No sudo required (user agents).
 set -euo pipefail
 
