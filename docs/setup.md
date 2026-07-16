@@ -5,9 +5,10 @@ stack. For the overview, see the [README](../README.md).
 
 ## Architecture
 
-Hermes runs isolated in a **devcontainer**, driven by **OpenAI gpt-5-mini** by default
-with **gpt-oss:20b** on Ollama as the local profile and automatic fallback (Ollama also
-serves vision + embeddings).
+Hermes runs isolated in **its own container**, brought up by compose alongside his
+sidecars (`make up`). He is driven by the local **gpt-oss:20b** on Ollama by default —
+which also serves vision + embeddings — with **OpenAI gpt-5-mini** as an optional
+fallback when the local model errors out.
 
 Everything shared is **external**: you run Ollama, Redis, Qdrant and the observability
 plane on a Docker network Daimon joins — `SHARED_NETWORK`, default `shared` — and Daimon
@@ -22,7 +23,7 @@ reaches them **by DNS**. Daimon declares none of them; it adds only its own side
 │    redis:6379 (db 5)                                      │
 │    loki:3100 · grafana:3000                               │
 │                       ▲                                   │
-│  ┌──────────── devcontainer ─────────────┐                │
+│  ┌────────── agent container ────────────┐               │
 │  │  Hermes Agent (CLI, isolated)          │               │
 │  │    config: ~/.hermes/config.yaml       │               │
 │  └────────────────────────────────────────┘               │
@@ -35,23 +36,27 @@ two. Daimon consumes; the stack provides.
 
 Hermes requires a model with at least a **64K context window** — a model that maxes
 below it (e.g. `qwen3:8b` at 40K) is rejected at startup. The window is served by *your*
-Ollama (`OLLAMA_CONTEXT_LENGTH`) for all of its consumers at once, so it is your call,
-not Daimon's; `make doctor` reports the models it needs rather than pulling them.
+Ollama (`OLLAMA_CONTEXT_LENGTH`, or a `num_ctx` baked into the model) for all of its
+consumers at once, so it is your call, not Daimon's; `make doctor` reports the models it
+needs rather than pulling them. Keep `model.context_length` in `config/config.yaml` equal
+to what is actually served: claim more and Hermes budgets a window the server quietly
+truncates, which reads as replies cut short mid-sentence, not as an error.
 
 ## Repo layout
 
 ```
-.devcontainer/
-  devcontainer.json   # container def: volumes, host networking, env, lifecycle
-  Dockerfile          # Debian base + git/curl/ripgrep/ffmpeg; runs container-boot.sh
-  postCreate.sh       # installs Hermes (skipped once volumes are warm), syncs config
-  container-boot.sh   # PID 1: starts the gateway, then keeps the container alive
+docker-compose.yml    # Daimon + his sidecars (searxng, tts, telemetry), by profile
+docker/agent/         # the container Hermes runs in:
+  Dockerfile          # Debian base + git/curl/ripgrep/ffmpeg/node; runs entrypoint.sh
+  entrypoint.sh       # PID 1: setup, then the gateway, then keeps the container alive
+  setup.sh            # installs Hermes (skipped once volumes are warm), syncs config
   start-gateway.sh    # idempotent gateway launcher (no-op without a token)
   patches/            # idempotent post-install patches applied to Hermes (e.g. clickable /help)
+.devcontainer/        # optional dev shell for editing this repo — same image, same
+                      # setup.sh, no gateway (see "Editing this repo")
 config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
                       # daimon_kb.yaml, gateway.json, skills/, .env.example
 ingestion/            # daimon_kb (RAG), daimon_flow (headless workflow engine)
-docker-compose.yml    # Daimon's sidecars (searxng, tts, telemetry) with profiles
 docker/               # container configs for the sidecars:
   searxng/settings.yml.example  # web-search engine; cache/limiter on the shared Redis
   chat-shipper/ status-exporter/  # app-level telemetry sidecars (see Monitoring)
@@ -69,8 +74,8 @@ Start it first. Daimon reaches them by DNS: Ollama at `ollama:11434`, Redis at
 ```bash
 export SHARED_NETWORK=shared   # the network your infra stack runs on
 make doctor                    # what's reachable, what's missing
-make up                        # Daimon's sidecars: SearXNG + TTS
-# then open the folder in VS Code → "Reopen in Container" and run `hermes`
+make up                        # Daimon + his sidecars (SearXNG, TTS)
+docker compose exec agent hermes   # talk to him
 ```
 
 Start your **shared infra stack first** — it owns the network and the
@@ -84,12 +89,12 @@ Daimon pulls nothing: the models live on your Ollama, served at a **≥64K** win
 
 | Model | Used for | Missing means |
 |---|---|---|
-| `gpt-oss:20b` | local profile + automatic fallback | no local fallback; `ollama` profile unusable |
+| `gpt-oss:20b` | the default model (and the `ollama` profile) | Daimon can't answer without the OpenAI fallback |
 | `qwen2.5vl:7b` | the `vision` toolset | vision degraded |
 | `nomic-embed-text` | knowledge-base embeddings (768-dim) | knowledge base degraded |
 
-`make doctor` reports which are present. The OpenAI default profile answers without any
-of them.
+`make doctor` reports which are present. With an `OPENAI_PROFILE_API_KEY` set, the
+OpenAI fallback answers without any of them.
 
 ### 2. Start Daimon's sidecars
 
@@ -113,48 +118,54 @@ On a macOS host, launchd agents can start the sidecars at login and survive rebo
 sudo ./scripts/install-firewall-daemon.sh          # block SearXNG on the LAN
 ```
 
-### 3. Open the devcontainer
+### 3. Start Daimon
 
-In VS Code (with the **Dev Containers** extension) or the `devcontainer` CLI:
+```bash
+make agent        # build + start the container Hermes runs in (part of `make up`)
+```
 
-- **VS Code:** open this folder → "Reopen in Container".
-- **CLI:** `devcontainer up --workspace-folder .`
-
-The container joins the shared network (`SHARED_NETWORK` from your environment), so
-start your stack first. On first create, `postCreate.sh` installs Hermes, copies
+It joins the shared network (`SHARED_NETWORK` from your environment), so start your
+stack first. On every start `setup.sh` installs Hermes if the volumes are cold, copies
 `config/config.yaml` and `config/SOUL.md` into `~/.hermes/`, and verifies Ollama is
-reachable.
+reachable — then the gateway starts, so Telegram works with no terminal open.
+`docker compose logs -f agent` shows all of it.
 
 ### 4. Run
 
-Inside the container:
-
 ```bash
-hermes            # start chatting (default: OpenAI gpt-5-mini, local fallback)
-hermes config     # view the active configuration
-hermes doctor     # diagnostics
+docker compose exec agent hermes          # start chatting (default: local gpt-oss:20b)
+docker compose exec agent hermes config   # view the active configuration
+docker compose exec agent hermes doctor   # diagnostics
 ```
+
+### Editing this repo
+
+`.devcontainer/` is a dev shell for working on Daimon from any machine, whatever the
+host OS: same image, same `setup.sh`, so what you edit against is what compose runs.
+Open the folder in a Dev Containers client, or `make devcontainer`. It starts no
+gateway — it shares the `hermes-data` volume with the running container, and two
+gateways on one `state.db` is one too many.
 
 ## Integrations
 
 | Capability | Backend | Setup |
 |------------|---------|-------|
-| Chat / tools | OpenAI `gpt-5-mini` (`openai-api`) | default; `gpt-oss:20b` on Ollama = `ollama` profile + fallback |
+| Chat / tools | `gpt-oss:20b` on the shared Ollama | default; OpenAI `gpt-5-mini` = optional fallback (`OPENAI_PROFILE_API_KEY`) |
 | Vision | `qwen2.5vl:7b` on the shared Ollama | pulled on your stack |
-| Voice in (STT) | local faster-whisper | installed by `postCreate.sh` |
+| Voice in (STT) | local faster-whisper | installed by `setup.sh` |
 | Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
 | Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
 | Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack |
 | Feeds (optional) | a Miniflux of your own | `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
-| Identity / voice | `config/SOUL.md` | edit + rebuild |
+| Identity / voice | `config/SOUL.md` | edit + `docker compose restart agent` |
 
 ### Knowledge base
 
-Daimon keeps a personal RAG memory: she captures links, files, and notes and recalls
+Daimon keeps a personal RAG memory: he captures links, files, and notes and recalls
 them by meaning. It runs as an MCP server (`daimon-kb`, registered in `config.yaml`)
 backed by the shared Qdrant (`qdrant:6333`); the `daimon_kb`
-package is installed into the Hermes venv by `postCreate.sh`. Source types are
+package is installed into the Hermes venv by `setup.sh`. Source types are
 pluggable adapters — `files`, `urls`, and `chat` ship enabled; `feeds` and `webhook`
 are wired but off by default. Toggle them in `config/daimon_kb.yaml` under
 `capabilities`. Each enabled type gets its own Qdrant collection
@@ -191,15 +202,16 @@ point).
 Create a bot with [@BotFather](https://t.me/BotFather), then inside the container:
 
 ```bash
-hermes gateway setup          # paste the token, pair your account
+docker compose exec agent hermes gateway setup   # paste the token, pair your account
 ```
 
-Once the token is in `~/.hermes/.env`, the gateway **auto-starts with the
-container**: the container's command (`.devcontainer/container-boot.sh`) launches
-it under PID 1 on every start, so it needs no open terminal. Start it manually with:
+Once the token is in `~/.hermes/.env`, the gateway **auto-starts with the container**:
+the entrypoint (`docker/agent/entrypoint.sh`) launches it as a child of PID 1 on every
+start, so it needs no open terminal. Start it manually with:
 
 ```bash
-bash .devcontainer/start-gateway.sh    # detached; or: hermes gateway run (foreground)
+docker compose exec agent bash docker/agent/start-gateway.sh   # detached
+# or, in the foreground: docker compose exec agent hermes gateway run
 ```
 
 The bot answers only paired users (`TELEGRAM_ALLOWED_USERS`). Manage access with
@@ -209,9 +221,9 @@ token lives in `~/.hermes/.env`, never in the repo.
 **Clickable commands.** Commands are tappable two ways: the native command menu
 (the `/` / menu button, populated via `set_my_commands`) and the `/help` listing.
 Hermes wraps `/help` commands in backticks, which makes them monospace and stops
-Telegram from auto-linking them; `patches/telegram-help-clickable.py` (applied by
-`postCreate.sh`, idempotent, survives a Hermes reinstall) strips those backticks so
-the listed commands stay tappable.
+Telegram from auto-linking them; `docker/agent/patches/telegram-help-clickable.py`
+(applied by `setup.sh`, idempotent, survives a Hermes reinstall) strips those backticks
+so the listed commands stay tappable.
 
 ### Branding & avatar
 
@@ -219,23 +231,9 @@ the listed commands stay tappable.
 descriptions, and menu button via the Bot API. The command menu itself is managed
 by Hermes.
 
-The profile photo can only be set through **@BotFather → `/setuserpic`** (the Bot
-API has no method for it). Generate an avatar — face-focused so it reads at small
-size, warm and intelligent, not sexualized — and upload it there. A starting prompt
-(mostly warmth, a touch of quiet competence):
-
-> Head-and-shoulders portrait of a warm, intelligent young woman in her mid-twenties:
-> long copper-red hair loosely braided in a few subtle strands, very expressive
-> emerald-green eyes, fair skin, a soft discreet smile. She looks directly at the
-> viewer with calm, quiet confidence — approachable and clearly intelligent. Warm
-> amber light with a faint cool-blue rim; minimal holographic particles drifting
-> softly around her, suggesting a living AI without overpowering the face. Sleek
-> minimalist dark top. Cinematic realism, premium AI-assistant brand identity, clean
-> background, centered composition, soft depth of field, highly detailed natural face
-> and eyes. No weapons, armor, fantasy, robotic features, or sexualization. Reads well
-> as a small circular avatar.
-
-Negative prompt: `robot, android, helmet, armor, weapon, fantasy, anime, over-stylized, cleavage, sexualized, busy background, text, watermark, logo`.
+The profile photo can only be set through **@BotFather → `/setuserpic`** (the Bot API
+has no method for it). Upload one there — face-focused, so it still reads as a small
+circular avatar.
 
 ## Monitoring
 
@@ -251,16 +249,16 @@ profile, started by `make monitoring` or the login agent), both on the shared ne
   id) from Hermes' `state.db` to the shared Loki (`loki:3100`) for the Grafana chat panel.
 - **status-exporter** — exposes `hermes_gateway_up` (read from `agent.log`) at
   `daimon-status-exporter:9101/metrics`, scraped by the shared Prometheus, since the
-  agent runs inside the devcontainer where blackbox can't probe it.
+  agent runs inside his own container where blackbox can't probe it.
 
 Stop the sidecars with `docker compose --profile monitoring down`.
 
 ## Changing the model
 
-1. Pull a tag with a ≥64K context window on the host: `ollama pull llama3.1:8b`
-2. Edit `config/config.yaml` → `model.default` (and the `providers.custom.models`
-   timeout key) to match.
-3. Rebuild the container (or `cp config/config.yaml ~/.hermes/config.yaml` inside it).
+1. Pull a tag with a ≥64K context window on your Ollama: `ollama pull llama3.1:8b`
+2. Edit `config/config.yaml` → `model.default` (plus `context_length` and the
+   `providers.custom.models` timeout key) to match.
+3. `docker compose restart agent` — setup re-syncs the config on every start.
 
 ## What persists
 
@@ -285,7 +283,7 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
 - **No host filesystem access:** the agent's terminal backend is `local`, scoped
   to the container only.
 - **Network:** everything Daimon talks to is reached by DNS on the shared network,
-  which the devcontainer joins. That network is the isolation boundary: anything else on
+  which his container joins. That network is the isolation boundary: anything else on
   it can reach Daimon's sidecars. SearXNG and TTS also publish on the host
   (`localhost:8888` / `localhost:8880`) for convenience; on macOS
   `scripts/firewall-host.sh` blocks SearXNG on the LAN.

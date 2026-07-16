@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Bring the Hermes gateway up — it runs both the messaging platforms and the
 # kanban task dispatcher, so it starts even without Telegram. Called by
-# container-boot.sh (PID 1) on every container start. No-op when already running;
+# the entrypoint (PID 1) on every container start. No-op when already running;
 # refuses only if a Telegram token is set without an allowlist.
 # Always exits 0 so a gateway problem never blocks container start.
 set -u

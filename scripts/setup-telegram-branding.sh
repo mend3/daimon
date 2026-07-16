@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Set Daimon's Telegram bot branding (name, descriptions, menu button) via the Bot
-# API. Run inside the devcontainer (reads ~/.hermes/.env) or with
+# API. Run inside Daimon's container (reads ~/.hermes/.env) or with
 # TELEGRAM_BOT_TOKEN exported.
 #
 # The bot's profile photo can only be set via @BotFather (/setuserpic) — the Bot

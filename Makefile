@@ -17,14 +17,25 @@ export
 SHARED_NETWORK ?= shared
 export SHARED_NETWORK
 
-.PHONY: help up doctor settings searxng tts monitoring services firewall devcontainer backup down
+.PHONY: help up agent volumes doctor settings searxng tts monitoring services firewall devcontainer backup down
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-13s\033[0m %s\n",$$1,$$2}'
 
-up: searxng tts ## Bring up Daimon's sidecars (shared infra comes from your own stack)
-	@echo "Sidecars up. Start your shared infra stack (Redis/Qdrant/Ollama + observability) on the network named by SHARED_NETWORK, then open the devcontainer (VS Code: Reopen in Container, or 'make devcontainer') and run 'hermes'."
+up: searxng tts agent ## Bring up Daimon and his sidecars (shared infra comes from your own stack)
+	@echo "Daimon up. Talk to him on your messaging gateway, or 'docker compose exec agent hermes'. Logs: 'docker compose logs -f agent'."
+
+# Declared external in compose (the devcontainer mounts them by the same name), so
+# compose won't create them — but `docker volume create` is idempotent and cheap.
+volumes: ## Create the named volumes Hermes' home and toolchain persist in
+	@docker volume create hermes-data >/dev/null
+	@docker volume create hermes-local >/dev/null
+
+# `settings` first: compose pulls his sidecars up with him, and searxng bind-mounts a
+# generated settings.yml — without it Docker creates a directory at that path instead.
+agent: volumes settings ## Start Daimon himself (the container Hermes runs in) and his sidecars
+	docker compose --profile core up -d --build agent
 
 doctor: ## Check the services and models Daimon depends on (preflight)
 	./scripts/doctor.sh
@@ -47,7 +58,7 @@ services: ## Install launchd agents (autostart, daily backup) — macOS host onl
 firewall: ## Block SearXNG on the LAN, persisted across reboots (macOS host only, sudo)
 	sudo ./scripts/install-firewall-daemon.sh
 
-devcontainer: ## Build and start the devcontainer (needs @devcontainers/cli)
+devcontainer: volumes ## Build and start the dev container for editing this repo (needs @devcontainers/cli)
 	devcontainer up --workspace-folder .
 
 backup: ## Back up the hermes-data volume to ~/hermes-backups (Qdrant lives in your shared stack)

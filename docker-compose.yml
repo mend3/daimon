@@ -1,10 +1,11 @@
-# Daimon's sidecars, consolidated. Shared infra (redis/qdrant/ollama + observability) is
-# provided by your own stack on an external Docker network — set SHARED_NETWORK to its
-# name (default `shared`) and start that stack first; Daimon declares none of it.
+# Daimon, consolidated: the container Hermes runs in plus his sidecars. Shared infra
+# (redis/qdrant/ollama + observability) is provided by your own stack on an external
+# Docker network — set SHARED_NETWORK to its name (default `shared`) and start that
+# stack first; Daimon declares none of it.
 #
 # Profiles group the services so subsets can be started independently (mirrors the
 # Makefile targets):
-#   - searxng, tts: Daimon's own sidecars (profile `core`); started by `make up`.
+#   - agent, searxng, tts: Daimon himself + his sidecars (profile `core`); `make up`.
 #   - chat-shipper, status-exporter: app-level telemetry (profile `monitoring`).
 #
 # Services carry a `daimon-` alias on the shared network so their generic names stay
@@ -12,6 +13,56 @@
 name: daimon
 
 services:
+  # Hermes itself: an isolated container, not a devcontainer — the same image and
+  # scripts, brought up by compose alongside everything else it talks to. The
+  # container IS the sandbox (config.yaml runs tools with terminal backend `local`),
+  # so nothing here is reachable from the host filesystem except the repo mount.
+  agent:
+    build: docker/agent
+    container_name: hermes-agent
+    restart: unless-stopped
+    profiles: [core]
+    # His sidecars come up with him — starting the agent alone would leave web search
+    # and voice quietly missing. `service_started`, not `service_healthy`: he reaches
+    # both by DNS at call time, not at boot, so waiting on TTS (whose first start
+    # downloads a voice model) would delay every start to buy nothing.
+    depends_on:
+      searxng:
+        condition: service_started
+      tts:
+        condition: service_started
+    volumes:
+      # The repo: config/, skills/ and ingestion/ are synced or installed from it on
+      # every start, so edits land with a `docker compose restart agent`.
+      - ./:/workspace
+      # ~/.hermes holds config/memories/sessions/agent code; ~/.local holds the
+      # uv-managed Python runtime and launcher the venv links to — without it, every
+      # rebuild reinstalls Hermes from scratch.
+      - hermes-data:/home/vscode/.hermes
+      - hermes-local:/home/vscode/.local
+    environment:
+      # Point Hermes' OpenAI-compatible client at the shared Ollama. Also set in
+      # config.yaml; kept here so any env-driven code path agrees.
+      OPENAI_BASE_URL: http://ollama:11434/v1
+      OPENAI_API_KEY: ollama
+      OLLAMA_BASE_URL: http://ollama:11434
+      # Optional, for the OpenAI fallback: set it in this repo's .env (compose reads
+      # that file) and setup.sh writes it into ~/.hermes/.env, where the provider
+      # picks it up. Unset means local-only, which is a supported way to run.
+      OPENAI_PROFILE_API_KEY: ${OPENAI_PROFILE_API_KEY:-}
+    ports:
+      # The web dashboard, started on demand with `hermes dashboard --port 8090` — the
+      # devcontainer used to forward it. Loopback only: it serves sessions, config and
+      # the kanban with no auth of its own.
+      - "127.0.0.1:8090:8090"
+    extra_hosts:
+      # Keeps anything published on the host reachable, as under the devcontainer.
+      - "host.docker.internal:host-gateway"
+    networks:
+      default:
+      shared:
+        aliases: [daimon-agent]
+
   searxng:
     image: searxng/searxng:latest@sha256:1081d08bdcd6126533de497ee597f64de94064339e7bc03bc046352adfe320e6
     container_name: hermes-searxng
@@ -91,7 +142,13 @@ services:
 volumes:
   tts-models:
   chat-shipper-state:
+  # Hermes' home and toolchain. External — and so unprefixed — because the
+  # devcontainer mounts the same two volumes by name: whichever way you bring Hermes
+  # up, it is the same agent, with the same memories and sessions. `make up` creates
+  # them if missing.
   hermes-data:
+    external: true
+  hermes-local:
     external: true
 
 networks:

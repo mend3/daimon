@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run this ON THE macOS HOST (not inside the devcontainer).
+# Run this ON THE macOS HOST (not inside Daimon's container).
 # Installs Ollama natively (Metal GPU), exposes it to the container, and pulls
 # the default model with a 64K serving context (Hermes Agent's minimum).
 set -euo pipefail
@@ -51,7 +51,7 @@ ollama pull "${MODEL}"
 
 echo ""
 echo "==> Done. Serving http://0.0.0.0:11434 with '${MODEL}' (64K context)."
-echo "    Keep it running while you use the devcontainer."
+echo "    Keep it running while Daimon is up."
 echo ""
 echo "    Using the Ollama menubar app instead of this script? The settings above"
 echo "    are applied to the login session via launchctl; quit and reopen the app"

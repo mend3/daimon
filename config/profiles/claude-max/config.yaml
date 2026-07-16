@@ -3,8 +3,8 @@
 # `claude-max chat` or assign a kanban task to assignee "claude-max". Routing as
 # Claude Code against your Anthropic account needs a Claude Max plan with extra usage
 # credits; the OAuth credential resolves from CLAUDE_CODE_OAUTH_TOKEN in this profile's
-# .env (propagated from ~/.hermes/.env by postCreate). See `hermes auth list`.
-# Synced into ~/.hermes/profiles/claude-max/config.yaml by .devcontainer/postCreate.sh.
+# .env (propagated from ~/.hermes/.env by setup.sh). See `hermes auth list`.
+# Synced into ~/.hermes/profiles/claude-max/config.yaml by docker/agent/setup.sh.
 
 # --- Model -------------------------------------------------------------------
 model:

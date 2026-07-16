@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Preflight: check the services and models Daimon depends on, before opening the
-# devcontainer. Run from the host as `make doctor`. Everything Daimon talks to lives on
+# Preflight: check the services and models Daimon depends on, before bringing him
+# up. Run from the host as `make doctor`. Everything Daimon talks to lives on
 # the shared network, so probe from a throwaway container on it rather than from the
-# host — that is the vantage point the devcontainer actually has.
+# host — that is the vantage point Daimon's container actually has.
 # Exits non-zero only on a core dependency: the network and Ollama itself. Which models
 # are pulled is the operator's call, so a missing one degrades a path (fallback, vision,
 # knowledge base) and warns — the OpenAI default profile answers without any of them.

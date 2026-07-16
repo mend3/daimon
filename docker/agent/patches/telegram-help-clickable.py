@@ -12,9 +12,9 @@ gateway/run.py), leaving plain `/command` text that Telegram turns into tappable
 commands. Command *names* are still sanitized by the existing logic that runs
 right after. The native command menu (set_my_commands) is untouched.
 
-Idempotent: applied by postCreate.sh on every container create, so it survives a
+Idempotent: applied by setup.sh on every container start, so it survives a
 Hermes reinstall. If the target moved or the anchor is missing (Hermes changed
-shape), it leaves the file untouched and exits non-zero so postCreate can warn —
+shape), it leaves the file untouched and exits non-zero so setup can warn —
 the feature is off, but nothing is corrupted.
 
 Exit codes: 0 applied or already present; 2 run.py not found; 3 anchor not found.

@@ -10,7 +10,7 @@ assignees: ''
 A clear description of the problem.
 
 **Component**
-Ollama / SearXNG / Redis / monitoring / Telegram gateway / devcontainer.
+Ollama / SearXNG / Redis / monitoring / Telegram gateway / agent container.
 
 **To reproduce**
 The command or `make` target you ran, and the steps to hit it.

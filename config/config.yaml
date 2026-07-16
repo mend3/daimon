@@ -1,38 +1,43 @@
-# Hermes Agent — default profile: OpenAI gpt-5-mini primary, local Ollama fallback.
+# Hermes Agent — default profile: local gpt-oss:20b primary, OpenAI fallback.
 # The `ollama` (local) and `claude-max` (subscription) profiles live in config/profiles/.
-# Synced into ~/.hermes/config.yaml by .devcontainer/postCreate.sh.
+# Synced into ~/.hermes/config.yaml by docker/agent/setup.sh.
 # Docs: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
 
 # --- Model -------------------------------------------------------------------
-# Default: OpenAI gpt-5-mini (a reasoning model, picked for cost/quality) via the
-# openai-api provider, which uses the Responses API — so the model must be a reasoning
-# model (gpt-5.x/o-series); gpt-4.x would 400 on encrypted reasoning content. This
-# provider reads the key and endpoint from the
-# OPENAI_API_KEY / OPENAI_BASE_URL *environment*, not the fields below; postCreate
-# writes the real values into ~/.hermes/.env from OPENAI_PROFILE_API_KEY. Ollama
-# stays the vision/embedding backend (see auxiliary + daimon_kb). Switch the main
-# model via `hermes model` or by editing this block:
-#   - Local/offline: provider custom, model gpt-oss:20b, base_url the shared Ollama
-#     (http://ollama:11434/v1), api_key "ollama", context_length 65536.
+# Default: the local gpt-oss:20b on the shared Ollama — private, no API cost, and
+# runnable with no key at all. `context_length` must match what that server actually
+# serves (`OLLAMA_CONTEXT_LENGTH`, or a `num_ctx` baked into the model): claim more
+# than is served and Hermes budgets a window the server truncates, which surfaces as
+# replies cut short mid-sentence rather than as an error. Ollama is also the
+# vision/embedding backend (see auxiliary + daimon_kb). Switch the main model with
+# `hermes model` or by editing this block:
+#   - OpenAI: provider openai-api, model gpt-5-mini, base_url https://api.openai.com/v1
+#     — a reasoning model is required (the provider uses the Responses API, so gpt-4.x
+#     would 400 on encrypted reasoning content), and the key comes from the env
+#     (see fallback_providers below).
 #   - Your Claude subscription: provider anthropic, model claude-sonnet-4-5 — needs a
 #     Claude Max plan with extra usage credits (the credential is in `hermes auth`).
 model:
-  default: "gpt-5-mini"
-  provider: openai-api
-  base_url: "https://api.openai.com/v1"
-  api_key: "${OPENAI_PROFILE_API_KEY}"
-  context_length: 128000
+  default: "gpt-oss:20b"
+  provider: custom
+  base_url: "http://ollama:11434/v1"
+  api_key: "ollama"
+  context_length: 65536
 
-# Auto-fallback to the local Ollama when OpenAI errors out (429/5xx/401/404 or
-# empty responses) — keeps the agent answering offline/over outages. Turn-scoped:
-# each new message retries the primary first. The entry is self-contained.
+# Auto-fallback to OpenAI when the local model errors out (5xx/timeouts or empty
+# responses) — keeps the agent answering when your Ollama is down or busy.
+# Turn-scoped: each new message retries the primary first. Optional: without
+# OPENAI_PROFILE_API_KEY set, the primary simply carries every turn.
+# The openai-api provider reads key and endpoint from the OPENAI_API_KEY /
+# OPENAI_BASE_URL *environment*, not from the fields here; setup.sh writes them into
+# ~/.hermes/.env from OPENAI_PROFILE_API_KEY.
 fallback_providers:
-  - provider: custom
-    model: gpt-oss:20b
-    base_url: "http://ollama:11434/v1"
-    api_key: "ollama"
+  - provider: openai-api
+    model: gpt-5-mini
+    base_url: "https://api.openai.com/v1"
+    api_key: "${OPENAI_PROFILE_API_KEY}"
 
-# `custom` here is the local Ollama (fallback + the qwen vision aux). Generous
+# `custom` here is the local Ollama (the primary + the qwen vision aux). Generous
 # timeouts: local inference streams slower than a hosted API, and the first request
 # pays the model load-into-VRAM cost.
 providers:
@@ -44,7 +49,7 @@ providers:
         timeout_seconds: 1200
 
 # --- Execution backend -------------------------------------------------------
-# The devcontainer IS the sandbox, so run tools locally inside it (no nested
+# The container IS the sandbox, so run tools locally inside it (no nested
 # Docker). The host filesystem is never exposed to the agent.
 terminal:
   backend: local
@@ -132,7 +137,7 @@ web:
 # --- Knowledge base (MCP) ----------------------------------------------------
 # Daimon's personal RAG store: capture/recall/forget over a local Qdrant. The
 # launcher loads ~/.hermes/.env (for QDRANT_API_KEY) then runs the server in the
-# Hermes venv where the daimon_kb package is installed (see postCreate.sh).
+# Hermes venv where the daimon_kb package is installed (see docker/agent/setup.sh).
 mcp_servers:
   daimon-kb:
     command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
@@ -153,7 +158,7 @@ tts:
 
 # --- Voice in (speech-to-text) -----------------------------------------------
 # Transcribe Telegram/web voice messages locally with faster-whisper (installed by
-# postCreate). `base` balances speed/accuracy on CPU; bump to `small` for accuracy.
+# setup.sh). `base` balances speed/accuracy on CPU; bump to `small` for accuracy.
 stt:
   provider: "local"
   local:

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Runs once after the container is created (and again after rebuilds).
+# Runs on every container start, from the entrypoint, before the gateway.
 # Idempotent: installs Hermes only when missing, then syncs config from the repo.
 set -euo pipefail
 
 HERMES_HOME="${HOME}/.hermes"
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REPO_CONFIG_DIR="${REPO_ROOT}/config"
 VENV_PIP="${HOME}/.hermes/hermes-agent/venv/bin/pip"
 
@@ -59,7 +59,7 @@ echo "==> Patching Telegram help for clickable commands"
 if ! "${HOME}/.hermes/hermes-agent/venv/bin/python" \
     "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/patches/telegram-help-clickable.py"; then
   echo "    WARN - clickable-commands patch did not apply; /help commands won't be" \
-       "tappable in Telegram. Check .devcontainer/patches/telegram-help-clickable.py" \
+       "tappable in Telegram. Check docker/agent/patches/telegram-help-clickable.py" \
        "against the installed Hermes."
 fi
 
@@ -110,12 +110,15 @@ for pdir in "${REPO_CONFIG_DIR}"/profiles/*/; do
   mv "${PDIR}/.env.tmp" "${PDIR}/.env"
 done
 
-# Default model runs on OpenAI (config.yaml: openai-api / gpt-5.5). That provider
-# reads OPENAI_API_KEY / OPENAI_BASE_URL from the env, which the container points at
-# the local Ollama — so override them in ~/.hermes/.env (loaded with precedence) from
-# the single user-facing key OPENAI_PROFILE_API_KEY. Ollama still serves vision +
-# embeddings. Without the key the default model fails; warn so it's not a silent break.
+# The OpenAI fallback (config.yaml: openai-api / gpt-5-mini) reads OPENAI_API_KEY /
+# OPENAI_BASE_URL from the env, which the container points at the local Ollama — so
+# override them in ~/.hermes/.env (loaded with precedence) from the single
+# user-facing key OPENAI_PROFILE_API_KEY. Taken from the environment when the file
+# has none, so the key can live in the repo .env that compose already reads.
+# Optional: the primary model is local, so without a key the fallback is simply
+# unavailable — say so instead of failing.
 DK="$(sed -n 's/^OPENAI_PROFILE_API_KEY=//p' "${HERMES_HOME}/.env" | head -1)"
+DK="${DK:-${OPENAI_PROFILE_API_KEY:-}}"
 if [ -n "${DK}" ]; then
   grep -vE "^(OPENAI_API_KEY|OPENAI_BASE_URL)=" "${HERMES_HOME}/.env" \
     > "${HERMES_HOME}/.env.tmp" 2>/dev/null || true
@@ -125,8 +128,8 @@ if [ -n "${DK}" ]; then
   } >> "${HERMES_HOME}/.env.tmp"
   mv "${HERMES_HOME}/.env.tmp" "${HERMES_HOME}/.env"
 else
-  echo "    WARN - OPENAI_PROFILE_API_KEY unset in ~/.hermes/.env; the default model" \
-       "(OpenAI gpt-5.5) will fail. Set it, or switch config.yaml back to local Ollama."
+  echo "    NOTE - OPENAI_PROFILE_API_KEY unset; running local-only. The OpenAI" \
+       "fallback is unavailable, so an Ollama outage takes Daimon with it."
 fi
 
 # Claude Code OAuth token in interactive shells — the `claude` CLI authenticates
@@ -167,4 +170,4 @@ else
   echo "           start it on the shared network, then rebuild this container."
 fi
 
-echo "==> postCreate done. Run 'hermes' to start chatting."
+echo "==> setup done. Run 'hermes' to start chatting."

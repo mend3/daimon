@@ -2,7 +2,7 @@
 # Starts the local TTS engine (Kokoro-FastAPI, OpenAI-compatible) on the shared network
 # and 127.0.0.1:8880.
 #
-# Daimon reaches it from the devcontainer at daimon-tts:8880; Hermes' `openai` TTS
+# Daimon reaches it from his container at daimon-tts:8880; Hermes' `openai` TTS
 # provider is pointed there in config/config.yaml. First start pulls the image and
 # downloads the voice model into the tts-models volume (~minutes).
 set -euo pipefail

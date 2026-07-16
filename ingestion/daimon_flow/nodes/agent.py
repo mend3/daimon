@@ -13,7 +13,7 @@ from ..spec import (ExecContext, FieldSpec, NodeHandler, NodeResult, NodeType,
 class DaimonAgent(NodeHandler):
     node_type = NodeType(
         type="agent.daimon", category="Agents", label="Daimon", icon="🤖",
-        description="Daimon reasons over the input, grounded by her attached capabilities.",
+        description="Daimon reasons over the input, grounded by his attached capabilities.",
         flow_inputs=["in"], flow_outputs=["out"],
         resource_slots=[
             ResourceSlot(name="model", label="Chat Model", accepts=["resource.model"]),

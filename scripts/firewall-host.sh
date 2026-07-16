@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run on the macOS HOST with sudo. Ollama (11434) and SearXNG (8888) must bind
-# 0.0.0.0 so the devcontainer can reach them via host.docker.internal, which
+# 0.0.0.0 so Daimon's container can reach them via host.docker.internal, which
 # exposes them on the LAN. This blocks inbound to those ports on the physical
 # (en*) interfaces only — the container path goes through Docker's internal
 # vmnet, not en*, so it keeps working. Grafana (3000) is already loopback-only.

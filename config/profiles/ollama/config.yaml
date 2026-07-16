@@ -1,7 +1,7 @@
 # Hermes profile: ollama — fully local/offline (gpt-oss:20b on the shared Ollama).
 # The local backend the default profile also falls back to. Assign kanban tasks to
 # assignee "ollama", or run `ollama chat`, to stay on-device with no API cost.
-# Synced into ~/.hermes/profiles/ollama/config.yaml by .devcontainer/postCreate.sh.
+# Synced into ~/.hermes/profiles/ollama/config.yaml by docker/agent/setup.sh.
 
 # --- Model -------------------------------------------------------------------
 # gpt-oss:20b served by the shared Ollama (`ollama:11434`). context_length pinned to

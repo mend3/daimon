@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Platform: macOS](https://img.shields.io/badge/platform-macOS%20Apple%20Silicon-black?logo=apple&logoColor=white)
 ![local LLM: Ollama](https://img.shields.io/badge/local%20LLM-Ollama%20gpt--oss-5A67D8)
-![Devcontainer](https://img.shields.io/badge/devcontainer-Docker-2496ED?logo=docker&logoColor=white)
+![Docker](https://img.shields.io/badge/runs%20on-Docker%20Compose-2496ED?logo=docker&logoColor=white)
 ![Built on: Hermes Agent](https://img.shields.io/badge/built%20on-Hermes%20Agent-6E56CF)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -12,12 +12,12 @@
 > yours to run, on your machine, and private when you want it.
 
 **Daimon** is a personal AI companion built on [Hermes
-Agent](https://hermes-agent.nousresearch.com/docs/), sandboxed in a devcontainer on
-your own machine. It defaults to **OpenAI gpt-5-mini** for quality, with a
-**fully-local profile** and automatic fallback on [Ollama](https://ollama.com)
-(Apple Silicon GPU) — so you can trade quality for privacy whenever you choose. She
-combines human-like conversation with operational intelligence, reachable over CLI
-and Telegram, and fully observable.
+Agent](https://hermes-agent.nousresearch.com/docs/), sandboxed in a container on your
+own machine. It runs **fully local by default** on [Ollama](https://ollama.com)
+(`gpt-oss:20b`), with **OpenAI gpt-5-mini** as an optional fallback — so you can add
+frontier quality whenever you want it, and owe nothing to anyone when you don't. It
+combines human-like conversation with operational intelligence, reachable over CLI and
+Telegram, and fully observable.
 
 This repository is the **persona, deployment, multi-channel access, knowledge base,
 headless workflows, and observability** built around Hermes. It is not
@@ -25,16 +25,16 @@ a fork of Hermes Agent — it stands on it (see [Built on](#built-on)).
 
 ## Meet Daimon
 
-Daimon is not a chatbot. She is warm and genuinely human in conversation, precise and
+Daimon is not a chatbot. It is warm and genuinely human in conversation, precise and
 operationally sharp in execution.
 
-She is a thinking partner, researcher, operator, and advisor at once. Her defining
+It is a thinking partner, researcher, operator, and advisor at once. His defining
 trait is **anticipation** — it surfaces the risks, decisions, and opportunities you
-haven't asked about yet. The feeling after talking to her should be:
+haven't asked about yet. The feeling after talking to him should be:
 
-> "She thought about things I hadn't considered yet."
+> "It thought about things I hadn't considered yet."
 
-Warm without being needy, efficient without being cold. Her full personality lives
+Warm without being needy, efficient without being cold. His full personality lives
 in [`config/SOUL.md`](config/SOUL.md).
 
 ## Why Daimon?
@@ -46,7 +46,7 @@ Most AI assistants are stateless chat windows. Daimon is a persistent **companio
 - 🔍 **Searches the web** through a private, self-hosted engine
 - 👁️ **Sees images** and 🎙️ **hears and speaks** voice
 - 🛠️ **Executes tools** — shell, files, code, browser, web
-- 🧩 **Runs workflows** that chain her own capabilities as nodes, defined in config
+- 🧩 **Runs workflows** that chain his own capabilities as nodes, defined in config
 - 💬 Reaches you over **CLI and Telegram**, sharing one memory
 - 📊 Is **fully observable** — every message, tool call, and model run on a dashboard
 - 🔒 **Can run 100% locally** — a fully-local model profile + self-hosted services
@@ -60,22 +60,23 @@ documentation, history — instead of starting from zero each session.
 ### 🎨 Multimodal
 Send text, **images** (analyzed by a local vision model), **voice** (transcribed
 locally; it can reply in voice too), **links** (fetched and summarized), and
-**files** (read and used). She works with all of them and tells you what it received.
+**files** (read and used). It works with all of them and tells you what it received.
 
 ### 🧩 Workflows
 A headless node-graph engine composes Daimon's capabilities into automations —
 triggers, the agent, tools, logic, and outputs as nodes, defined in config and run
-with live state. Nodes are her own abilities; new node types drop in.
+with live state. Nodes are his own abilities; new node types drop in.
 
 ### 🛠️ Tool use
-A modular toolset lets her act: web search, vision, file operations, code execution,
+A modular toolset lets him act: web search, vision, file operations, code execution,
 terminal, and browser automation — extensible with more.
 
-### 🌐 Local-capable
-The default model is OpenAI gpt-5-mini, but a **fully-local profile** (gpt-oss,
-Qwen-VL via Ollama) and an automatic local fallback are built in, and search, cache,
-and monitoring are self-hosted (models/cache/vector store/observability via a shared
-infra stack you provide) — so you can run with no cloud at all.
+### 🌐 Local by default
+The default model is **gpt-oss:20b** on your own Ollama (Qwen-VL for vision), and
+search, cache, and monitoring are self-hosted (models/cache/vector store/observability
+via a shared infra stack you provide) — so the out-of-the-box setup touches no cloud at
+all. An **OpenAI fallback** is a key away when you want frontier quality, and a
+`claude-max` profile rides your Claude subscription.
 
 ### 📨 Multi-channel
 Talk to Daimon from the **CLI** or **Telegram** (multi-user, allowlisted). The same
@@ -141,16 +142,15 @@ git clone https://github.com/mend3/daimon.git
 cd daimon
 export SHARED_NETWORK=shared  # the network your infra stack runs on
 make doctor                   # what's reachable, what's missing
-make up                       # Daimon's sidecars: SearXNG + TTS
-
-unset NODE_OPTIONS VSCODE_INSPECTOR_OPTIONS
+make up                       # Daimon + his sidecars (SearXNG, TTS)
 ```
 
-Then open the folder in a Dev Container ("Reopen in Container") and start talking to
-Daimon. Inside the container, `hermes` starts the agent and `hermes dashboard --port 8090`
-opens the web dashboard (kanban, sessions, config); its frontend builds on first launch.
-`make help` lists every target. Full installation and operations:
-**[docs/setup.md](docs/setup.md)**.
+That is it — the gateway starts with his container, so Telegram works with no terminal
+open. `docker compose exec agent hermes` starts a CLI chat, and `hermes dashboard --port
+8090` (from inside) opens the web dashboard on `localhost:8090` (kanban, sessions,
+config); its frontend builds on first launch. To hack on Daimon himself, the repo ships
+a dev container (`make devcontainer`). `make help` lists every target. Full installation
+and operations: **[docs/setup.md](docs/setup.md)**.
 
 ## Built on
 

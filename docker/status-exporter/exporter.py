@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Tiny Prometheus exporter for Hermes' own status. The agent/gateway run inside
-the devcontainer (no HTTP endpoint), so blackbox can't probe them. This reads the
+his container (no HTTP endpoint), so blackbox can't probe them. This reads the
 gateway lifecycle from agent.log (mounted read-only) and exposes whether the
 Telegram gateway is currently connected. Stdlib only."""
 import http.server

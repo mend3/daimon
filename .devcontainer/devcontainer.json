@@ -1,18 +1,21 @@
 {
-  "name": "hermes-agent-local",
+  // Editing environment for this repo — a dev shell that is the same on any host OS.
+  // It reuses the runtime's image and setup script verbatim (`docker/agent/`), so
+  // what you develop against is what compose runs.
+  //
+  // Running Hermes is compose's job (`make up` → service `agent`), not this
+  // container's: both mount the same hermes-data volume, and two gateways sharing one
+  // state.db is one too many. So no gateway starts here — edit in this container,
+  // talk to him with `docker compose exec agent hermes`.
+  "name": "daimon-dev",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "../docker/agent/Dockerfile",
+    "context": ".."
   },
   "remoteUser": "vscode",
 
-  // Node + npm for building the Hermes web dashboard frontend (built on first
-  // `hermes dashboard` launch). The Hermes installer's bundled Node is not on PATH.
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
-  },
-
   // Join the shared Docker network: that is where the infra Daimon consumes lives
-  // (ollama, qdrant, redis) alongside her own sidecars (daimon-searxng, daimon-tts),
+  // (ollama, qdrant, redis) alongside his own sidecars (daimon-searxng, daimon-tts),
   // all reached by DNS. Your shared infra stack owns that network, so start it first or
   // this container has nothing to attach to. Set SHARED_NETWORK in the environment to
   // match your stack's network name (`make devcontainer` passes it through).
@@ -22,18 +25,18 @@
     "--add-host=host.docker.internal:host-gateway"
   ],
 
-  // Persist Hermes data and the installed toolchain across rebuilds via named
-  // volumes. ~/.hermes holds config/memories/sessions/agent code; ~/.local holds
-  // the uv-managed Python runtime and launcher the venv links to — without it,
-  // every rebuild reinstalls Hermes from scratch.
+  // The same two volumes the compose service mounts — same agent, same memories,
+  // whichever way it is brought up. ~/.hermes holds config/memories/sessions/agent
+  // code; ~/.local holds the uv-managed Python runtime and launcher the venv links
+  // to — without it, every rebuild reinstalls Hermes from scratch.
   "mounts": [
     "source=hermes-data,target=/home/vscode/.hermes,type=volume",
     "source=hermes-local,target=/home/vscode/.local,type=volume"
   ],
 
-  // The container's own CMD (container-boot.sh) keeps it alive and starts the
-  // gateway under PID 1, so we let the image command run instead of the default.
-  "overrideCommand": false,
+  // The image's entrypoint starts the gateway; this container is for editing, so let
+  // the devcontainer's own idle command run instead.
+  "overrideCommand": true,
 
   // Point Hermes' OpenAI-compatible client at the shared Ollama. These are also set
   // explicitly in config.yaml; kept here so any env-driven code path agrees.
@@ -43,7 +46,9 @@
     "OLLAMA_BASE_URL": "http://ollama:11434"
   },
 
-  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  // The same script the runtime container runs on every start: installs Hermes into
+  // the volumes when absent, then syncs config from the repo.
+  "postCreateCommand": "bash docker/agent/setup.sh",
 
   "customizations": {
     "vscode": {

@@ -13,5 +13,5 @@ healthy (e.g. `docker ps`, dashboard at http://localhost:3000).
       gitignored `.env`/generated files.
 - [ ] Docker images pinned by digest.
 - [ ] Docs/comments follow the `documentation-minimalism` skill.
-- [ ] Updated `.claude/MEMORY.md` / added a `.claude/DECISIONS.md` ADR if the
+- [ ] Updated `.claude/MEMORY.md` if the
       change is durable or architectural.

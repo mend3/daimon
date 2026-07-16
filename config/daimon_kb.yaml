@@ -1,5 +1,5 @@
 # Daimon's knowledge-base configuration. Synced into ~/.hermes/daimon_kb.yaml by
-# postCreate.sh and read by the daimon-kb MCP server and the `daimon-kb` CLI.
+# docker/agent/setup.sh and read by the daimon-kb MCP server and the `daimon-kb` CLI.
 #
 # `capabilities` is the only switch that turns a source type on. Each enabled type
 # gets its own Qdrant collection (kb_<type>__nomic768). Secrets come from
