@@ -68,8 +68,30 @@ fi
 #    .env is seeded from the example only if absent, so local secrets survive.
 echo "==> Syncing configuration"
 cp "${REPO_CONFIG_DIR}/config.yaml" "${HERMES_HOME}/config.yaml"
-cp "${REPO_CONFIG_DIR}/SOUL.md" "${HERMES_HOME}/SOUL.md"
 cp "${REPO_CONFIG_DIR}/daimon_kb.yaml" "${HERMES_HOME}/daimon_kb.yaml"
+
+# The hub owns Daimon's persona and serves it at GET /api/internal/persona;
+# SOUL.md is just how Hermes loads one, so this writes the fetched text into the
+# file Hermes reads. config/SOUL.md is the offline fallback. Downloads to a temp
+# file and only then replaces the live one, so a truncated response never becomes
+# the persona. A hub outage must not block startup.
+fetch_soul() {
+  if [ -z "${HUB_INTERNAL_URL:-}" ] || [ -z "${HUB_WORKER_TOKEN:-}" ]; then
+    return 1
+  fi
+  curl -fsS --max-time 5 -H "x-internal-token: ${HUB_WORKER_TOKEN}" \
+    "${HUB_INTERNAL_URL%/}/api/internal/persona" -o "${HERMES_HOME}/SOUL.md.tmp" \
+    && [ -s "${HERMES_HOME}/SOUL.md.tmp" ]
+}
+if fetch_soul; then
+  mv "${HERMES_HOME}/SOUL.md.tmp" "${HERMES_HOME}/SOUL.md"
+  echo "    OK - SOUL synced from the hub"
+else
+  rm -f "${HERMES_HOME}/SOUL.md.tmp"
+  cp "${REPO_CONFIG_DIR}/SOUL.md" "${HERMES_HOME}/SOUL.md"
+  echo "    WARN - hub unreachable or HUB_INTERNAL_URL/HUB_WORKER_TOKEN unset;" \
+       "using the repo SOUL.md fallback (may be stale)"
+fi
 install -m 0755 "$(dirname "${BASH_SOURCE[0]}")/daimon-kb-mcp.sh" "${HERMES_HOME}/daimon-kb-mcp.sh"
 if [ ! -f "${HERMES_HOME}/.env" ]; then
   cp "${REPO_CONFIG_DIR}/.env.example" "${HERMES_HOME}/.env"

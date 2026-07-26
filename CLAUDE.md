@@ -33,7 +33,7 @@ Talk to him with `docker compose exec agent hermes`.
 | `.claude/skills/documentation-minimalism/` | Writing standard for all docs and comments |
 | `docker/agent/` | The container Hermes runs in: Dockerfile, `entrypoint.sh`, `setup.sh` |
 | `.devcontainer/` | Optional dev shell for editing this repo — same image + `setup.sh`, no gateway |
-| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `SOUL.md` (persona), `daimon_kb.yaml`, `gateway.json`, `skills/`, `.env.example` |
+| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `daimon_kb.yaml`, `gateway.json`, `skills/`, `.env.example` — plus `SOUL.md`, which is only the offline fallback for the persona the hub serves |
 | `ingestion/` | Daimon's Python: `daimon_kb` (RAG), `daimon_flow` (headless workflow engine) |
 | `docker-compose.yml` | Daimon + his sidecars (searxng, tts, telemetry) with profiles, on the shared network |
 | `docker/` | Container configs: `searxng/`, `chat-shipper/`, `status-exporter/` |
@@ -74,6 +74,13 @@ Talk to him with `docker compose exec agent hermes`.
 - `config/config.yaml` is the source of truth; `setup.sh` copies it into
   `~/.hermes/config.yaml` on every container start. Edit the repo copy, not the runtime
   copy, then `docker compose restart agent`.
+- **The persona is not ours.** The hub owns it and serves it at
+  `GET /api/internal/persona`; `setup.sh` fetches it into `~/.hermes/SOUL.md` with
+  `HUB_INTERNAL_URL` + `HUB_WORKER_TOKEN`. `SOUL.md` is Hermes' way of loading a
+  persona, not the contract — the hub ships text, this repo writes the file. So
+  `config/SOUL.md` is only the offline fallback, and editing it does not change a
+  running Daimon that can reach the hub. Leaving both env vars unset is supported and
+  pins him to the fallback.
 - Secrets live only in `~/.hermes/.env` (seeded from `config/.env.example`) and are
   never committed.
 - `docker/searxng/settings.yml` is generated and gitignored; `make settings` creates it.

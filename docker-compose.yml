@@ -50,10 +50,11 @@ services:
       # that file) and setup.sh writes it into ~/.hermes/.env, where the provider
       # picks it up. Unset means local-only, which is a supported way to run.
       OPENAI_PROFILE_API_KEY: ${OPENAI_PROFILE_API_KEY:-}
+      # Where setup.sh fetches SOUL.md from. Unset means the repo copy is used, so
+      # the persona silently stops tracking the hub — set both or neither.
+      HUB_INTERNAL_URL: ${HUB_INTERNAL_URL:-}
+      HUB_WORKER_TOKEN: ${HUB_WORKER_TOKEN:-}
     ports:
-      # The web dashboard, started on demand with `hermes dashboard --port 8090` — the
-      # devcontainer used to forward it. Loopback only: it serves sessions, config and
-      # the kanban with no auth of its own.
       - "127.0.0.1:8090:8090"
     extra_hosts:
       # Keeps anything published on the host reachable, as under the devcontainer.

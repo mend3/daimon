@@ -26,8 +26,12 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
   memories, sessions, agent code) and **`hermes-local`** (`~/.local`: uv Python
   runtime + launcher). With both warm, `setup.sh` skips the Hermes install. Both are
   declared **external** in compose, because the dev container mounts them by name.
-- `config/config.yaml` / `config/SOUL.md` are the source of truth; `setup.sh`
-  syncs them into `~/.hermes/`.
+- `config/config.yaml` is the source of truth; `setup.sh` syncs it into `~/.hermes/`.
+  The persona is the exception: the hub owns it and serves it at
+  `GET /api/internal/persona` (`HUB_INTERNAL_URL` + `HUB_WORKER_TOKEN`), so `setup.sh`
+  fetches it into the `SOUL.md` Hermes loads and falls back to `config/SOUL.md` only
+  when the hub is unreachable — editing the repo copy no longer changes the running
+  persona. `SOUL.md` is Hermes' loading mechanism, not the contract with the hub.
 - `entrypoint.sh` is PID 1: it runs setup, starts the messaging gateway (surviving, as
   a child of PID 1) and then idles. A gateway needs an owner process — a lifecycle hook
   cannot keep a daemon alive.
@@ -60,8 +64,9 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
 - **Telegram** via the messaging gateway (`hermes gateway run`); `TELEGRAM_BOT_TOKEN`
   in `~/.hermes/.env`, restricted to paired users. Runs only while the gateway
   process and container are up.
-- **Identity** is set by `config/SOUL.md`, synced to `~/.hermes/SOUL.md`. Daimon speaks
-  in the **first person**; the framework is infrastructure, never identity.
+- **Identity** comes from the hub's soul, fetched into `~/.hermes/SOUL.md` at every
+  start (`config/SOUL.md` is the offline fallback). Daimon speaks in the **first
+  person**; the framework is infrastructure, never identity.
 - **Voice:** local both ways. TTS = Kokoro-FastAPI (`docker-compose.yml` `tts` service,
   `daimon-tts:8880`) via the `openai` provider; STT = faster-whisper. Telegram: `/voice on` replies in
   audio on voice input (the gateway gate fires only on `message_type == VOICE`, so

@@ -64,6 +64,28 @@ docker run --rm --network "$NET" redis:alpine redis-cli -h redis -p 6379 ping >/
 reach_net "http://daimon-searxng:8080/healthz" && PASS "SearXNG (web search)" || WARN "SearXNG down — run: make searxng"
 reach_net "http://daimon-tts:8880/health"      && PASS "TTS (voice)"          || WARN "TTS down — run: make tts"
 
+# --- The persona, served by the hub ------------------------------------------
+# setup.sh fetches it on every start and falls back to config/SOUL.md, so nothing here
+# is fatal — but a silent fallback means Daimon boots with a stale identity, which is
+# exactly what this reports. Vars come from the environment or the repo .env, the same
+# file compose reads.
+ENV_FILE="$(dirname "${BASH_SOURCE[0]}")/../.env"
+if [ -f "$ENV_FILE" ]; then
+  HUB_INTERNAL_URL="${HUB_INTERNAL_URL:-$(sed -n 's/^HUB_INTERNAL_URL=//p' "$ENV_FILE" | head -1)}"
+  HUB_WORKER_TOKEN="${HUB_WORKER_TOKEN:-$(sed -n 's/^HUB_WORKER_TOKEN=//p' "$ENV_FILE" | head -1)}"
+fi
+if [ -z "${HUB_INTERNAL_URL:-}" ] || [ -z "${HUB_WORKER_TOKEN:-}" ]; then
+  WARN "HUB_INTERNAL_URL/HUB_WORKER_TOKEN unset — persona pinned to config/SOUL.md (may be stale)"
+else
+  PERSONA_CODE=$(docker run --rm --network "$NET" "$CURL_IMAGE" -sS -o /dev/null -w '%{http_code}' -m 6 \
+    -H "x-internal-token: ${HUB_WORKER_TOKEN}" "${HUB_INTERNAL_URL%/}/api/internal/persona" 2>/dev/null || echo 000)
+  case "$PERSONA_CODE" in
+    200) PASS "Persona served by the hub (${HUB_INTERNAL_URL})" ;;
+    401) WARN "Hub rejected HUB_WORKER_TOKEN (401) — it must match the hub's; booting on config/SOUL.md" ;;
+    *)   WARN "Hub not serving the persona (HTTP ${PERSONA_CODE}) — booting on config/SOUL.md" ;;
+  esac
+fi
+
 echo
 printf 'Summary: %d ok, %d warnings, %d failures\n' "$pass" "$warn" "$fail"
 [ "$fail" -eq 0 ]
