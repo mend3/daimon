@@ -113,9 +113,14 @@ if [ -d "${REPO_CONFIG_DIR}/skills" ]; then
 fi
 
 # Named profiles (config/profiles/*) — each a separate Hermes home for an alternate
-# model backend: `ollama` (local) and `claude` (your subscription). Their isolated
-# .env gets the Telegram creds (so task agents can `hermes send`) plus any provider
-# auth the profile needs. The default profile (above) is OpenAI gpt-5.5.
+# model backend or an alternate ROLE. Their isolated .env gets the Telegram creds (so
+# task agents can `hermes send`) plus any provider auth the profile needs.
+#
+# A profile is a full Hermes home, so it needs more than config.yaml: without its own
+# SOUL.md it inherits whatever `hermes profile create` copied from the default profile —
+# i.e. the wrong identity — and without its own skills/ a task dispatched with
+# `skills: [...]` fails with "Skill not found", because skills resolve under the
+# PROFILE's home, not the root one.
 for pdir in "${REPO_CONFIG_DIR}"/profiles/*/; do
   [ -f "${pdir}config.yaml" ] || continue
   pname="$(basename "${pdir}")"
@@ -124,6 +129,26 @@ for pdir in "${REPO_CONFIG_DIR}"/profiles/*/; do
   PDIR="${HERMES_HOME}/profiles/${pname}"
   mkdir -p "${PDIR}"
   cp "${pdir}config.yaml" "${PDIR}/config.yaml"
+  # A descrição é o que o orquestrador do kanban lê para rotear trabalho, e ela NÃO pode
+  # depender do `create`: a partir do segundo boot o perfil já existe, o create sai em
+  # erro e o `|| true` engole junto qualquer `--description`. `profile describe --text
+  # --overwrite` é idempotente e reaplica o texto do repo a cada start, que é a mesma
+  # regra do config e do SOUL: o disco é derivado do repo, sempre.
+  if [ -f "${pdir}description.txt" ]; then
+    hermes profile describe "${pname}" \
+      --text "$(tr -d '\r' < "${pdir}description.txt")" --overwrite >/dev/null 2>&1 || true
+  fi
+  if [ -f "${pdir}SOUL.md" ]; then
+    cp "${pdir}SOUL.md" "${PDIR}/SOUL.md"
+  fi
+  # Shared skills first, then the profile's own overrides on top.
+  mkdir -p "${PDIR}/skills"
+  if [ -d "${REPO_CONFIG_DIR}/skills" ]; then
+    cp -R "${REPO_CONFIG_DIR}/skills/." "${PDIR}/skills/"
+  fi
+  if [ -d "${pdir}skills" ]; then
+    cp -R "${pdir}skills/." "${PDIR}/skills/"
+  fi
   touch "${PDIR}/.env"
   grep -vE "^(TELEGRAM_|CLAUDE_CODE_OAUTH_TOKEN=)" "${PDIR}/.env" > "${PDIR}/.env.tmp" 2>/dev/null || true
   grep -E "^TELEGRAM_" "${HERMES_HOME}/.env" >> "${PDIR}/.env.tmp" 2>/dev/null || true
