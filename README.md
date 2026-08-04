@@ -105,7 +105,6 @@ alert straight to Telegram.
    └─────────────┘    └──────────────┘    └──────────────────┘
           └───────────────────┬───────────────────┘
                               ▼
-   Daimon sidecars:  SearXNG · TTS
    Shared infra (your stack, shared network):  Ollama · Redis · Qdrant · observability
 ```
 
@@ -142,7 +141,7 @@ git clone https://github.com/mend3/daimon.git
 cd daimon
 export SHARED_NETWORK=shared  # the network your infra stack runs on
 make doctor                   # what's reachable, what's missing
-make up                       # Daimon + his sidecars (SearXNG, TTS)
+make up                       # Daimon (search and voice come from the shared stack)
 ```
 
 That is it — the gateway starts with his container, so Telegram works with no terminal
@@ -159,7 +158,7 @@ reproduce them:
 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/docs/)** (Nous Research) — the agent framework and toolset.
 - **[Ollama](https://ollama.com)** — local model serving (fallback, vision, embeddings).
-- **SearXNG** (search) runs as a Daimon sidecar; **Ollama** (models), **Redis** (cache),
+- **SearXNG** (search) and **TTS** (voice) run in the shared stack; **Ollama** (models), **Redis** (cache),
   **Qdrant** (vectors), and **Grafana / Loki / Prometheus** (observability) come from a
   shared stack you run on the shared network.
 

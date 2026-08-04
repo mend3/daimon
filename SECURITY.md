@@ -15,22 +15,21 @@ boundaries:
 - Approvals are `manual`, secrets are redacted in output, and the Tirith command
   scanner runs **fail-closed**.
 - Daimon and his sidecars share an external Docker network with your infra stack, and
-  that network is the isolation boundary — anything else attached to it can reach them. SearXNG and TTS also publish on the host; on macOS
-  `scripts/firewall-host.sh` (and the LaunchDaemon installer) block SearXNG on the LAN.
+  that network is the isolation boundary — anything else attached to it can reach them. SearXNG and TTS live in the shared stack now, bound to loopback there; on macOS
 - The Telegram gateway answers only paired users (`TELEGRAM_ALLOWED_USERS`); it
   refuses to expose the bot when a token is set without an allowlist (the gateway
   itself still runs for the kanban dispatcher and cron). Unknown DMs are ignored.
 
 ## Secrets
 
-Real secrets live only in gitignored files (`*.env`, `docker/searxng/settings.yml`);
+Real secrets live only in gitignored files (`*.env`);
 only `*.example` templates are committed. If a
 secret is ever committed, rotate it (new Telegram bot token, regenerate the
-Redis/SearXNG secrets) and scrub history before publishing.
+Redis secrets) and scrub history before publishing.
 
 ## Known residual risks
 
 - The Hermes installer runs `curl … | bash` without a pinned checksum (no
   versioned URL is published upstream).
 - pf firewall rules are not enabled by default at boot; the
-  `install-firewall-daemon.sh` LaunchDaemon re-applies them.
+  (SearXNG no longer publishes from here — it binds to loopback in the shared stack.)

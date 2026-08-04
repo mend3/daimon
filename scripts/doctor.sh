@@ -56,13 +56,12 @@ reach_net "http://qdrant:6333/healthz" && PASS "Qdrant (qdrant:6333)" || WARN "Q
 docker run --rm --network "$NET" redis:alpine redis-cli -h redis -p 6379 ping >/dev/null 2>&1 \
   && PASS "Redis (redis:6379, SearXNG uses db 5)" || WARN "Redis unreachable — ${INFRA_HINT}"
 
-# --- Daimon's own sidecars ---------------------------------------------------
-# settings.yml is generated and gitignored; the searxng service bind-mounts it, so if it
-# is absent Docker silently creates a *directory* there and searxng fails to start.
-[ -f "$(dirname "${BASH_SOURCE[0]}")/../docker/searxng/settings.yml" ] \
-  && PASS "SearXNG settings.yml present" || WARN "docker/searxng/settings.yml missing — run: make settings"
-reach_net "http://daimon-searxng:8080/healthz" && PASS "SearXNG (web search)" || WARN "SearXNG down — run: make searxng"
-reach_net "http://daimon-tts:8880/health"      && PASS "TTS (voice)"          || WARN "TTS down — run: make tts"
+# --- Search and voice, provided by the shared stack --------------------------
+# Declared by the shared stack (the oracle), not here — so this is a reachability check,
+# not a local-file check. The generated settings.yml that used to be verified here moved
+# there too, along with the service that bind-mounts it.
+reach_net "http://searxng:8080/healthz" && PASS "SearXNG (web search)" || WARN "SearXNG down — start it in the shared stack (oracle: make up searxng)"
+reach_net "http://tts:8880/health"      && PASS "TTS (voice)"          || WARN "TTS down — start it in the shared stack (oracle: make up nvidia speech)"
 
 # --- The persona, served by the hub ------------------------------------------
 # setup.sh fetches it on every start and falls back to config/SOUL.md, so nothing here

@@ -17,13 +17,13 @@ export
 SHARED_NETWORK ?= shared
 export SHARED_NETWORK
 
-.PHONY: help up agent volumes doctor settings searxng tts monitoring services firewall devcontainer backup down
+.PHONY: help up agent volumes doctor monitoring services devcontainer backup down
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-13s\033[0m %s\n",$$1,$$2}'
 
-up: searxng tts agent ## Bring up Daimon and his sidecars (shared infra comes from your own stack)
+up: agent ## Bring up Daimon (shared infra — incl. search and voice — comes from your own stack)
 	@echo "Daimon up. Talk to him on your messaging gateway, or 'docker compose exec agent hermes'. Logs: 'docker compose logs -f agent'."
 
 # Declared external in compose (the devcontainer mounts them by the same name), so
@@ -32,31 +32,17 @@ volumes: ## Create the named volumes Hermes' home and toolchain persist in
 	@docker volume create hermes-data >/dev/null
 	@docker volume create hermes-local >/dev/null
 
-# `settings` first: compose pulls his sidecars up with him, and searxng bind-mounts a
-# generated settings.yml — without it Docker creates a directory at that path instead.
-agent: volumes settings ## Start Daimon himself (the container Hermes runs in) and his sidecars
+agent: volumes ## Start Daimon himself (the container Hermes runs in)
 	docker compose --profile core up -d --build agent
 
 doctor: ## Check the services and models Daimon depends on (preflight)
 	./scripts/doctor.sh
-
-settings: ## Generate docker/searxng/settings.yml (gitignored; needed before any compose up)
-	./scripts/setup-searxng-settings.sh
-
-searxng: settings ## Start SearXNG (uses the shared Redis over the shared network)
-	./scripts/setup-searxng-host.sh
-
-tts: ## Start the local TTS engine for voice replies (127.0.0.1:8880)
-	./scripts/setup-tts-host.sh
 
 monitoring: ## Start the app-level telemetry sidecars (chat-shipper + status-exporter)
 	docker compose --profile monitoring up -d
 
 services: ## Install launchd agents (autostart, daily backup) — macOS host only
 	./scripts/install-host-services.sh
-
-firewall: ## Block SearXNG on the LAN, persisted across reboots (macOS host only, sudo)
-	sudo ./scripts/install-firewall-daemon.sh
 
 devcontainer: volumes ## Build and start the dev container for editing this repo (needs @devcontainers/cli)
 	devcontainer up --workspace-folder .

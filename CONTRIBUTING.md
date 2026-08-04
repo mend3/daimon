@@ -21,7 +21,7 @@ services; see [README.md](README.md). `make help` lists every target.
 ## Conventions
 
 - **Secrets never enter git.** Real values live in gitignored files (`config/.env`,
-  `docker/searxng/settings.yml`); commit only the `*.example` templates. The setup scripts
+  commit only the `*.example` templates. The setup scripts
   generate secrets on first run. Shared-infra credentials (Redis/Qdrant) belong to
   your shared stack.
 - **Docs and comments follow the `documentation-minimalism` skill**

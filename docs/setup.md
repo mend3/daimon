@@ -99,15 +99,15 @@ OpenAI fallback answers without any of them.
 ### 2. Start Daimon's sidecars
 
 ```bash
-make settings                        # generate docker/searxng/settings.yml (once)
-./scripts/setup-searxng-host.sh      # web search on localhost:8888
-./scripts/setup-tts-host.sh          # local voice replies on localhost:8880
+# Search and voice come from the shared stack (the oracle), not from here:
+#   oracle$ make up searxng            # web search on searxng:8080 (127.0.0.1:8888)
+#   oracle$ make up nvidia speech      # voice on tts:8880 (127.0.0.1:8880)
 ```
 
 SearXNG's cache/limiter uses the shared Redis (`redis:6379`, logical db index 5). The
 container reaches SearXNG at `daimon-searxng:8080` (`SEARXNG_URL`) and the TTS engine at
 `daimon-tts:8880`; both also publish on the host (`localhost:8888` / `localhost:8880`).
-First TTS start downloads the voice model (a few minutes). `make searxng` / `make tts`
+First TTS start downloads the voice model (a few minutes). Those services
 run the same scripts. The knowledge base points at the shared Qdrant (`qdrant:6333`) via
 `config/daimon_kb.yaml` — no Qdrant setup of your own.
 
@@ -115,7 +115,6 @@ On a macOS host, launchd agents can start the sidecars at login and survive rebo
 
 ```bash
 ./scripts/install-host-services.sh                 # stacks + daily backup
-sudo ./scripts/install-firewall-daemon.sh          # block SearXNG on the LAN
 ```
 
 ### 3. Start Daimon
@@ -153,8 +152,8 @@ gateways on one `state.db` is one too many.
 | Chat / tools | `gpt-oss:20b` on the shared Ollama | default; OpenAI `gpt-5-mini` = optional fallback (`OPENAI_PROFILE_API_KEY`) |
 | Vision | `qwen2.5vl:7b` on the shared Ollama | pulled on your stack |
 | Voice in (STT) | local faster-whisper | installed by `setup.sh` |
-| Voice out (TTS) | local Kokoro-FastAPI | `./scripts/setup-tts-host.sh` |
-| Web search | local SearXNG | `./scripts/setup-searxng-host.sh` |
+| Voice out (TTS) | Kokoro-FastAPI in the shared stack | oracle: `make up nvidia speech` |
+| Web search | SearXNG in the shared stack | oracle: `make up searxng` |
 | Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack |
 | Feeds (optional) | a Miniflux of your own | `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
@@ -286,7 +285,7 @@ Delete both with `docker volume rm hermes-data hermes-local` for a clean slate
   which his container joins. That network is the isolation boundary: anything else on
   it can reach Daimon's sidecars. SearXNG and TTS also publish on the host
   (`localhost:8888` / `localhost:8880`) for convenience; on macOS
-  `scripts/firewall-host.sh` blocks SearXNG on the LAN.
+  SearXNG binds to loopback in the shared stack, so it is not reachable from the LAN.
 - **Backups:** the `com.hermes.backup` launchd agent runs `scripts/backup-hermes.sh`
   daily, archiving the `hermes-data` volume to `~/hermes-backups`. Qdrant is a
   rebuildable index provided by your shared stack, so it is backed up there, not by Daimon.

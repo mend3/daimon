@@ -151,7 +151,7 @@ mcp_servers:
 tts:
   provider: openai
   openai:
-    base_url: "http://daimon-tts:8880/v1"
+    base_url: "http://tts:8880/v1"
     api_key: "local"
     model: "kokoro"
     voice: "af_sky"
@@ -179,7 +179,7 @@ human_delay:
 quick_commands:
   health:
     type: exec
-    command: 'for hp in "Ollama ollama:11434" "Qdrant qdrant:6333" "SearXNG daimon-searxng:8080" "TTS daimon-tts:8880"; do set -- $hp; c=$(curl -s -o /dev/null -m3 -w "%{http_code}" "http://$2" 2>/dev/null); [ "$c" != "000" ] && echo "OK  $1" || echo "DOWN $1"; done'
+    command: 'for hp in "Ollama ollama:11434" "Qdrant qdrant:6333" "SearXNG searxng:8080" "TTS tts:8880"; do set -- $hp; c=$(curl -s -o /dev/null -m3 -w "%{http_code}" "http://$2" 2>/dev/null); [ "$c" != "000" ] && echo "OK  $1" || echo "DOWN $1"; done'
 
 # --- Display -----------------------------------------------------------------
 display:

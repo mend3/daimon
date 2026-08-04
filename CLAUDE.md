@@ -10,7 +10,7 @@ knowledge base and a headless workflow engine (`ingestion/`).
 Daimon depends on a **shared infra stack you provide** — Ollama, Qdrant, Redis and an
 observability plane — reached by DNS on an external Docker network (`SHARED_NETWORK`,
 default `shared`): `ollama:11434`, `qdrant:6333`, `redis:6379`, `loki:3100`,
-`grafana:3000`. Daimon declares none of them; it adds only its own sidecars (SearXNG,
+`grafana:3000`, `searxng:8080`, `tts:8880`. Daimon declares none of them; it adds only
 TTS) and the container Hermes runs in. **Start that stack first** — without the
 network, nothing here can attach.
 
@@ -35,8 +35,8 @@ Talk to him with `docker compose exec agent hermes`.
 | `.devcontainer/` | Optional dev shell for editing this repo — same image + `setup.sh`, no gateway |
 | `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `daimon_kb.yaml`, `gateway.json`, `skills/`, `.env.example` — plus `SOUL.md`, which is only the offline fallback for the persona the hub serves |
 | `ingestion/` | Daimon's Python: `daimon_kb` (RAG), `daimon_flow` (headless workflow engine) |
-| `docker-compose.yml` | Daimon + his sidecars (searxng, tts, telemetry) with profiles, on the shared network |
-| `docker/` | Container configs: `searxng/`, `chat-shipper/`, `status-exporter/` |
+| `docker-compose.yml` | Daimon + his telemetry sidecars, with profiles, on the shared network |
+| `docker/` | Container configs: `chat-shipper/`, `status-exporter/` |
 | `scripts/` | Setup + lifecycle (sidecars, backup, doctor; the launchd/firewall ones are macOS-only) |
 | `README.md` / `docs/setup.md` | Product overview / setup & operations guide |
 
@@ -45,7 +45,7 @@ Talk to him with `docker compose exec agent hermes`.
 1. **Shared infra:** start your stack (Ollama, Qdrant, Redis + observability) on the
    external network named by `SHARED_NETWORK`.
 2. **Preflight:** `make doctor` — probes the models and services from inside the network.
-3. **Up:** `make up` — Daimon + searxng + tts (profile `core`) on that network. On the
+3. **Up:** `make up` — Daimon (profile `core`) on that network. On the
    agent, `setup.sh` installs Hermes and syncs config, then the entrypoint starts the
    gateway; `make agent` does just that service.
 4. **Use:** `docker compose exec agent hermes`. Inspect with `hermes config`, diagnose
@@ -67,7 +67,7 @@ Talk to him with `docker compose exec agent hermes`.
 - Shared infra is **yours to declare**, never Daimon's: no Ollama/Qdrant/Redis or
   observability service belongs in this repo's compose. Daimon consumes them by DNS.
 - Daimon's own services carry a **`daimon-`** alias on the shared network
-  (`daimon-searxng:8080`, `daimon-tts:8880`), keeping generic names collision-free
+  keeping generic names collision-free
   next to other stacks on it.
 - Daimon's container joins the same network, which is how Hermes reaches both the
   shared services and the sidecars. The dev container joins it too (`runArgs`).
@@ -83,8 +83,9 @@ Talk to him with `docker compose exec agent hermes`.
   pins him to the fallback.
 - Secrets live only in `~/.hermes/.env` (seeded from `config/.env.example`) and are
   never committed.
-- `docker/searxng/settings.yml` is generated and gitignored; `make settings` creates it.
-  It must exist before any compose up of searxng.
+- **Search and voice are NOT declared here.** They moved to the shared stack (the oracle),
+  reached by DNS at `searxng:8080` and `tts:8880`. Two stacks each publishing host port
+  8888 cannot coexist, and neither is a feature of this agent.
 
 ## Conventions
 
