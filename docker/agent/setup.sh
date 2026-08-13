@@ -45,13 +45,6 @@ echo "==> Ensuring web dashboard extras"
 echo "==> Ensuring faster-whisper (voice)"
 "${VENV_PIP}" install -q faster-whisper 2>/dev/null || true
 
-# Daimon's knowledge base + workflow engine — install into the Hermes venv so the
-# daimon-kb MCP server and the CLI are available. Editable so repo edits take effect;
-# extras pull the MCP server and feed parsing.
-echo "==> Installing daimon_kb / daimon_flow"
-"${VENV_PIP}" install -q -e "${REPO_ROOT}/ingestion[mcp,feeds]" 2>/dev/null \
-  || echo "    WARN - daimon package install failed; check ${REPO_ROOT}/ingestion"
-
 # Make /help command listings tappable in Telegram (idempotent). Non-fatal, but a
 # non-zero exit means the patch couldn't apply (Hermes layout changed) — surface it
 # instead of silently dropping the feature.
@@ -68,7 +61,6 @@ fi
 #    .env is seeded from the example only if absent, so local secrets survive.
 echo "==> Syncing configuration"
 cp "${REPO_CONFIG_DIR}/config.yaml" "${HERMES_HOME}/config.yaml"
-cp "${REPO_CONFIG_DIR}/daimon_kb.yaml" "${HERMES_HOME}/daimon_kb.yaml"
 
 # The hub owns Daimon's persona and serves it at GET /api/internal/persona;
 # SOUL.md is just how Hermes loads one, so this writes the fetched text into the
@@ -92,7 +84,6 @@ else
   echo "    WARN - hub unreachable or HUB_INTERNAL_URL/HUB_WORKER_TOKEN unset;" \
        "using the repo SOUL.md fallback (may be stale)"
 fi
-install -m 0755 "$(dirname "${BASH_SOURCE[0]}")/daimon-kb-mcp.sh" "${HERMES_HOME}/daimon-kb-mcp.sh"
 if [ ! -f "${HERMES_HOME}/.env" ]; then
   cp "${REPO_CONFIG_DIR}/.env.example" "${HERMES_HOME}/.env"
 fi
@@ -150,51 +141,10 @@ for pdir in "${REPO_CONFIG_DIR}"/profiles/*/; do
     cp -R "${pdir}skills/." "${PDIR}/skills/"
   fi
   touch "${PDIR}/.env"
-  grep -vE "^(TELEGRAM_|CLAUDE_CODE_OAUTH_TOKEN=)" "${PDIR}/.env" > "${PDIR}/.env.tmp" 2>/dev/null || true
+  grep -vE "^TELEGRAM_" "${PDIR}/.env" > "${PDIR}/.env.tmp" 2>/dev/null || true
   grep -E "^TELEGRAM_" "${HERMES_HOME}/.env" >> "${PDIR}/.env.tmp" 2>/dev/null || true
-  # The anthropic provider resolves its OAuth from CLAUDE_CODE_OAUTH_TOKEN in the env.
-  [ "${pname}" = "claude-max" ] && grep -E "^CLAUDE_CODE_OAUTH_TOKEN=" "${HERMES_HOME}/.env" >> "${PDIR}/.env.tmp" 2>/dev/null || true
   mv "${PDIR}/.env.tmp" "${PDIR}/.env"
 done
-
-# The OpenAI fallback (config.yaml: openai-api / gpt-5-mini) reads OPENAI_API_KEY /
-# OPENAI_BASE_URL from the env, which the container points at the local Ollama — so
-# override them in ~/.hermes/.env (loaded with precedence) from the single
-# user-facing key OPENAI_PROFILE_API_KEY. Taken from the environment when the file
-# has none, so the key can live in the repo .env that compose already reads.
-# Optional: the primary model is local, so without a key the fallback is simply
-# unavailable — say so instead of failing.
-DK="$(sed -n 's/^OPENAI_PROFILE_API_KEY=//p' "${HERMES_HOME}/.env" | head -1)"
-DK="${DK:-${OPENAI_PROFILE_API_KEY:-}}"
-if [ -n "${DK}" ]; then
-  grep -vE "^(OPENAI_API_KEY|OPENAI_BASE_URL)=" "${HERMES_HOME}/.env" \
-    > "${HERMES_HOME}/.env.tmp" 2>/dev/null || true
-  {
-    echo "OPENAI_API_KEY=${DK}"
-    echo "OPENAI_BASE_URL=https://api.openai.com/v1"
-  } >> "${HERMES_HOME}/.env.tmp"
-  mv "${HERMES_HOME}/.env.tmp" "${HERMES_HOME}/.env"
-else
-  echo "    NOTE - OPENAI_PROFILE_API_KEY unset; running local-only. The OpenAI" \
-       "fallback is unavailable, so an Ollama outage takes Daimon with it."
-fi
-
-# Claude Code OAuth token in interactive shells — the `claude` CLI authenticates
-# only from CLAUDE_CODE_OAUTH_TOKEN in its process env (no headless credential file),
-# so export it from ~/.hermes/.env for interactive shells and the dashboard launched
-# from one. Hermes' launcher sanitizes its own env, so this does not affect it.
-BASHRC="${HOME}/.bashrc"
-if [ -f "${BASHRC}" ] && ! grep -qF "# daimon: Claude Code OAuth token" "${BASHRC}"; then
-  echo "==> Adding Claude Code token export to ~/.bashrc"
-  cat >> "${BASHRC}" <<'EOF'
-
-# daimon: Claude Code OAuth token — export from ~/.hermes/.env for the claude CLI.
-if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -f "$HOME/.hermes/.env" ]; then
-  _cct=$(sed -n 's/^CLAUDE_CODE_OAUTH_TOKEN=//p' "$HOME/.hermes/.env" | head -1)
-  [ -n "$_cct" ] && export CLAUDE_CODE_OAUTH_TOKEN="$_cct"; unset _cct
-fi
-EOF
-fi
 
 # Proactivity: a daily morning briefing (Daimon's signature is anticipation). Created
 # only when Telegram is configured and the job is absent (idempotent). Schedule is in

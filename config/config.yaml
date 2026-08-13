@@ -1,4 +1,4 @@
-# Hermes Agent — default profile: local gpt-oss:20b primary, OpenAI fallback.
+# Hermes Agent — default profile: local gpt-oss:20b, no fallback provider.
 # The `ollama` (local) and `claude-max` (subscription) profiles live in config/profiles/.
 # Synced into ~/.hermes/config.yaml by docker/agent/setup.sh.
 # Docs: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
@@ -9,12 +9,11 @@
 # serves (`OLLAMA_CONTEXT_LENGTH`, or a `num_ctx` baked into the model): claim more
 # than is served and Hermes budgets a window the server truncates, which surfaces as
 # replies cut short mid-sentence rather than as an error. Ollama is also the
-# vision/embedding backend (see auxiliary + daimon_kb). Switch the main model with
-# `hermes model` or by editing this block:
+# vision backend (see auxiliary). Switch the main model with `hermes model` or by
+# editing this block:
 #   - OpenAI: provider openai-api, model gpt-5-mini, base_url https://api.openai.com/v1
 #     — a reasoning model is required (the provider uses the Responses API, so gpt-4.x
-#     would 400 on encrypted reasoning content), and the key comes from the env
-#     (see fallback_providers below).
+#     would 400 on encrypted reasoning content), and the key comes from the env.
 #   - Your Claude subscription: provider anthropic, model claude-sonnet-4-5 — needs a
 #     Claude Max plan with extra usage credits (the credential is in `hermes auth`).
 model:
@@ -23,19 +22,6 @@ model:
   base_url: "http://ollama:11434/v1"
   api_key: "ollama"
   context_length: 65536
-
-# Auto-fallback to OpenAI when the local model errors out (5xx/timeouts or empty
-# responses) — keeps the agent answering when your Ollama is down or busy.
-# Turn-scoped: each new message retries the primary first. Optional: without
-# OPENAI_PROFILE_API_KEY set, the primary simply carries every turn.
-# The openai-api provider reads key and endpoint from the OPENAI_API_KEY /
-# OPENAI_BASE_URL *environment*, not from the fields here; setup.sh writes them into
-# ~/.hermes/.env from OPENAI_PROFILE_API_KEY.
-fallback_providers:
-  - provider: openai-api
-    model: gpt-5-mini
-    base_url: "https://api.openai.com/v1"
-    api_key: "${OPENAI_PROFILE_API_KEY}"
 
 # `custom` here is the local Ollama (the primary + the qwen vision aux). Generous
 # timeouts: local inference streams slower than a hosted API, and the first request
@@ -133,15 +119,6 @@ security:
 # `make searxng`; SEARXNG_URL is set in .env.
 web:
   backend: searxng
-
-# --- Knowledge base (MCP) ----------------------------------------------------
-# Daimon's personal RAG store: capture/recall/forget over a local Qdrant. The
-# launcher loads ~/.hermes/.env (for QDRANT_API_KEY) then runs the server in the
-# Hermes venv where the daimon_kb package is installed (see docker/agent/setup.sh).
-mcp_servers:
-  daimon-kb:
-    command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
-    args: []
 
 # --- Voice (text-to-speech) --------------------------------------------------
 # Local, OpenAI-compatible TTS (Kokoro-FastAPI), a Daimon sidecar on the shared network.

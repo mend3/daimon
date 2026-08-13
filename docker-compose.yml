@@ -27,11 +27,8 @@ services:
     container_name: hermes-agent
     restart: unless-stopped
     profiles: [core]
-    # No depends_on for search/voice: they live in the shared stack now, and compose
-    # cannot depend on a service it does not declare. Hermes reaches both by DNS at call
-    # time anyway, so a boot-time dependency never bought anything.
     volumes:
-      # The repo: config/, skills/ and ingestion/ are synced or installed from it on
+      # The repo: config/ and skills/ are synced or installed from it on
       # every start, so edits land with a `docker compose restart agent`.
       - ./:/workspace
       # ~/.hermes holds config/memories/sessions/agent code; ~/.local holds the
@@ -40,19 +37,15 @@ services:
       - hermes-data:/home/vscode/.hermes
       - hermes-local:/home/vscode/.local
     environment:
-      # Point Hermes' OpenAI-compatible client at the shared Ollama. Also set in
-      # config.yaml; kept here so any env-driven code path agrees.
       OPENAI_BASE_URL: http://ollama:11434/v1
       OPENAI_API_KEY: ollama
       OLLAMA_BASE_URL: http://ollama:11434
-      # Optional, for the OpenAI fallback: set it in this repo's .env (compose reads
-      # that file) and setup.sh writes it into ~/.hermes/.env, where the provider
-      # picks it up. Unset means local-only, which is a supported way to run.
-      OPENAI_PROFILE_API_KEY: ${OPENAI_PROFILE_API_KEY:-}
-      # Where setup.sh fetches SOUL.md from. Unset means the repo copy is used, so
-      # the persona silently stops tracking the hub — set both or neither.
       HUB_INTERNAL_URL: ${HUB_INTERNAL_URL:-}
       HUB_WORKER_TOKEN: ${HUB_WORKER_TOKEN:-}
+      # Inbound webhook platform (port 8644). config.yaml pins `enabled: false`; these
+      # two are what turn it on, so unset means the platform simply never starts.
+      WEBHOOK_ENABLED: ${WEBHOOK_ENABLED:-}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
     ports:
       - "127.0.0.1:8090:8090"
     extra_hosts:

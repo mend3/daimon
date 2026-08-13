@@ -1,8 +1,7 @@
 # Contributing
 
-This repo is the deployment for running Hermes Agent (Docker Compose)
-**plus Daimon's own application code** — the RAG knowledge base and the headless
-workflow engine under `ingestion/` (Python).
+This repo is the deployment for running Hermes Agent (Docker Compose): config,
+sidecars and scripts.
 
 ## Setup
 
