@@ -51,8 +51,7 @@ backup: ## Back up the hermes-data volume to ~/hermes-backups (Qdrant lives in y
 	./scripts/backup-hermes.sh
 
 # Ollama is part of your shared stack, not Daimon's to install — pull the models Daimon
-# needs (see `make doctor`) there. Miniflux (optional feeds source) likewise: point
-# MINIFLUX_URL at your own.
+# needs (see `make doctor`) there.
 
 down: ## Stop Daimon's sidecars (your shared stack stays up)
 	-docker compose --profile core --profile monitoring down

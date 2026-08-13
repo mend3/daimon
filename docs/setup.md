@@ -6,9 +6,8 @@ stack. For the overview, see the [README](../README.md).
 ## Architecture
 
 Hermes runs isolated in **its own container**, brought up by compose alongside his
-sidecars (`make up`). He is driven by the local **gpt-oss:20b** on Ollama by default —
-which also serves vision + embeddings — with **OpenAI gpt-5-mini** as an optional
-fallback when the local model errors out.
+sidecars (`make up`). He is driven by the local **gpt-oss:20b** on Ollama, which also
+serves vision.
 
 Everything shared is **external**: you run Ollama, Redis, Qdrant and the observability
 plane on a Docker network Daimon joins — `SHARED_NETWORK`, default `shared` — and Daimon
@@ -55,8 +54,7 @@ docker/agent/         # the container Hermes runs in:
 .devcontainer/        # optional dev shell for editing this repo — same image, same
                       # setup.sh, no gateway (see "Editing this repo")
 config/               # synced to ~/.hermes/: config.yaml, SOUL.md (persona),
-                      # daimon_kb.yaml, gateway.json, skills/, .env.example
-ingestion/            # daimon_kb (RAG), daimon_flow (headless workflow engine)
+                      # gateway.json, skills/, .env.example
 docker/               # container configs for the sidecars:
   searxng/settings.yml.example  # web-search engine; cache/limiter on the shared Redis
   chat-shipper/ status-exporter/  # app-level telemetry sidecars (see Monitoring)
@@ -89,12 +87,11 @@ Daimon pulls nothing: the models live on your Ollama, served at a **≥64K** win
 
 | Model | Used for | Missing means |
 |---|---|---|
-| `gpt-oss:20b` | the default model (and the `ollama` profile) | Daimon can't answer without the OpenAI fallback |
+| `gpt-oss:20b` | the default model (and the `ollama` profile) | Daimon can't answer |
 | `qwen2.5vl:7b` | the `vision` toolset | vision degraded |
-| `nomic-embed-text` | knowledge-base embeddings (768-dim) | knowledge base degraded |
 
-`make doctor` reports which are present. With an `OPENAI_PROFILE_API_KEY` set, the
-OpenAI fallback answers without any of them.
+`make doctor` reports which are present. There is no fallback provider, so a missing
+model degrades the capability that needs it.
 
 ### 2. Start Daimon's sidecars
 
@@ -108,8 +105,7 @@ SearXNG's cache/limiter uses the shared Redis (`redis:6379`, logical db index 5)
 container reaches SearXNG at `daimon-searxng:8080` (`SEARXNG_URL`) and the TTS engine at
 `daimon-tts:8880`; both also publish on the host (`localhost:8888` / `localhost:8880`).
 First TTS start downloads the voice model (a few minutes). Those services
-run the same scripts. The knowledge base points at the shared Qdrant (`qdrant:6333`) via
-`config/daimon_kb.yaml` — no Qdrant setup of your own.
+run the same scripts.
 
 On a macOS host, launchd agents can start the sidecars at login and survive reboots:
 
@@ -149,52 +145,13 @@ gateways on one `state.db` is one too many.
 
 | Capability | Backend | Setup |
 |------------|---------|-------|
-| Chat / tools | `gpt-oss:20b` on the shared Ollama | default; OpenAI `gpt-5-mini` = optional fallback (`OPENAI_PROFILE_API_KEY`) |
+| Chat / tools | `gpt-oss:20b` on the shared Ollama | default; no fallback provider |
 | Vision | `qwen2.5vl:7b` on the shared Ollama | pulled on your stack |
 | Voice in (STT) | local faster-whisper | installed by `setup.sh` |
 | Voice out (TTS) | Kokoro-FastAPI in the shared stack | oracle: `make up nvidia speech` |
 | Web search | SearXNG in the shared stack | oracle: `make up searxng` |
-| Knowledge base | the shared Qdrant (`qdrant:6333`) + `nomic-embed-text` | provided by your shared stack |
-| Feeds (optional) | a Miniflux of your own | `MINIFLUX_*` in `~/.hermes/.env` |
 | Telegram | gateway → `TELEGRAM_BOT_TOKEN` | see below |
 | Identity / voice | `config/SOUL.md` | edit + `docker compose restart agent` |
-
-### Knowledge base
-
-Daimon keeps a personal RAG memory: he captures links, files, and notes and recalls
-them by meaning. It runs as an MCP server (`daimon-kb`, registered in `config.yaml`)
-backed by the shared Qdrant (`qdrant:6333`); the `daimon_kb`
-package is installed into the Hermes venv by `setup.sh`. Source types are
-pluggable adapters — `files`, `urls`, and `chat` ship enabled; `feeds` and `webhook`
-are wired but off by default. Toggle them in `config/daimon_kb.yaml` under
-`capabilities`. Each enabled type gets its own Qdrant collection
-(`kb_<type>__nomic768`).
-
-Qdrant is provided by your shared stack — point `config/daimon_kb.yaml` at `qdrant:6333` and set
-any required `QDRANT_API_KEY` in `~/.hermes/.env` to match the shared config. Quick
-check from the container: `daimon-kb init` then
-`daimon-kb capture --text "remember this" && daimon-kb recall "this"`.
-
-**Feeds (example connector).** Miniflux is not part of Daimon — run your own.
-Add the `MINIFLUX_*` lines to `~/.hermes/.env` pointing at it, subscribe to feeds in its
-UI, and set
-`feeds.enabled: true` in `config/daimon_kb.yaml`
-(optionally `include`/`exclude` keywords). `daimon-kb poll feeds` ingests new relevant
-items. For a proactive digest, create a cron job once:
-`hermes cron create "every 1d at 08:30" "Send me my feeds digest" --skill feeds-digest --deliver telegram --name feeds-digest`.
-
-**Webhook (example connector).** Set `KB_WEBHOOK_SECRET` in `~/.hermes/.env`, set
-`webhook.enabled: true`, and run `daimon-kb webhook-serve`. External services POST
-`{"text": "...", "title": "...", "url": "..."}` to `/ingest` with an
-`X-Signature: sha256=<hmac>` header.
-
-### Workflows
-
-Daimon's workflow engine (`daimon_flow`) is headless: workflows are node graphs —
-triggers, the agent, tools, logic, and outputs — defined in config/code and run with
-live state, no UI. Nodes are Daimon's own capabilities; new node types drop into
-`ingestion/daimon_flow/nodes/` (or ship out-of-tree via a `daimon_flow.nodes` entry
-point).
 
 ### Telegram
 

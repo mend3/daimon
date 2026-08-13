@@ -28,11 +28,6 @@ if grep -qE "^TELEGRAM_BOT_TOKEN=.+" "${ENV_FILE}" 2>/dev/null \
 fi
 
 export HERMES_ACCEPT_HOOKS=1
-# Export the Claude Code OAuth token (if present) so the gateway's `claude`
-# subprocesses (the External CLI / coding delegation) inherit it. Hermes' own model
-# auth resolves it from ~/.hermes/.env independently of this.
-CCT="$(sed -n 's/^CLAUDE_CODE_OAUTH_TOKEN=//p' "${ENV_FILE}" 2>/dev/null | head -1)"
-[ -n "${CCT}" ] && export CLAUDE_CODE_OAUTH_TOKEN="${CCT}"
 # --replace clears a stale PID lock (e.g. left by a crashed run or a `gateway
 # restart`) so a fresh container start always gets a clean single instance.
 setsid bash -c 'exec hermes gateway run --replace' >~/.hermes/logs/gateway.out 2>&1 </dev/null &

@@ -1,11 +1,9 @@
 # Hermes Agent — Local Setup
 
 This repo runs **Daimon** — an AI companion built on **Hermes Agent** — in his own
-container, brought up by docker-compose. He defaults to the fully-local **Ollama**
-(`gpt-oss:20b`) with **OpenAI gpt-5-mini** as an optional fallback, so he runs fully
-local out of the box and reaches for the cloud only when you give him a key. It is the
-deployment (config + sidecars + scripts) plus Daimon's own application code: a RAG
-knowledge base and a headless workflow engine (`ingestion/`).
+container, brought up by docker-compose. He runs on the fully-local **Ollama**
+(`gpt-oss:20b`), with no fallback provider and no cloud key required. It is the
+deployment: config, sidecars and scripts.
 
 Daimon depends on a **shared infra stack you provide** — Ollama, Qdrant, Redis and an
 observability plane — reached by DNS on an external Docker network (`SHARED_NETWORK`,
@@ -18,9 +16,8 @@ network, nothing here can attach.
 
 Hermes Agent (Nous Research) is a CLI AI agent with tool calling — shell, files,
 web, memory, cron, messaging gateways. The default profile runs the local
-**`gpt-oss:20b`**, falling back to **OpenAI gpt-5-mini** when it errors out (optional —
-needs a key). Two alternate profiles ship alongside: **`ollama`** (local, explicit) and
-**`claude-max`** (your Claude subscription). Switch with `hermes model` or per profile.
+**`gpt-oss:20b`**. Two alternate profiles ship alongside: **`ollama`** (local, explicit)
+and **`claude-max`** (your Claude subscription). Switch with `hermes model` or per profile.
 Talk to him with `docker compose exec agent hermes`.
 
 ## Repository map
@@ -33,8 +30,7 @@ Talk to him with `docker compose exec agent hermes`.
 | `.claude/skills/documentation-minimalism/` | Writing standard for all docs and comments |
 | `docker/agent/` | The container Hermes runs in: Dockerfile, `entrypoint.sh`, `setup.sh` |
 | `.devcontainer/` | Optional dev shell for editing this repo — same image + `setup.sh`, no gateway |
-| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `daimon_kb.yaml`, `gateway.json`, `skills/`, `.env.example` — plus `SOUL.md`, which is only the offline fallback for the persona the hub serves |
-| `ingestion/` | Daimon's Python: `daimon_kb` (RAG), `daimon_flow` (headless workflow engine) |
+| `config/` | Source of truth synced to `~/.hermes/`: `config.yaml`, `gateway.json`, `skills/`, `.env.example` — plus `SOUL.md`, which is only the offline fallback for the persona the hub serves |
 | `docker-compose.yml` | Daimon + his telemetry sidecars, with profiles, on the shared network |
 | `docker/` | Container configs: `chat-shipper/`, `status-exporter/` |
 | `scripts/` | Setup + lifecycle (sidecars, backup, doctor; the launchd/firewall ones are macOS-only) |
@@ -55,15 +51,13 @@ Talk to him with `docker compose exec agent hermes`.
 
 - The default model is the local **`gpt-oss:20b`**, and `model.context_length` must
   equal what your Ollama actually serves — claim more and Hermes budgets a window the
-  server truncates, which surfaces as replies cut short, not as an error. The OpenAI
-  fallback is optional: set `OPENAI_PROFILE_API_KEY` (in `~/.hermes/.env` or the repo
-  `.env`, which compose passes through) and `setup.sh` writes `OPENAI_API_KEY`/
-  `OPENAI_BASE_URL`, which the `openai-api` provider reads from the env.
-- Any **local** model (the `ollama` profile, the fallback, vision) must expose a
+  server truncates, which surfaces as replies cut short, not as an error. There is no
+  fallback provider: an Ollama outage stops the agent.
+- Any **local** model (the `ollama` profile, vision) must expose a
   **≥64K context window** to Ollama; Hermes rejects less. The shared Ollama sets
   `OLLAMA_CONTEXT_LENGTH` for all of its consumers, so that window is your stack's call,
-  not Daimon's — as are the model pulls (`gpt-oss:20b`, `qwen2.5vl:7b`,
-  `nomic-embed-text`). `make doctor` reports what is missing.
+  not Daimon's — as are the model pulls (`gpt-oss:20b`, `qwen2.5vl:7b`).
+  `make doctor` reports what is missing.
 - Shared infra is **yours to declare**, never Daimon's: no Ollama/Qdrant/Redis or
   observability service belongs in this repo's compose. Daimon consumes them by DNS.
 - Daimon's own services carry a **`daimon-`** alias on the shared network
@@ -99,9 +93,8 @@ Talk to him with `docker compose exec agent hermes`.
 - **Ollama** — local model server; exposes an OpenAI-compatible `/v1` API.
 - **gpt-oss:20b** — the local model (MoE, ~3.6B active): the default and the `ollama`
   profile.
-- **gpt-5-mini** — the optional fallback (OpenAI, reasoning, via the openai-api provider).
-- **Profiles** — `default` (local gpt-oss:20b + OpenAI fallback), `ollama` (local,
-  explicit), `claude-max` (Claude subscription); each a separate `~/.hermes` home.
+- **Profiles** — `default` (local gpt-oss:20b), `ollama` (local, explicit),
+  `claude-max` (Claude subscription); each a separate `~/.hermes` home.
 - **agent container** — the isolated container where Hermes and its tools execute
   (compose service `agent`); it joins the shared network.
 - **`hermes-data` / `hermes-local`** — named volumes persisting `~/.hermes/` and

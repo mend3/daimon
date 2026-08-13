@@ -13,11 +13,9 @@
 
 **Daimon** is a personal AI companion built on [Hermes
 Agent](https://hermes-agent.nousresearch.com/docs/), sandboxed in a container on your
-own machine. It runs **fully local by default** on [Ollama](https://ollama.com)
-(`gpt-oss:20b`), with **OpenAI gpt-5-mini** as an optional fallback — so you can add
-frontier quality whenever you want it, and owe nothing to anyone when you don't. It
-combines human-like conversation with operational intelligence, reachable over CLI and
-Telegram, and fully observable.
+own machine. It runs **fully local** on [Ollama](https://ollama.com) (`gpt-oss:20b`),
+owing nothing to anyone. It combines human-like conversation with operational
+intelligence, reachable over CLI and Telegram, and fully observable.
 
 This repository is the **persona, deployment, multi-channel access, knowledge base,
 headless workflows, and observability** built around Hermes. It is not
@@ -75,8 +73,8 @@ terminal, and browser automation — extensible with more.
 The default model is **gpt-oss:20b** on your own Ollama (Qwen-VL for vision), and
 search, cache, and monitoring are self-hosted (models/cache/vector store/observability
 via a shared infra stack you provide) — so the out-of-the-box setup touches no cloud at
-all. An **OpenAI fallback** is a key away when you want frontier quality, and a
-`claude-max` profile rides your Claude subscription.
+all. A `claude-max` profile rides your Claude subscription when you want frontier
+quality.
 
 ### 📨 Multi-channel
 Talk to Daimon from the **CLI** or **Telegram** (multi-user, allowlisted). The same
@@ -157,7 +155,7 @@ Daimon stands on the shoulders of excellent open projects — it does not replac
 reproduce them:
 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/docs/)** (Nous Research) — the agent framework and toolset.
-- **[Ollama](https://ollama.com)** — local model serving (fallback, vision, embeddings).
+- **[Ollama](https://ollama.com)** — local model serving (chat, vision).
 - **SearXNG** (search) and **TTS** (voice) run in the shared stack; **Ollama** (models), **Redis** (cache),
   **Qdrant** (vectors), and **Grafana / Loki / Prometheus** (observability) come from a
   shared stack you run on the shared network.

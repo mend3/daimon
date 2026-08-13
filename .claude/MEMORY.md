@@ -1,10 +1,8 @@
 # Project Overview
 
 **Daimon** — an AI companion built on **Hermes Agent** (Nous Research CLI agent).
-Hermes runs in his own container, brought up by docker-compose; the default model is
-the local **Ollama** `gpt-oss:20b`, with **OpenAI gpt-5-mini** as an optional fallback. The repo is the
-deployment (config + sidecars + scripts) plus Daimon's application code: a RAG
-knowledge base and a headless workflow engine.
+Hermes runs in his own container, brought up by docker-compose; the model is the local
+**Ollama** `gpt-oss:20b`. The repo is the deployment: config, sidecars and scripts.
 
 Daimon runs on a **shared infra stack the operator provides**, not one it declares.
 
@@ -38,13 +36,12 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
 
 # Technical Standards
 
-- **Model:** default is the local **`gpt-oss:20b`** (`custom`, the shared Ollama) with
-  **OpenAI gpt-5-mini** as an optional fallback (`fallback_providers`, `openai-api`,
-  Responses API) — local-first, so no key is required to run. Alternate profiles:
-  `ollama` (local, explicit) and `claude-max` (Claude subscription). Vision stays
-  local `qwen2.5vl:7b`; embeddings `nomic-embed-text` (768-dim).
+- **Model:** the local **`gpt-oss:20b`** (`custom`, the shared Ollama), no fallback
+  provider — no key is required to run, and an Ollama outage stops the agent. Alternate
+  profiles: `ollama` (local, explicit) and `claude-max` (Claude subscription). Vision
+  stays local `qwen2.5vl:7b`.
 - **Ollama:** part of the shared stack, not Daimon's to install or tune. The models
-  Daimon needs (`gpt-oss:20b`, `qwen2.5vl:7b`, `nomic-embed-text`) and the served window
+  Daimon needs (`gpt-oss:20b`, `qwen2.5vl:7b`) and the served window
   (`OLLAMA_CONTEXT_LENGTH`) are the operator's call; `make doctor` reports what is missing.
 - **Agent image** (`docker/agent/`): Debian base; Hermes installed via the official
   installer into the persisted volume. `~/.local/bin` on PATH via Dockerfile `ENV`.
@@ -75,33 +72,21 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
 - **Telegram sessions:** one session per DM, reset after 30 min idle via
   `config/gateway.json` (`reset_by_platform.telegram.idle_minutes`); seeded by
   setup.sh if absent. `/new` resets on demand. Durable memory is separate.
-- **Knowledge base (RAG):** `ingestion/daimon_kb` package + the shared **Qdrant**
-  (`qdrant:6333`, API key in `~/.hermes/.env`). One collection per
-  enabled source type (`kb_<type>__nomic768`); pluggable **adapters** (`files`,
-  `urls`, `chat` on; `feeds`/`webhook` example connectors off). SQLite **ledger** in
-  hermes-data is the source of truth; Qdrant is rebuildable. Exposed to Daimon via the
-  `daimon-kb` **MCP server** (capture/recall/forget/list_recent) + the `knowledge-base`
-  skill; installed into the Hermes venv by `setup.sh`. **Feeds** need a **Miniflux**
-  of your own, so the connector stays off unless `MINIFLUX_URL` is set. See
-  `ingestion/README.md`.
+- **Durable recall** is Hermes' own `memory` — there is no separate RAG store.
 - **Skills** (`config/skills/`, synced to `~/.hermes/skills/`, each a `/command`):
-  `status`, `knowledge-base`, `feeds-digest`.
+  `status`.
 - **Kanban / profiles:** the dispatcher runs inside the gateway, which now starts
   even without Telegram (`start-gateway.sh`); `ready` tasks **with an assignee** spawn
   on the next tick. The assignee is a **profile** (a separate `~/.hermes/profiles/<n>`
   home). Versioned in `config/profiles/`, synced by `setup.sh` (which creates each
   and propagates the creds each needs into its isolated `.env`):
-  - `default` — local **gpt-oss:20b** (`custom`, the shared Ollama) with an optional
-    OpenAI **gpt-5-mini** fallback (`openai-api`, Responses API). That provider reads
-    `OPENAI_API_KEY`/`OPENAI_BASE_URL` from the env (not config); `setup.sh` writes them
-    into `~/.hermes/.env` from `OPENAI_PROFILE_API_KEY`, taken from the file or, failing
-    that, the environment (compose passes the repo `.env` through). Must be a
-    **reasoning** model (gpt-5.x/o-series) — encrypted reasoning content.
+  - `default` — local **gpt-oss:20b** (`custom`, the shared Ollama), no fallback
+    provider.
   - `ollama` — local `gpt-oss:20b`, no API cost.
-  - `claude-max` — Claude subscription (`anthropic`, `claude-sonnet-4-5`); OAuth from
-    `CLAUDE_CODE_OAUTH_TOKEN`. Named `claude-max` so its launcher doesn't clobber the
-    `claude` CLI. **Needs a Max plan with extra usage credits** (else HTTP 400 "out of
-    extra usage"); the base allowance isn't usable via Hermes.
+  - `claude-max` — Claude subscription (`anthropic`, `claude-sonnet-4-5`); credential
+    authorized through the Hermes UI (`hermes auth`). Named `claude-max` so its launcher
+    doesn't clobber the `claude` CLI. **Needs a Max plan with extra usage credits** (else
+    HTTP 400 "out of extra usage"); the base allowance isn't usable via Hermes.
   Telegram creds are propagated to each profile's `.env` so task agents can
   `hermes send` results.
 - **Proactivity & UX** (config.yaml): a daily **`morning-briefing`** cron (Daimon's
@@ -115,12 +100,6 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
   publishes `127.0.0.1:8090` for it. The frontend builds on first launch into the
   hermes-data volume. Loopback bind has no
   auth gate; `--host 0.0.0.0` requires `--insecure` or an auth provider.
-- **Workflows (headless):** `ingestion/daimon_flow` (typed node-graph engine — nodes
-  are Daimon's capabilities; solid flow edges vs dotted resource edges). Workflows are
-  defined in config/code and run programmatically, with no server or UI. Installed into
-  the Hermes venv by `setup.sh` extras `[mcp,feeds]`. New node types drop in via the
-  registry or a `daimon_flow.nodes` entry point. Telegram bot unchanged.
-  gRPC deferred.
 - **Monitoring:** the observability plane (Grafana/Loki/Prometheus) belongs to the shared
   stack. Daimon keeps only two app-level telemetry sidecars in the root
   `docker-compose.yml` (`monitoring` profile): `chat-shipper` reads Hermes' `state.db`
@@ -144,10 +123,9 @@ Daimon runs on a **shared infra stack the operator provides**, not one it declar
   without re-converting the GGUF with YaRN).
 - A shared Ollama serves **one `OLLAMA_CONTEXT_LENGTH` to all its consumers** (a model
   can override it with a baked `num_ctx`). If it is set below 64K, or Daimon's models are
-  not pulled there, the local paths — now including the default model — fail, and only
-  the OpenAI fallback still answers. Changing either affects every consumer, so it is the
-  operator's call, not Daimon's — `make doctor` reports the gap rather than papering over
-  it.
+  not pulled there, the local paths — including the default model — fail, and Daimon
+  stops answering. Changing either affects every consumer, so it is the operator's call,
+  not Daimon's — `make doctor` reports the gap rather than papering over it.
 - `model.context_length` must equal what Ollama **actually serves**. Claiming more does
   not error: Hermes budgets a window the server truncates, and the failure surfaces as
   replies cut short mid-sentence, which reads like a model quality problem rather than a

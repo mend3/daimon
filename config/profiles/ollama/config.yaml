@@ -71,11 +71,6 @@ security:
 web:
   backend: searxng
 
-mcp_servers:
-  daimon-kb:
-    command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
-    args: []
-
 display:
   streaming: true
   show_reasoning: false

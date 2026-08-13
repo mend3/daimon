@@ -40,9 +40,8 @@ if [ -n "$TAGS" ]; then
   PASS "Ollama reachable (ollama:11434)"
   has_model() { printf '%s' "$TAGS" | grep -q "\"$1"; }
   MODEL_HINT="pull it on your shared Ollama"
-  has_model "gpt-oss:20b"      && PASS "model gpt-oss:20b (fallback + 'ollama' profile)" || WARN "model gpt-oss:20b missing — no local fallback, 'ollama' profile unusable; ${MODEL_HINT}"
+  has_model "gpt-oss:20b"      && PASS "model gpt-oss:20b (default + 'ollama' profile)"  || WARN "model gpt-oss:20b missing — Daimon cannot answer; ${MODEL_HINT}"
   has_model "qwen2.5vl:7b"     && PASS "model qwen2.5vl:7b (vision)"                     || WARN "model qwen2.5vl:7b missing — vision degraded; ${MODEL_HINT}"
-  has_model "nomic-embed-text" && PASS "model nomic-embed-text (KB)"                     || WARN "model nomic-embed-text missing — knowledge base degraded; ${MODEL_HINT}"
 
   # Hermes rejects any local model served below a 64K window, so a too-small
   # OLLAMA_CONTEXT_LENGTH breaks the local paths at startup rather than here.

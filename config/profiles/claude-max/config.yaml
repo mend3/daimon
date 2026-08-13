@@ -2,8 +2,7 @@
 # not "claude", so its launcher does not clobber the Claude Code CLI binary. Run
 # `claude-max chat` or assign a kanban task to assignee "claude-max". Routing as
 # Claude Code against your Anthropic account needs a Claude Max plan with extra usage
-# credits; the OAuth credential resolves from CLAUDE_CODE_OAUTH_TOKEN in this profile's
-# .env (propagated from ~/.hermes/.env by setup.sh). See `hermes auth list`.
+# credits; authorize the credential through the Hermes UI (`hermes auth`).
 # Synced into ~/.hermes/profiles/claude-max/config.yaml by docker/agent/setup.sh.
 
 # --- Model -------------------------------------------------------------------
@@ -59,11 +58,6 @@ security:
 
 web:
   backend: searxng
-
-mcp_servers:
-  daimon-kb:
-    command: "/home/vscode/.hermes/daimon-kb-mcp.sh"
-    args: []
 
 display:
   streaming: true
