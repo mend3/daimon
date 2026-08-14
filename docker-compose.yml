@@ -26,6 +26,30 @@ services:
     build: docker/agent
     container_name: hermes-agent
     restart: unless-stopped
+    # `running` nao diz nada aqui: o entrypoint termina em `exec sleep infinity` e
+    # mantem o container de pe DE PROPOSITO quando o setup ou o gateway falham, para
+    # permitir diagnostico. Sem probe, um agente que nunca subiu fica indistinguivel
+    # de um agente saudavel.
+    #
+    # `pgrep -f "gateway run"` e o mesmo idioma que `start-gateway.sh` ja usa para
+    # decidir se precisa subir o gateway — nao inventa contrato novo e nao exige
+    # tocar no Hermes upstream, que e codigo de terceiro.
+    #
+    # Detecta o gateway ausente ou morto. NAO detecta gateway vivo porem desconectado
+    # do Telegram: esse sinal existe separado, no `hermes_gateway_up` que o
+    # status-exporter deriva do log.
+    #
+    # Forma EXEC, nao `CMD-SHELL`. Com shell, o docker roda
+    # `sh -c 'pgrep -f "gateway run"'` e o padrao aparece no argv desse proprio
+    # shell — o pgrep casa com ele e o probe passa SEMPRE, inclusive sem gateway
+    # nenhum. Medido: `CMD-SHELL` deu exit 0 com zero processo de gateway. Sem
+    # shell, o pgrep exclui o proprio PID e o resultado e o correto.
+    healthcheck:
+      test: ['CMD', 'pgrep', '-f', 'gateway run']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
     profiles: [core]
     volumes:
       # The repo: config/ and skills/ are synced or installed from it on
@@ -79,6 +103,20 @@ services:
     image: python@sha256:236173eb74001afe2f60862de935b74fcbd00adfca247b2c27051a70a6a39a2d
     container_name: hermes-status-exporter
     restart: unless-stopped
+    # Este tem HTTP proprio (stdlib, porta interna 9101), entao o probe e direto.
+    # A imagem e `python:` puro — sem curl, sem wget: o probe usa urllib.
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python3',
+          '-c',
+          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:9101',timeout=3).status==200 else 1)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     profiles: [monitoring]
     command: ["python3", "/app/exporter.py"]
     volumes:
